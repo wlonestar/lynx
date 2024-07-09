@@ -11,16 +11,22 @@ RELEASE_BUILD = $(BUILD_DIR)/release
 
 config:
 	@cmake -G Ninja -B $(DEBUG_BUILD) \
-		-DCMAKE_C_COMPILER=$(CLANG) -DCMAKE_CXX_COMPILER=$(CLANG++) \
+		-DCMAKE_C_COMPILER=$(CLANG) \
+		-DCMAKE_CXX_COMPILER=$(CLANG++) \
 		-DCMAKE_BUILD_TYPE=Debug
 	@cmake -G Ninja -B $(RELEASE_BUILD) \
-		-DCMAKE_C_COMPILER=$(CLANG) -DCMAKE_CXX_COMPILER=$(CLANG++) \
+		-DCMAKE_C_COMPILER=$(CLANG) \
+		-DCMAKE_CXX_COMPILER=$(CLANG++) \
 		-DCMAKE_BUILD_TYPE=Release
 	@ln -sf $(RELEASE_BUILD)/compile_commands.json
 
-build: config
+debug-build: config
 	@ninja -C $(DEBUG_BUILD)
+
+release-build: config
 	@ninja -C $(RELEASE_BUILD)
+
+build: debug-build release-build
 
 .PHONY: clean test format
 
@@ -29,7 +35,8 @@ test:
 	@cd $(RELEASE_BUILD) && ctest
 
 format:
-	@find . -not -path '*/$(BUILD_DIR)/*' -regex '.*\.\(cpp\|hpp\|h\|c\)' \
+	@find . -not -path '*/$(BUILD_DIR)/*' \
+		-regex '.*\.\(cpp\|hpp\|h\|c\)' \
 		-exec clang-format -i --verbose {} \;
 
 clean:
