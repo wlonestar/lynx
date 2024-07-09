@@ -2,6 +2,5 @@
 
 - base
 - logger
-- timer
 - net
 - http

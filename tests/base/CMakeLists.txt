@@ -1,4 +1,4 @@
-file(GLOB BASE_SRC "*_test.cpp")
+file(GLOB BASE_SRC "*_unittest.cpp")
 
 foreach(SRC ${BASE_SRC})
   GET_FILENAME_COMPONENT(EXEC_NAME ${SRC} NAME_WE)
@@ -9,6 +9,9 @@ endforeach()
 
 add_executable(thread_bench thread_bench.cpp)
 target_link_libraries(thread_bench lynx)
+
+add_executable(thread_pool_bench thread_pool_bench.cpp)
+target_link_libraries(thread_pool_bench lynx)
 
 add_executable(blocking_queue_bench blocking_queue_bench.cpp)
 target_link_libraries(blocking_queue_bench lynx)

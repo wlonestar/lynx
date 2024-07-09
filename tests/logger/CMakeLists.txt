@@ -1,4 +1,4 @@
-file(GLOB LOGGER_SRC "*_test.cpp")
+file(GLOB LOGGER_SRC "*_unittest.cpp")
 
 foreach(SRC ${LOGGER_SRC})
   GET_FILENAME_COMPONENT(EXEC_NAME ${SRC} NAME_WE)
