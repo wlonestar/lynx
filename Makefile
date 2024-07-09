@@ -1,7 +1,7 @@
 SHELL = bash
 
-CLANG = /usr/bin/clang
-CLANG++ = /usr/bin/clang++
+CLANG = /usr/bin/clang-16
+CLANG++ = /usr/bin/clang++-16
 
 BUILD_DIR = build
 DEBUG_BUILD = $(BUILD_DIR)/debug
@@ -16,7 +16,7 @@ config:
 	@cmake -G Ninja -B $(RELEASE_BUILD) \
 		-DCMAKE_C_COMPILER=$(CLANG) -DCMAKE_CXX_COMPILER=$(CLANG++) \
 		-DCMAKE_BUILD_TYPE=Release
-	@ln -sf $(RELEASE_BUILD)/compile_commands.json $(BUILD_DIR)/compile_commands.json
+	@ln -sf $(RELEASE_BUILD)/compile_commands.json
 
 build: config
 	@ninja -C $(DEBUG_BUILD)
