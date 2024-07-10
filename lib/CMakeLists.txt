@@ -7,4 +7,5 @@ add_library(lynx SHARED
   )
 target_link_libraries(lynx PUBLIC 
   pthread
+  ${PostgreSQL_LIBRARIES}
   )

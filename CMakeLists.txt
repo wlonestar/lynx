@@ -29,6 +29,9 @@ find_package(Boost REQUIRED)
 find_package(BOOSTTEST_LIBRARY NAMES boost_unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 
+find_package(PostgreSQL REQUIRED)
+include_directories(${PostgreSQL_INCLUDE_DIRS})
+
 include_directories(${PROJECT_SOURCE_DIR})
 
 add_subdirectory(lib)
