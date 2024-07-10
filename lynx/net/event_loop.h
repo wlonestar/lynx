@@ -8,7 +8,7 @@
 #include "lynx/net/timer_id.h"
 
 #include <atomic>
-#include <boost/any.hpp>
+#include <cassert>
 #include <functional>
 #include <memory>
 
@@ -54,10 +54,6 @@ public:
   bool isInLoopThread() const { return thread_id_ == current_thread::tid(); }
   bool eventHandling() const { return event_handling_; }
 
-  void setContext(const boost::any &context) { context_ = context; }
-  const boost::any &getContext() const { return context_; }
-  boost::any *getMutableContext() { return &context_; }
-
   static EventLoop *getEventLoopOfCurrentThread();
 
 private:
@@ -80,7 +76,6 @@ private:
   std::unique_ptr<TimerQueue> timer_queue_;
   int wakeup_fd_;
   std::unique_ptr<Channel> wakeup_channel_;
-  boost::any context_;
 
   ChannelList active_channels_;
   Channel *current_active_channel_;

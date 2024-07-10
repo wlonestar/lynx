@@ -4,6 +4,8 @@
 #include "lynx/http/http_response.h"
 #include "lynx/logger/logging.h"
 
+#include <memory>
+
 namespace lynx {
 
 namespace detail {
@@ -37,13 +39,15 @@ void HttpServer::start() {
 
 void HttpServer::onConnection(const TcpConnectionPtr &conn) {
   if (conn->connected()) {
-    conn->setContext(HttpContext());
+    LOG_INFO << "new Connection arrived";
+  } else {
+    LOG_INFO << "Connection closed";
   }
 }
 
 void HttpServer::onMessage(const TcpConnectionPtr &conn, Buffer *buf,
                            Timestamp receiveTime) {
-  auto *context = boost::any_cast<HttpContext>(conn->getMutableContext());
+  std::unique_ptr<HttpContext> context(new HttpContext);
 
   if (!context->parseRequest(buf, receiveTime)) {
     conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");

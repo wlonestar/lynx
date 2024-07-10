@@ -7,7 +7,6 @@
 #include "lynx/net/callbacks.h"
 #include "lynx/net/inet_address.h"
 
-#include <boost/any.hpp>
 #include <functional>
 #include <memory>
 
@@ -45,10 +44,6 @@ public:
   void startRead();
   void stopRead();
   bool isReading() const { return reading_; };
-
-  void setContext(const boost::any &context) { context_ = context; }
-  const boost::any &getContext() const { return context_; }
-  boost::any *getMutableContext() { return &context_; }
 
   void setConnectionCallback(const ConnectionCallback &cb) {
     connection_callback_ = cb;
@@ -113,8 +108,6 @@ private:
 
   Buffer input_buffer_;
   Buffer output_buffer_;
-
-  boost::any context_;
 };
 
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;

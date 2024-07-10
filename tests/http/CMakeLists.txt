@@ -7,6 +7,8 @@ foreach(SRC ${HTTP_SRC})
   add_test(NAME ${EXEC_NAME} COMMAND ${EXEC_NAME})
 endforeach()
 
-add_executable(http_server_test http_server_test.cpp)
+add_executable(http_server_test
+  http_server_test.cpp
+  favicon.cpp
+  )
 target_link_libraries(http_server_test lynx)
-
