@@ -42,8 +42,6 @@ void Acceptor::handleRead() {
   // FIXME loop until no more
   int connfd = accept_socket_.accept(&peer_addr);
   if (connfd >= 0) {
-    // string hostport = peerAddr.toIpPort();
-    // LOG_TRACE << "Accepts of " << hostport;
     if (new_connection_callback_) {
       new_connection_callback_(connfd, peer_addr);
     } else {
@@ -51,9 +49,6 @@ void Acceptor::handleRead() {
     }
   } else {
     LOG_SYSERR << "in Acceptor::handleRead";
-    // Read the section named "The special problem of
-    // accept()ing when you can't" in libev's doc.
-    // By Marc Lehmann, author of libev.
     if (errno == EMFILE) {
       ::close(idle_fd_);
       idle_fd_ = ::accept(accept_socket_.fd(), nullptr, nullptr);

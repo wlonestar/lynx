@@ -61,8 +61,6 @@ void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
   LOG_INFO << "TcpServer::newConnection [" << name_ << "] - new connection ["
            << conn_name << "] from " << peerAddr.toIpPort();
   InetAddress local_addr(sockets::getLocalAddr(sockfd));
-  // FIXME poll with zero timeout to double confirm the new connection
-  // FIXME use make_shared if necessary
   TcpConnectionPtr conn(
       new TcpConnection(io_loop, conn_name, sockfd, local_addr, peerAddr));
   connections_[conn_name] = conn;
@@ -71,12 +69,11 @@ void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
   conn->setWriteCompleteCallback(write_complete_callback_);
   conn->setCloseCallback([this](auto &&PH1) {
     removeConnection(std::forward<decltype(PH1)>(PH1));
-  }); // FIXME: unsafe
+  });
   io_loop->runInLoop([conn] { conn->connectEstablished(); });
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr &conn) {
-  // FIXME: unsafe
   loop_->runInLoop([this, conn] { removeConnectionInLoop(conn); });
 }
 

@@ -12,11 +12,9 @@ using ConnectorPtr = std::shared_ptr<Connector>;
 
 class TcpClient : Noncopyable {
 public:
-  // TcpClient(EventLoop* loop);
-  // TcpClient(EventLoop* loop, const string& host, uint16_t port);
   TcpClient(EventLoop *loop, const InetAddress &serverAddr,
             const std::string &nameArg);
-  ~TcpClient(); // force out-line dtor, for std::unique_ptr members.
+  ~TcpClient();
 
   void connect();
   void disconnect();
@@ -33,39 +31,28 @@ public:
 
   const std::string &name() const { return name_; }
 
-  /// Set connection callback.
-  /// Not thread safe.
   void setConnectionCallback(ConnectionCallback cb) {
     connection_callback_ = std::move(cb);
   }
-
-  /// Set message callback.
-  /// Not thread safe.
   void setMessageCallback(MessageCallback cb) {
     message_callback_ = std::move(cb);
   }
-
-  /// Set write complete callback.
-  /// Not thread safe.
   void setWriteCompleteCallback(WriteCompleteCallback cb) {
     write_complete_callback_ = std::move(cb);
   }
 
 private:
-  /// Not thread safe, but in loop
   void newConnection(int sockfd);
-  /// Not thread safe, but in loop
   void removeConnection(const TcpConnectionPtr &conn);
 
   EventLoop *loop_;
-  ConnectorPtr connector_; // avoid revealing Connector
+  ConnectorPtr connector_;
   const std::string name_;
   ConnectionCallback connection_callback_;
   MessageCallback message_callback_;
   WriteCompleteCallback write_complete_callback_;
-  bool retry_;   // atomic
-  bool connect_; // atomic
-  // always in loop thread
+  bool retry_;
+  bool connect_;
   int next_conn_id_;
   mutable std::mutex mutex_;
   TcpConnectionPtr connection_;

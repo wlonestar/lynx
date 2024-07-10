@@ -23,7 +23,7 @@ Connector::~Connector() {
 
 void Connector::start() {
   connect_ = true;
-  loop_->runInLoop([this] { startInLoop(); }); // FIXME: unsafe
+  loop_->runInLoop([this] { startInLoop(); });
 }
 
 void Connector::startInLoop() {
@@ -38,8 +38,7 @@ void Connector::startInLoop() {
 
 void Connector::stop() {
   connect_ = false;
-  loop_->queueInLoop([this] { stopInLoop(); }); // FIXME: unsafe
-  // FIXME: cancel timer
+  loop_->queueInLoop([this] { stopInLoop(); });
 }
 
 void Connector::stopInLoop() {
@@ -62,7 +61,6 @@ void Connector::connect() {
   case EISCONN:
     connecting(sockfd);
     break;
-
   case EAGAIN:
   case EADDRINUSE:
   case EADDRNOTAVAIL:
@@ -70,7 +68,6 @@ void Connector::connect() {
   case ENETUNREACH:
     retry(sockfd);
     break;
-
   case EACCES:
   case EPERM:
   case EAFNOSUPPORT:
@@ -81,11 +78,9 @@ void Connector::connect() {
     LOG_SYSERR << "connect error in Connector::startInLoop " << saved_errno;
     sockets::close(sockfd);
     break;
-
   default:
     LOG_SYSERR << "Unexpected error in Connector::startInLoop " << saved_errno;
     sockets::close(sockfd);
-    // connectErrorCallback_();
     break;
   }
 }
@@ -102,11 +97,8 @@ void Connector::connecting(int sockfd) {
   setState(kConnecting);
   assert(!channel_);
   channel_ = std::make_unique<Channel>(loop_, sockfd);
-  channel_->setWriteCallback([this] { handleWrite(); }); // FIXME: unsafe
-  channel_->setErrorCallback([this] { handleError(); }); // FIXME: unsafe
-
-  // channel_->tie(shared_from_this()); is not working,
-  // as channel_ is not managed by shared_ptr
+  channel_->setWriteCallback([this] { handleWrite(); });
+  channel_->setErrorCallback([this] { handleError(); });
   channel_->enableWriting();
 }
 
@@ -114,8 +106,7 @@ int Connector::removeAndResetChannel() {
   channel_->disableAll();
   channel_->remove();
   int sockfd = channel_->fd();
-  // Can't reset channel_ here, because we are inside Channel::handleEvent
-  loop_->queueInLoop([this] { resetChannel(); }); // FIXME: unsafe
+  loop_->queueInLoop([this] { resetChannel(); });
   return sockfd;
 }
 
@@ -143,7 +134,6 @@ void Connector::handleWrite() {
       }
     }
   } else {
-    // what happened?
     assert(state_ == kDisconnected);
   }
 }

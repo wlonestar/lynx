@@ -12,8 +12,6 @@ void defaultConnectionCallback(const TcpConnectionPtr &conn) {
   LOG_TRACE << conn->localAddress().toIpPort() << " -> "
             << conn->peerAddress().toIpPort() << " is "
             << (conn->connected() ? "UP" : "DOWN");
-  // do not call conn->forceClose(), because some users want to register message
-  // callback only.
 }
 
 void defaultMessageCallback(const TcpConnectionPtr & /*unused*/, Buffer *buf,
@@ -93,7 +91,6 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
     LOG_WARN << "disconnected, give up writing";
     return;
   }
-  // if no thing in output queue, try writing directly
   if (!channel_->isWriting() && output_buffer_.readableBytes() == 0) {
     nwrote = sockets::write(channel_->fd(), data, len);
     if (nwrote >= 0) {
@@ -102,13 +99,11 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
         loop_->queueInLoop(
             [this] { write_complete_callback_(shared_from_this()); });
       }
-    } else // nwrote < 0
-    {
+    } else {
       nwrote = 0;
       if (errno != EWOULDBLOCK) {
         LOG_SYSERR << "TcpConnection::sendInLoop";
-        if (errno == EPIPE || errno == ECONNRESET) // FIXME: any others?
-        {
+        if (errno == EPIPE || errno == ECONNRESET) {
           fault_error = true;
         }
       }
@@ -132,10 +127,8 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
 }
 
 void TcpConnection::shutdown() {
-  // FIXME: use compare and swap
   if (state_ == kConnected) {
     setState(kDisconnecting);
-    // FIXME: shared_from_this()?
     loop_->runInLoop([this] { shutdownInLoop(); });
   }
 }
@@ -143,38 +136,11 @@ void TcpConnection::shutdown() {
 void TcpConnection::shutdownInLoop() {
   loop_->assertInLoopThread();
   if (!channel_->isWriting()) {
-    // we are not writing
     socket_->shutdownWrite();
   }
 }
 
-// void TcpConnection::shutdownAndForceCloseAfter(double seconds)
-// {
-//   // FIXME: use compare and swap
-//   if (state_ == kConnected)
-//   {
-//     setState(kDisconnecting);
-//     loop_->runInLoop(std::bind(&TcpConnection::shutdownAndForceCloseInLoop,
-//     this, seconds));
-//   }
-// }
-
-// void TcpConnection::shutdownAndForceCloseInLoop(double seconds)
-// {
-//   loop_->assertInLoopThread();
-//   if (!channel_->isWriting())
-//   {
-//     // we are not writing
-//     socket_->shutdownWrite();
-//   }
-//   loop_->runAfter(
-//       seconds,
-//       makeWeakCallback(shared_from_this(),
-//                        &TcpConnection::forceCloseInLoop));
-// }
-
 void TcpConnection::forceClose() {
-  // FIXME: use compare and swap
   if (state_ == kConnected || state_ == kDisconnecting) {
     setState(kDisconnecting);
     loop_->queueInLoop(
@@ -193,7 +159,6 @@ void TcpConnection::forceCloseWithDelay(double seconds) {
 void TcpConnection::forceCloseInLoop() {
   loop_->assertInLoopThread();
   if (state_ == kConnected || state_ == kDisconnecting) {
-    // as if we received 0 byte in handleRead();
     handleClose();
   }
 }
@@ -305,13 +270,11 @@ void TcpConnection::handleClose() {
   loop_->assertInLoopThread();
   LOG_TRACE << "fd = " << channel_->fd() << " state = " << stateToString();
   assert(state_ == kConnected || state_ == kDisconnecting);
-  // we don't close fd, leave it to dtor, so we can find leaks easily.
   setState(kDisconnected);
   channel_->disableAll();
 
   TcpConnectionPtr guard_this(shared_from_this());
   connection_callback_(guard_this);
-  // must be the last line
   close_callback_(guard_this);
 }
 

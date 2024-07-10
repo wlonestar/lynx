@@ -35,7 +35,6 @@ EventLoop *EventLoopThreadPool::getNextLoop() {
   EventLoop *loop = base_loop_;
 
   if (!loops_.empty()) {
-    // round-robin
     loop = loops_[next_];
     ++next_;
     if (static_cast<size_t>(next_) >= loops_.size()) {

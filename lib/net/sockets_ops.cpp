@@ -1,10 +1,10 @@
 #include "lynx/net/sockets_ops.h"
 #include "lynx/logger/logging.h"
-#include "lynx/net/endian.h"
 
 #include <cassert>
 #include <cerrno>
 #include <cstdio>
+#include <endian.h>
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
@@ -85,10 +85,9 @@ int accept(int sockfd, struct sockaddr_in6 *addr) {
     case EAGAIN:
     case ECONNABORTED:
     case EINTR:
-    case EPROTO: // ???
+    case EPROTO:
     case EPERM:
-    case EMFILE: // per-process lmit of open file desctiptor ???
-      // expected errors
+    case EMFILE:
       errno = saved_errno;
       break;
     case EBADF:
@@ -99,7 +98,6 @@ int accept(int sockfd, struct sockaddr_in6 *addr) {
     case ENOMEM:
     case ENOTSOCK:
     case EOPNOTSUPP:
-      // unexpected errors
       LOG_FATAL << "unexpected error of ::accept " << saved_errno;
       break;
     default:
@@ -145,7 +143,7 @@ void toIpPort(char *buf, size_t size, const struct sockaddr *addr) {
     toIp(buf + 1, size - 1, addr);
     size_t end = ::strlen(buf);
     const struct sockaddr_in6 *addr6 = sockaddrIn6Cast(addr);
-    uint16_t port = networkToHost16(addr6->sin6_port);
+    uint16_t port = be16toh(addr6->sin6_port);
     assert(size > end);
     snprintf(buf + end, size - end, "]:%u", port);
     return;
@@ -153,7 +151,7 @@ void toIpPort(char *buf, size_t size, const struct sockaddr *addr) {
   toIp(buf, size, addr);
   size_t end = ::strlen(buf);
   const struct sockaddr_in *addr4 = sockaddrInCast(addr);
-  uint16_t port = networkToHost16(addr4->sin_port);
+  uint16_t port = be16toh(addr4->sin_port);
   assert(size > end);
   snprintf(buf + end, size - end, ":%u", port);
 }
@@ -172,7 +170,7 @@ void toIp(char *buf, size_t size, const struct sockaddr *addr) {
 
 void fromIpPort(const char *ip, uint16_t port, struct sockaddr_in *addr) {
   addr->sin_family = AF_INET;
-  addr->sin_port = hostToNetwork16(port);
+  addr->sin_port = htobe16(port);
   if (::inet_pton(AF_INET, ip, &addr->sin_addr) <= 0) {
     LOG_SYSERR << "fromIpPort";
   }
@@ -180,7 +178,7 @@ void fromIpPort(const char *ip, uint16_t port, struct sockaddr_in *addr) {
 
 void fromIpPort(const char *ip, uint16_t port, struct sockaddr_in6 *addr) {
   addr->sin6_family = AF_INET6;
-  addr->sin6_port = hostToNetwork16(port);
+  addr->sin6_port = htobe16(port);
   if (::inet_pton(AF_INET6, ip, &addr->sin6_addr) <= 0) {
     LOG_SYSERR << "fromIpPort";
   }

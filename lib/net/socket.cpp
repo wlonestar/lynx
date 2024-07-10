@@ -22,22 +22,16 @@ bool Socket::getTcpInfoString(char *buf, int len) const {
   struct tcp_info tcpi;
   bool ok = getTcpInfo(&tcpi);
   if (ok) {
-    snprintf(
-        buf, len,
-        "unrecovered=%u "
-        "rto=%u ato=%u snd_mss=%u rcv_mss=%u "
-        "lost=%u retrans=%u rtt=%u rttvar=%u "
-        "sshthresh=%u cwnd=%u total_retrans=%u",
-        tcpi.tcpi_retransmits, // Number of unrecovered [RTO] timeouts
-        tcpi.tcpi_rto,         // Retransmit timeout in usec
-        tcpi.tcpi_ato,         // Predicted tick of soft clock in usec
-        tcpi.tcpi_snd_mss, tcpi.tcpi_rcv_mss,
-        tcpi.tcpi_lost,    // Lost packets
-        tcpi.tcpi_retrans, // Retransmitted packets out
-        tcpi.tcpi_rtt,     // Smoothed round trip time in usec
-        tcpi.tcpi_rttvar,  // Medium deviation
-        tcpi.tcpi_snd_ssthresh, tcpi.tcpi_snd_cwnd,
-        tcpi.tcpi_total_retrans); // Total retransmits for entire connection
+    snprintf(buf, len,
+             "unrecovered=%u "
+             "rto=%u ato=%u snd_mss=%u rcv_mss=%u "
+             "lost=%u retrans=%u rtt=%u rttvar=%u "
+             "sshthresh=%u cwnd=%u total_retrans=%u",
+             tcpi.tcpi_retransmits, tcpi.tcpi_rto, tcpi.tcpi_ato,
+             tcpi.tcpi_snd_mss, tcpi.tcpi_rcv_mss, tcpi.tcpi_lost,
+             tcpi.tcpi_retrans, tcpi.tcpi_rtt, tcpi.tcpi_rttvar,
+             tcpi.tcpi_snd_ssthresh, tcpi.tcpi_snd_cwnd,
+             tcpi.tcpi_total_retrans);
   }
   return ok;
 }

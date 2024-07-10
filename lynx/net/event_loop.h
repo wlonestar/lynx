@@ -82,7 +82,6 @@ private:
   std::unique_ptr<Channel> wakeup_channel_;
   boost::any context_;
 
-  // scratch variables
   ChannelList active_channels_;
   Channel *current_active_channel_;
 

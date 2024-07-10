@@ -6,6 +6,7 @@
 #include "lynx/net/timer_queue.h"
 
 #include <algorithm>
+#include <cassert>
 #include <csignal>
 #include <sys/eventfd.h>
 #include <unistd.h>
@@ -30,10 +31,7 @@ int createEventfd() {
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 class IgnoreSigPipe {
 public:
-  IgnoreSigPipe() {
-    ::signal(SIGPIPE, SIG_IGN);
-    // LOG_TRACE << "Ignore SIGPIPE";
-  }
+  IgnoreSigPipe() { ::signal(SIGPIPE, SIG_IGN); }
 };
 #pragma GCC diagnostic error "-Wold-style-cast"
 
@@ -76,7 +74,7 @@ void EventLoop::loop() {
   assert(!looping_);
   assertInLoopThread();
   looping_ = true;
-  quit_ = false; // FIXME: what if someone calls quit() before loop() ?
+  quit_ = false;
   LOG_TRACE << "EventLoop " << this << " start looping";
 
   while (!quit_) {

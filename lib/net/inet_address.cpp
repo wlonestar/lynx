@@ -1,11 +1,11 @@
 #include "lynx/net/inet_address.h"
 #include "lynx/logger/logging.h"
-#include "lynx/net/endian.h"
 #include "lynx/net/sockets_ops.h"
 
 #include <cassert>
 #include <cstddef>
 #include <cstring>
+#include <endian.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <strings.h>
@@ -30,13 +30,13 @@ InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly, bool ipv6) {
     addr6_.sin6_family = AF_INET6;
     in6_addr ip = loopbackOnly ? in6addr_loopback : in6addr_any;
     addr6_.sin6_addr = ip;
-    addr6_.sin6_port = sockets::hostToNetwork16(portArg);
+    addr6_.sin6_port = htobe16(portArg);
   } else {
     bzero(&addr_, sizeof addr_);
     addr_.sin_family = AF_INET;
     in_addr_t ip = loopbackOnly ? K_INADDR_LOOPBACK : K_INADDR_ANY;
-    addr_.sin_addr.s_addr = sockets::hostToNetwork32(ip);
-    addr_.sin_port = sockets::hostToNetwork16(portArg);
+    addr_.sin_addr.s_addr = htobe32(ip);
+    addr_.sin_port = htobe16(portArg);
   }
 }
 
@@ -67,9 +67,7 @@ uint32_t InetAddress::ipv4NetEndian() const {
   return addr_.sin_addr.s_addr;
 }
 
-uint16_t InetAddress::port() const {
-  return sockets::networkToHost16(portNetEndian());
-}
+uint16_t InetAddress::port() const { return be16toh(portNetEndian()); }
 
 static thread_local char t_resolve_buffer[64 * 1024];
 

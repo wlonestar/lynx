@@ -23,9 +23,9 @@ public:
     new_connection_callback_ = cb;
   }
 
-  void start();   // can be called in any thread
-  void restart(); // must be called in loop thread
-  void stop();    // can be called in any thread
+  void start();
+  void restart();
+  void stop();
 
   const InetAddress &serverAddress() const { return server_addr_; }
 
@@ -47,8 +47,8 @@ private:
 
   EventLoop *loop_;
   InetAddress server_addr_;
-  bool connect_; // atomic
-  States state_; // FIXME: use atomic variable
+  bool connect_;
+  States state_;
   std::unique_ptr<Channel> channel_;
   NewConnectionCallback new_connection_callback_;
   int retry_delay_ms_;

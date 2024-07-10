@@ -35,14 +35,12 @@ private:
   void handleRead();
   std::vector<Entry> getExpired(Timestamp now);
   void reset(const std::vector<Entry> &expired, Timestamp now);
-
   bool insert(Timer *timer);
 
   EventLoop *loop_;
   const int timerfd_;
   Channel timerfd_channel_;
   TimerList timers_;
-
   ActiveTimerSet active_timers_;
   bool calling_expired_timers_;
   ActiveTimerSet canceling_timers_;

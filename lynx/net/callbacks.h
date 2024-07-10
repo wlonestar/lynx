@@ -26,8 +26,6 @@ inline ::std::shared_ptr<To> downPointerCast(const ::std::shared_ptr<From> &f) {
   return ::std::static_pointer_cast<To>(f);
 }
 
-// All client visible callbacks go here.
-
 class Buffer;
 class TcpConnection;
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;

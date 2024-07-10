@@ -12,9 +12,7 @@ void removeConnection(EventLoop *loop, const TcpConnectionPtr &conn) {
   loop->queueInLoop([conn] { conn->connectDestroyed(); });
 }
 
-void removeConnector(const ConnectorPtr &connector) {
-  // connector->
-}
+void removeConnector(const ConnectorPtr &connector) {}
 
 } // namespace detail
 
@@ -26,7 +24,6 @@ TcpClient::TcpClient(EventLoop *loop, const InetAddress &serverAddr,
       next_conn_id_(1) {
   connector_->setNewConnectionCallback(
       [this](auto &&PH1) { newConnection(std::forward<decltype(PH1)>(PH1)); });
-  // FIXME setConnectFailedCallback
   LOG_INFO << "TcpClient::TcpClient[" << name_ << "] - connector "
            << getPointer(connector_);
 }
@@ -43,7 +40,6 @@ TcpClient::~TcpClient() {
   }
   if (conn) {
     assert(loop_ == conn->getLoop());
-    // FIXME: not 100% safe, if we are in different thread
     CloseCallback cb = [this](auto &&PH1) {
       return detail::removeConnection(loop_, std::forward<decltype(PH1)>(PH1));
     };
@@ -53,13 +49,11 @@ TcpClient::~TcpClient() {
     }
   } else {
     connector_->stop();
-    // FIXME: HACK
     loop_->runAfter(1, [this] { return detail::removeConnector(connector_); });
   }
 }
 
 void TcpClient::connect() {
-  // FIXME: check state
   LOG_INFO << "TcpClient::connect[" << name_ << "] - connecting to "
            << connector_->serverAddress().toIpPort();
   connect_ = true;
@@ -92,8 +86,6 @@ void TcpClient::newConnection(int sockfd) {
   std::string conn_name = name_ + buf;
 
   InetAddress local_addr(sockets::getLocalAddr(sockfd));
-  // FIXME poll with zero timeout to double confirm the new connection
-  // FIXME use make_shared if necessary
   TcpConnectionPtr conn(
       new TcpConnection(loop_, conn_name, sockfd, local_addr, peer_addr));
 
@@ -102,7 +94,7 @@ void TcpClient::newConnection(int sockfd) {
   conn->setWriteCompleteCallback(write_complete_callback_);
   conn->setCloseCallback([this](auto &&PH1) {
     removeConnection(std::forward<decltype(PH1)>(PH1));
-  }); // FIXME: unsafe
+  });
   {
     std::lock_guard<std::mutex> lock(mutex_);
     connection_ = conn;
