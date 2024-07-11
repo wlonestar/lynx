@@ -28,7 +28,7 @@ template <typename String>
 int ReadSmallFile::readToString(int maxSize, String *content, int64_t *fileSize,
                                 int64_t *modifyTime, int64_t *createTime) {
   static_assert(sizeof(off_t) == 8, "_FILE_OFFSET_BITS = 64");
-  assert(content != NULL);
+  assert(content != nullptr);
   int err = err_;
   if (fd_ >= 0) {
     content->clear();

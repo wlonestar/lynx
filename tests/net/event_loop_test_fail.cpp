@@ -17,7 +17,7 @@ void threadFunc() {
   printf("threadFunc(): pid = %d, tid = %d\n", getpid(),
          lynx::current_thread::tid());
 
-  assert(lynx::EventLoop::getEventLoopOfCurrentThread() == NULL);
+  assert(lynx::EventLoop::getEventLoopOfCurrentThread() == nullptr);
   lynx::EventLoop loop;
   assert(lynx::EventLoop::getEventLoopOfCurrentThread() == &loop);
   loop.runAfter(1.0, callback);
@@ -27,7 +27,7 @@ void threadFunc() {
 int main() {
   printf("main(): pid = %d, tid = %d\n", getpid(), lynx::current_thread::tid());
 
-  assert(lynx::EventLoop::getEventLoopOfCurrentThread() == NULL);
+  assert(lynx::EventLoop::getEventLoopOfCurrentThread() == nullptr);
   lynx::EventLoop loop;
   assert(lynx::EventLoop::getEventLoopOfCurrentThread() == &loop);
 

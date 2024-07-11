@@ -80,7 +80,7 @@ void TcpClient::newConnection(int sockfd) {
   loop_->assertInLoopThread();
   InetAddress peer_addr(sockets::getPeerAddr(sockfd));
   char buf[32];
-  snprintf(buf, sizeof buf, ":%s#%d", peer_addr.toIpPort().c_str(),
+  snprintf(buf, sizeof(buf), ":%s#%d", peer_addr.toIpPort().c_str(),
            next_conn_id_);
   ++next_conn_id_;
   std::string conn_name = name_ + buf;

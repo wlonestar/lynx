@@ -66,7 +66,7 @@ std::string username() {
   char buf[8192];
   const char *name = "unknownuser";
 
-  getpwuid_r(uid(), &pwd, buf, sizeof buf, &result);
+  getpwuid_r(uid(), &pwd, buf, sizeof(buf), &result);
   if (result != nullptr) {
     name = pwd.pw_name;
   }
@@ -91,7 +91,7 @@ bool isDebugBuild() {
 
 std::string hostname() {
   char buf[256];
-  if (::gethostname(buf, sizeof buf) == 0) {
+  if (::gethostname(buf, sizeof(buf)) == 0) {
     buf[sizeof(buf) - 1] = '\0';
     return buf;
   }
@@ -123,7 +123,7 @@ std::string procStat() {
 
 std::string threadStat() {
   char buf[64];
-  snprintf(buf, sizeof buf, "/proc/self/task/%d/stat", current_thread::tid());
+  snprintf(buf, sizeof(buf), "/proc/self/task/%d/stat", current_thread::tid());
   std::string result;
   fs::readFile(buf, 65536, &result);
   return result;
@@ -132,7 +132,7 @@ std::string threadStat() {
 std::string exePath() {
   std::string result;
   char buf[1024];
-  ssize_t n = ::readlink("/proc/self/exe", buf, sizeof buf);
+  ssize_t n = ::readlink("/proc/self/exe", buf, sizeof(buf));
   if (n > 0) {
     result.assign(buf, n);
   }

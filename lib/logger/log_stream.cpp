@@ -13,7 +13,7 @@ const char *zero = DIGITS + 9;
 static_assert(sizeof(DIGITS) == 20, "wrong number of digits");
 
 const char DIGITS_HEX[] = "0123456789ABCDEF";
-static_assert(sizeof DIGITS_HEX == 17, "wrong number of digitsHex");
+static_assert(sizeof(DIGITS_HEX) == 17, "wrong number of digitsHex");
 
 // Efficient Integer to String Conversions, by Matthew Wilson.
 template <typename T> size_t convert(char buf[], T value) {

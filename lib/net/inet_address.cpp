@@ -8,7 +8,6 @@
 #include <endian.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <strings.h>
 
 namespace lynx {
 
@@ -26,13 +25,13 @@ InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly, bool ipv6) {
   static_assert(offsetof(InetAddress, addr6_) == 0, "addr6_ offset 0");
   static_assert(offsetof(InetAddress, addr_) == 0, "addr_ offset 0");
   if (ipv6) {
-    bzero(&addr6_, sizeof addr6_);
+    memset(&addr6_, 0, sizeof(addr6_));
     addr6_.sin6_family = AF_INET6;
     in6_addr ip = loopbackOnly ? in6addr_loopback : in6addr_any;
     addr6_.sin6_addr = ip;
     addr6_.sin6_port = htobe16(portArg);
   } else {
-    bzero(&addr_, sizeof addr_);
+    memset(&addr_, 0, sizeof(addr_));
     addr_.sin_family = AF_INET;
     in_addr_t ip = loopbackOnly ? K_INADDR_LOOPBACK : K_INADDR_ANY;
     addr_.sin_addr.s_addr = htobe32(ip);
@@ -42,23 +41,23 @@ InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly, bool ipv6) {
 
 InetAddress::InetAddress(std::string ip, uint16_t portArg, bool ipv6) {
   if (ipv6 || (strchr(ip.c_str(), ':') != nullptr)) {
-    bzero(&addr6_, sizeof addr6_);
+    memset(&addr6_, 0, sizeof(addr6_));
     sockets::fromIpPort(ip.c_str(), portArg, &addr6_);
   } else {
-    bzero(&addr_, sizeof addr_);
+    memset(&addr_, 0, sizeof(addr_));
     sockets::fromIpPort(ip.c_str(), portArg, &addr_);
   }
 }
 
 std::string InetAddress::toIpPort() const {
   char buf[64] = "";
-  sockets::toIpPort(buf, sizeof buf, getSockAddr());
+  sockets::toIpPort(buf, sizeof(buf), getSockAddr());
   return buf;
 }
 
 std::string InetAddress::toIp() const {
   char buf[64] = "";
-  sockets::toIp(buf, sizeof buf, getSockAddr());
+  sockets::toIp(buf, sizeof(buf), getSockAddr());
   return buf;
 }
 
@@ -72,14 +71,14 @@ uint16_t InetAddress::port() const { return be16toh(portNetEndian()); }
 static thread_local char t_resolve_buffer[64 * 1024];
 
 bool InetAddress::resolve(std::string hostname, InetAddress *out) {
-  assert(out != NULL);
+  assert(out != nullptr);
   struct hostent hent;
   struct hostent *he = nullptr;
   int herrno = 0;
-  bzero(&hent, sizeof(hent));
+  memset(&hent, 0, sizeof(hent));
 
   int ret = gethostbyname_r(hostname.c_str(), &hent, t_resolve_buffer,
-                            sizeof t_resolve_buffer, &he, &herrno);
+                            sizeof(t_resolve_buffer), &he, &herrno);
   if (ret == 0 && he != nullptr) {
     assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
     out->addr_.sin_addr = *reinterpret_cast<struct in_addr *>(he->h_addr);

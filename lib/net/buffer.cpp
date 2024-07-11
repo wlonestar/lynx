@@ -18,8 +18,8 @@ ssize_t Buffer::readFd(int fd, int *savedErrno) {
   vec[0].iov_base = begin() + writer_index_;
   vec[0].iov_len = writable;
   vec[1].iov_base = extrabuf;
-  vec[1].iov_len = sizeof extrabuf;
-  const int iovcnt = (writable < sizeof extrabuf) ? 2 : 1;
+  vec[1].iov_len = sizeof(extrabuf);
+  const int iovcnt = (writable < sizeof(extrabuf)) ? 2 : 1;
   const ssize_t n = sockets::readv(fd, vec, iovcnt);
   if (n < 0) {
     *savedErrno = errno;

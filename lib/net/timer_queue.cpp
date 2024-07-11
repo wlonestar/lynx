@@ -35,10 +35,10 @@ struct timespec howMuchTimeFromNow(Timestamp when) {
 
 void readTimerfd(int timerfd, Timestamp now) {
   uint64_t howmany;
-  ssize_t n = ::read(timerfd, &howmany, sizeof howmany);
+  ssize_t n = ::read(timerfd, &howmany, sizeof(howmany));
   LOG_TRACE << "TimerQueue::handleRead() " << howmany << " at "
             << now.toString();
-  if (n != sizeof howmany) {
+  if (n != sizeof(howmany)) {
     LOG_ERROR << "TimerQueue::handleRead() reads " << n
               << " bytes instead of 8";
   }
@@ -47,8 +47,8 @@ void readTimerfd(int timerfd, Timestamp now) {
 void resetTimerfd(int timerfd, Timestamp expiration) {
   struct itimerspec new_value;
   struct itimerspec old_value;
-  bzero(&new_value, sizeof new_value);
-  bzero(&old_value, sizeof old_value);
+  memset(&new_value, 0, sizeof(new_value));
+  memset(&old_value, 0, sizeof(old_value));
   new_value.it_value = howMuchTimeFromNow(expiration);
   int ret = ::timerfd_settime(timerfd, 0, &new_value, &old_value);
   if (ret != 0) {

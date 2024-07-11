@@ -22,7 +22,7 @@ void ThreadPool::start(int numThreads) {
   threads_.reserve(numThreads);
   for (int i = 0; i < numThreads; ++i) {
     char id[32];
-    snprintf(id, sizeof id, "%d", i + 1);
+    snprintf(id, sizeof(id), "%d", i + 1);
     threads_.emplace_back(new Thread([this] { runInThread(); }, name_ + id));
     threads_[i]->start();
   }

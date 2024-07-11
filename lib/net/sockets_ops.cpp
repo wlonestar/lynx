@@ -70,7 +70,7 @@ void listenOrDie(int sockfd) {
 }
 
 int accept(int sockfd, struct sockaddr_in6 *addr) {
-  auto addrlen = static_cast<socklen_t>(sizeof *addr);
+  auto addrlen = static_cast<socklen_t>(sizeof(*addr));
 #if VALGRIND || defined(NO_ACCEPT4)
   int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
   setNonBlockAndCloseOnExec(connfd);
@@ -186,7 +186,7 @@ void fromIpPort(const char *ip, uint16_t port, struct sockaddr_in6 *addr) {
 
 int getSocketError(int sockfd) {
   int optval;
-  auto optlen = static_cast<socklen_t>(sizeof optval);
+  auto optlen = static_cast<socklen_t>(sizeof(optval));
 
   if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0) {
     return errno;
@@ -196,8 +196,8 @@ int getSocketError(int sockfd) {
 
 struct sockaddr_in6 getLocalAddr(int sockfd) {
   struct sockaddr_in6 localaddr;
-  bzero(&localaddr, sizeof localaddr);
-  auto addrlen = static_cast<socklen_t>(sizeof localaddr);
+  memset(&localaddr, 0, sizeof(localaddr));
+  auto addrlen = static_cast<socklen_t>(sizeof(localaddr));
   if (::getsockname(sockfd, sockaddrCast(&localaddr), &addrlen) < 0) {
     LOG_SYSERR << "getLocalAddr";
   }
@@ -206,8 +206,8 @@ struct sockaddr_in6 getLocalAddr(int sockfd) {
 
 struct sockaddr_in6 getPeerAddr(int sockfd) {
   struct sockaddr_in6 peeraddr;
-  bzero(&peeraddr, sizeof peeraddr);
-  auto addrlen = static_cast<socklen_t>(sizeof peeraddr);
+  memset(&peeraddr, 0, sizeof(peeraddr));
+  auto addrlen = static_cast<socklen_t>(sizeof(peeraddr));
   if (::getpeername(sockfd, sockaddrCast(&peeraddr), &addrlen) < 0) {
     LOG_SYSERR << "getPeerAddr";
   }
@@ -228,7 +228,7 @@ bool isSelfConnect(int sockfd) {
   if (localaddr.sin6_family == AF_INET6) {
     return localaddr.sin6_port == peeraddr.sin6_port &&
            memcmp(&localaddr.sin6_addr, &peeraddr.sin6_addr,
-                  sizeof localaddr.sin6_addr) == 0;
+                  sizeof(localaddr.sin6_addr)) == 0;
   }
   return false;
 }

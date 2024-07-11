@@ -49,7 +49,7 @@ bool TcpConnection::getTcpInfo(struct tcp_info *tcpi) const {
 std::string TcpConnection::getTcpInfoString() const {
   char buf[1024];
   buf[0] = '\0';
-  socket_->getTcpInfoString(buf, sizeof buf);
+  socket_->getTcpInfoString(buf, sizeof(buf));
   return buf;
 }
 

@@ -23,7 +23,7 @@ void test(int maxSize) {
   pool.run(print);
   for (int i = 0; i < 100; ++i) {
     char buf[32];
-    snprintf(buf, sizeof buf, "task %d", i);
+    snprintf(buf, sizeof(buf), "task %d", i);
     pool.run([capture0 = std::string(buf)] { return printString(capture0); });
   }
   LOG_WARN << "Done";

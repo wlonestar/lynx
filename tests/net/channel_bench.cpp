@@ -35,7 +35,7 @@ public:
 
   void start() {
     struct itimerspec spec;
-    bzero(&spec, sizeof spec);
+    memset(&spec, 0, sizeof(spec));
     spec.it_interval = toTimeSpec(interval_);
     spec.it_value = spec.it_interval;
     int ret =
@@ -62,7 +62,7 @@ private:
 
   static struct timespec toTimeSpec(double seconds) {
     struct timespec ts;
-    bzero(&ts, sizeof ts);
+    memset(&ts, 0, sizeof(ts));
     const int64_t k_nano_seconds_per_second = 1000000000;
     const int k_min_interval = 100000;
     auto nanoseconds =

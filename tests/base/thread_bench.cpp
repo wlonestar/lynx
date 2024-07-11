@@ -56,7 +56,7 @@ public:
     threads_.reserve(numThreads);
     for (int i = 0; i < numThreads; ++i) {
       char name[32];
-      snprintf(name, sizeof name, "work thread %d", i);
+      snprintf(name, sizeof(name), "work thread %d", i);
       threads_.emplace_back(
           new lynx::Thread([this] { threadFunc(); }, std::string(name)));
     }

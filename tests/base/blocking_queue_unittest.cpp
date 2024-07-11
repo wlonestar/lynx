@@ -13,7 +13,7 @@ public:
   Test(int numThreads) : latch_(numThreads) {
     for (int i = 0; i < numThreads; ++i) {
       char name[32];
-      snprintf(name, sizeof name, "work thread %d", i);
+      snprintf(name, sizeof(name), "work thread %d", i);
       threads_.emplace_back(
           new lynx::Thread([this] { threadFunc(); }, std::string(name)));
     }
@@ -28,7 +28,7 @@ public:
     printf("all threads started\n");
     for (int i = 0; i < times; ++i) {
       char buf[32];
-      snprintf(buf, sizeof buf, "hello %d", i);
+      snprintf(buf, sizeof(buf), "hello %d", i);
       queue_.put(buf);
       printf("tid=%d, put data = %s, size = %zd\n", lynx::current_thread::tid(),
              buf, queue_.size());

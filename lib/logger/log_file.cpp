@@ -83,13 +83,13 @@ std::string LogFile::getLogFileName(const std::string &basename, time_t *now) {
   struct tm tm;
   *now = time(nullptr);
   gmtime_r(now, &tm);
-  strftime(timebuf, sizeof timebuf, ".%Y%m%d-%H%M%S.", &tm);
+  strftime(timebuf, sizeof(timebuf), ".%Y%m%d-%H%M%S.", &tm);
   filename += timebuf;
 
   filename += process_info::hostname();
 
   char pidbuf[32];
-  snprintf(pidbuf, sizeof pidbuf, ".%d", process_info::pid());
+  snprintf(pidbuf, sizeof(pidbuf), ".%d", process_info::pid());
   filename += pidbuf;
 
   filename += ".log";

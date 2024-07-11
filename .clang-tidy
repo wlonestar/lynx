@@ -45,3 +45,4 @@ CheckOptions:
 WarningsAsErrors: '*'
 HeaderFilterRegex: '/(src|test)/include'
 AnalyzeTemporaryDtors: true
+FormatStyle: none

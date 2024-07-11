@@ -11,16 +11,16 @@ enum Gender : int {
   Femail,
 };
 
+// NOLINTNEXTLINE
 struct person {
-  short id;
-  char name[10];
-  Gender gender;
-  int age;
-  float score;
+  short id;      // NOLINT
+  char name[10]; // NOLINT
+  Gender gender; // NOLINT
+  int age;       // NOLINT
+  float score;   // NOLINT
 } __attribute__((packed));
-REFLECTION_TEMPLATE(person, id, name, gender, age, score)
 
-enum class Color : int16_t { RED, GREEN, BLUE };
+REFLECTION_TEMPLATE(person, id, name, gender, age, score)
 
 int main() {
   std::cout << std::boolalpha;
@@ -30,10 +30,10 @@ int main() {
   // delete table
   conn.execute("drop table person;");
   // create table
-  lynx::KeyMap key_map_{"id"};
-  lynx::NotNullMap not_null_map_;
-  not_null_map_.fields = {"id", "age"};
-  conn.create_table<person>(key_map_, not_null_map_);
+  lynx::KeyMap key_map{"id"};
+  lynx::NotNullMap not_null_map;
+  not_null_map.fields = {"id", "age"};
+  conn.createTable<person>(key_map, not_null_map);
 
   // insert data
   person p1{1, "hxf1", Gender::Femail, 30, 101.1F};
@@ -55,7 +55,7 @@ int main() {
     person p;
     p.id = i + 1;
     std::string name = "hxf" + std::to_string(i + 1);
-    strcpy(p.name, name.c_str());
+    strncpy(p.name, name.c_str(), name.size());
     p.gender = Gender::Mail;
     p.age = 30 + i;
     p.score = 101.1F + i;
@@ -65,9 +65,9 @@ int main() {
 
   // query 1 return person struct
   auto pn1 = conn.query<person>()
-                 .where(FD(person::age) > 27 && FD(person::id) < 3)
+                 .where(FIELD(person::age) > 27 && FIELD(person::id) < 3)
                  .limit(2)
-                 .to_vector();
+                 .toVector();
 
   for (auto it : pn1) {
     std::cout << it.id << " " << it.name << " " << it.gender << " " << it.age
@@ -78,8 +78,8 @@ int main() {
   auto pn2 = conn.query<person>()
                  .select(RNT(person::id), RNT(person::name),
                          RNT(person::gender), RNT(person::age))
-                 .where(FD(person::age) >= 28 && FD(person::id) < 5)
-                 .to_vector();
+                 .where(FIELD(person::age) >= 28 && FIELD(person::id) < 5)
+                 .toVector();
 
   for (auto it : pn2) {
     std::apply([](auto &&...args) { ((std::cout << args << ' '), ...); }, it);
@@ -90,11 +90,11 @@ int main() {
   auto pn3 = conn.query<person>()
                  .select(RNT(person::age), ORM_SUM(person::score),
                          ORM_COUNT(person::name))
-                 .where(FD(person::age) > 24 && FD(person::id) < 7)
+                 .where(FIELD(person::age) > 24 && FIELD(person::id) < 7)
                  .limit(3)
-                 .group_by(FD(person::age))
-                 .order_by_desc(FD(person::age))
-                 .to_vector();
+                 .group_by(FIELD(person::age))
+                 .order_by_desc(FIELD(person::age))
+                 .toVector();
 
   for (auto it : pn3) {
     std::apply([](auto &&...args) { ((std::cout << args << ' '), ...); }, it);
@@ -102,14 +102,15 @@ int main() {
   }
 
   // update
-  auto res2 = conn.update<person>()
-                  .set((FD(person::age) = 50) | (FD(person::name) = "hxf100"))
-                  .where(FD(person::age) > 29)
-                  .execute();
+  auto res2 =
+      conn.update<person>()
+          .set((FIELD(person::age) = 50) | (FIELD(person::name) = "hxf100"))
+          .where(FIELD(person::age) > 29)
+          .execute();
   (void)res2;
 
   // query all
-  auto pn4 = conn.query<person>().to_vector();
+  auto pn4 = conn.query<person>().toVector();
 
   for (auto it : pn4) {
     std::cout << it.id << " " << it.name << " " << it.gender << " " << it.age
@@ -117,7 +118,7 @@ int main() {
   }
 
   // delete
-  auto res = conn.del<person>().where(FD(person::age) > 29).execute();
+  auto res = conn.del<person>().where(FIELD(person::age) > 29).execute();
   (void)res;
 
   return 0;

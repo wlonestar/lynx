@@ -1,11 +1,13 @@
 SHELL = bash
 
-CLANG = /usr/bin/clang-16
-CLANG++ = /usr/bin/clang++-16
+CLANG = clang-16
+CLANG++ = clang++-16
 
 BUILD_DIR = build
 DEBUG_BUILD = $(BUILD_DIR)/debug
 RELEASE_BUILD = $(BUILD_DIR)/release
+
+INSTALL_DIR = /tmp/install
 
 .DEFAULT_GOAL := build
 
@@ -17,6 +19,7 @@ config:
 	@cmake -G Ninja -B $(RELEASE_BUILD) \
 		-DCMAKE_C_COMPILER=$(CLANG) \
 		-DCMAKE_CXX_COMPILER=$(CLANG++) \
+		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
 		-DCMAKE_BUILD_TYPE=Release
 	@ln -sf $(RELEASE_BUILD)/compile_commands.json
 
@@ -28,16 +31,14 @@ release-build: config
 
 build: debug-build release-build
 
-.PHONY: clean test format
+install: release-build
+	@ninja -C $(RELEASE_BUILD) install
+
+.PHONY: clean test
 
 test:
 	@cd $(DEBUG_BUILD) && ctest
 	@cd $(RELEASE_BUILD) && ctest
-
-format:
-	@find . -not -path '*/$(BUILD_DIR)/*' \
-		-regex '.*\.\(cpp\|hpp\|h\|c\)' \
-		-exec clang-format -i --verbose {} \;
 
 clean:
 	@rm -rf $(BUILD_DIR) compile_commands.json

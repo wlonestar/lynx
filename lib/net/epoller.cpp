@@ -61,7 +61,7 @@ void Epoller::fillActiveChannels(int numEvents,
     auto *channel = static_cast<Channel *>(events_[i].data.ptr);
 #ifndef NDEBUG
     int fd = channel->fd();
-    ChannelMap::const_iterator it = channels_.find(fd);
+    auto it = channels_.find(fd);
     assert(it != channels_.end());
     assert(it->second == channel);
 #endif
@@ -130,7 +130,7 @@ bool Epoller::hasChannel(Channel *channel) const {
 
 void Epoller::update(int operation, Channel *channel) {
   struct epoll_event event;
-  bzero(&event, sizeof event);
+  memset(&event, 0, sizeof(event));
   event.events = channel->events();
   event.data.ptr = channel;
   int fd = channel->fd();

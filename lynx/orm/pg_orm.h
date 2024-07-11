@@ -25,7 +25,7 @@ struct NotNullMap {
 };
 
 template <typename... Args>
-constexpr auto sort_tuple(const std::tuple<Args...> &t) {
+constexpr auto sortTuple(const std::tuple<Args...> &t) {
   if constexpr (sizeof...(Args) == 2) {
     auto [a, b] = t;
     if constexpr (!std::is_same_v<decltype(a), KeyMap> &&
@@ -46,12 +46,12 @@ public:
     if constexpr (size == 5) {
       auto fields =
           std::make_tuple("host", "port", "user", "password", "dbname");
-      sql = generate_connect_sql(fields, args_tp, index);
+      sql = generateConnectSql(fields, args_tp, index);
     }
     if constexpr (size == 6) {
       auto fields = std::make_tuple("host", "port", "user", "password",
                                     "dbname", "connect_timeout");
-      sql = generate_connect_sql(fields, args_tp, index);
+      sql = generateConnectSql(fields, args_tp, index);
     }
 
     LOG_DEBUG << "connect: " << sql;
@@ -70,7 +70,7 @@ public:
   }
 
   template <typename T> bool prepare(const std::string &sql) {
-    res_ = PQprepare(conn_, "", sql.data(), static_cast<int>(get_value<T>()),
+    res_ = PQprepare(conn_, "", sql.data(), static_cast<int>(getValue<T>()),
                      nullptr);
     if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
       LOG_ERROR << PQerrorMessage(conn_);
@@ -80,8 +80,8 @@ public:
     return true;
   }
 
-  template <typename T, typename... Args> bool create_table(Args &&...args) {
-    std::string sql = generate_create_table_sql<T>(std::forward<Args>(args)...);
+  template <typename T, typename... Args> bool createTable(Args &&...args) {
+    std::string sql = generateCreateTableSql<T>(std::forward<Args>(args)...);
     LOG_DEBUG << "create: " << sql;
     res_ = PQexec(conn_, sql.data());
     if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
@@ -92,12 +92,12 @@ public:
     return true;
   }
 
-  template <typename T> constexpr auto generate_insert_sql(bool replace) {
+  template <typename T> constexpr auto generateInsertSql(bool replace) {
     std::string sql = replace ? "replace into " : "insert into ";
-    std::string table_name = get_name<T>().data();
-    std::string field_name_pack = get_field<T>().data();
+    std::string table_name = getName<T>().data();
+    std::string field_name_pack = getField<T>().data();
     sql += table_name + "(" + field_name_pack + ") values(";
-    constexpr auto field_size = get_value<T>();
+    constexpr auto field_size = getValue<T>();
     for (size_t i = 0; i < field_size; i++) {
       sql += "$";
       sql += std::to_string(i + 1);
@@ -110,8 +110,8 @@ public:
   }
 
   template <typename T>
-  constexpr void set_param_values(std::vector<std::vector<char>> &param_values,
-                                  T &&value) {
+  constexpr void setParamValues(std::vector<std::vector<char>> &param_values,
+                                T &&value) {
     using U = std::remove_const_t<std::remove_reference_t<T>>;
     if constexpr (std::is_same_v<U, int64_t> || std::is_same_v<U, uint64_t>) {
       std::vector<char> temp(65, 0);
@@ -141,10 +141,10 @@ public:
     }
   }
 
-  template <typename T> bool insert_impl(std::string &sql, T &&t) {
+  template <typename T> bool insertImpl(std::string &sql, T &&t) {
     std::vector<std::vector<char>> param_values;
-    for_each(t, [&](auto &item, auto field, auto j) {
-      set_param_values(param_values, t.*item);
+    forEach(t, [&](auto &item, auto field, auto j) {
+      setParamValues(param_values, t.*item);
     });
     if (param_values.empty()) {
       return false;
@@ -174,23 +174,23 @@ public:
   }
 
   template <typename T> int insert(T &&t) {
-    std::string sql = generate_insert_sql<T>(false);
+    std::string sql = generateInsertSql<T>(false);
     LOG_DEBUG << "insert prepare: " << sql;
     if (!prepare<T>(sql)) {
       return false;
     }
-    return insert_impl(sql, std::forward<T>(t));
+    return insertImpl(sql, std::forward<T>(t));
   }
 
   template <typename T> int insert(std::vector<T> &t) {
-    std::string sql = generate_insert_sql<T>(false);
+    std::string sql = generateInsertSql<T>(false);
     LOG_DEBUG << "insert prepare: " << sql;
     if (!prepare<T>(sql)) {
       return 0;
     }
 
     for (auto &item : t) {
-      if (!insert_impl(sql, item)) {
+      if (!insertImpl(sql, item)) {
         execute("rollback;");
         return 0;
       }
@@ -201,10 +201,10 @@ public:
     return t.size();
   }
 
-  template <typename T> constexpr auto get_type_names() {
-    constexpr auto field_size = get_value<T>();
+  template <typename T> constexpr auto getTypeNames() {
+    constexpr auto field_size = getValue<T>();
     std::array<std::string, field_size> field_types;
-    for_each(T{}, [&](auto &item, auto field, auto j) {
+    forEach(T{}, [&](auto &item, auto field, auto j) {
       constexpr auto Idx = decltype(j)::value;
       using U = std::remove_reference_t<decltype(get<Idx>(std::declval<T>()))>;
       if constexpr (std::is_same_v<U, bool> || std::is_same_v<U, int> ||
@@ -244,12 +244,12 @@ public:
   }
 
   template <typename T, typename... Args>
-  std::string generate_create_table_sql(Args &&...args) {
-    auto table_name = get_name<T>();
+  std::string generateCreateTableSql(Args &&...args) {
+    auto table_name = getName<T>();
     std::string sql =
         std::string("create table if not exists ") + table_name.data() + "(";
-    auto field_names = get_array<T>();
-    auto field_types = get_type_names<T>();
+    auto field_names = getArray<T>();
+    auto field_types = getTypeNames<T>();
     using TT = std::tuple<std::decay_t<Args>...>;
     if constexpr (sizeof...(Args) > 0) {
 
@@ -258,15 +258,15 @@ public:
           "KeyMap and AutoKeyMap cannot be used together");
     }
 
-    auto tp = sort_tuple(std::make_tuple(std::forward<Args>(args)...));
-    constexpr auto field_size = get_value<T>();
+    auto tp = sortTuple(std::make_tuple(std::forward<Args>(args)...));
+    constexpr auto field_size = getValue<T>();
     static_assert(field_size == field_names.size(),
                   "field_size != field_names.size");
     for (size_t i = 0; i < field_size; i++) {
       std::string field_name = field_names[i].data();
       std::string field_type = field_types[i].data();
       bool has_add = false;
-      for_each(tp, [&](auto item, auto j) {
+      forEach(tp, [&](auto item, auto j) {
         if constexpr (std::is_same_v<decltype(item), NotNullMap>) {
           if (item.fields.find(field_name) == item.fields.end()) {
             return;
@@ -324,21 +324,21 @@ public:
   constexpr
       typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type
       query() {
-    return QueryObject<T>(conn_, get_name<T>());
+    return QueryObject<T>(conn_, getName<T>());
   }
 
   template <typename T>
   constexpr
       typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type
       del() {
-    return QueryObject<T>(conn_, get_name<T>(), "delete", "");
+    return QueryObject<T>(conn_, getName<T>(), "delete", "");
   }
 
   template <typename T>
   constexpr
       typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type
       update() {
-    return QueryObject<T>(conn_, get_name<T>(), "", "update");
+    return QueryObject<T>(conn_, getName<T>(), "", "update");
   }
 
   bool execute(const std::string &sql) {
@@ -350,8 +350,8 @@ public:
 
 private:
   template <typename Tuple1, typename Tuple2, size_t... Idx>
-  std::string generate_connect_sql(const Tuple1 &t1, const Tuple2 &t2,
-                                   std::index_sequence<Idx...> /*unused*/) {
+  std::string generateConnectSql(const Tuple1 &t1, const Tuple2 &t2,
+                                 std::index_sequence<Idx...> /*unused*/) {
     std::stringstream os;
     auto serialize = [&os](const std::string &key, const auto &val) {
       os << key << "=" << val << " ";

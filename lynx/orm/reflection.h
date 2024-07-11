@@ -163,7 +163,7 @@ namespace lynx {
   MACRO_ARGS_(MACRO_ARGS_INNER(0, ##__VA_ARGS__, RNG_N()))
 
 #define MACRO_CONCAT(a, b) a##_##b
-#define FIELD(f) f
+#define FD(f) f
 
 #define MAKE_ARG_LIST_1(op, arg, ...) op(arg)
 #define MAKE_ARG_LIST_2(op, arg, ...)                                          \
@@ -297,9 +297,9 @@ namespace lynx {
   MACRO_CONCAT(MAKE_ARG_LIST, N)(op, arg, __VA_ARGS__)
 
 #define MAKE_REFLECT_MEMBERS(class_name, ...)                                  \
-  inline auto reflect_members_func(class_name const &) {                       \
-    struct reflect_members {                                                   \
-      constexpr decltype(auto) static apply_impl() {                           \
+  inline auto reflectMembersFunc(class_name const &) {                         \
+    struct ReflectMembers {                                                    \
+      constexpr decltype(auto) static applyImpl() {                            \
         return std::make_tuple(__VA_ARGS__);                                   \
       }                                                                        \
       using size_type =                                                        \
@@ -313,7 +313,7 @@ namespace lynx {
         return arr_##class_name;                                               \
       }                                                                        \
     };                                                                         \
-    return reflect_members{};                                                  \
+    return ReflectMembers{};                                                   \
   }
 
 #define MAKE_META_DATA(class_name, table_name, N, ...)                         \
@@ -322,7 +322,7 @@ namespace lynx {
   constexpr std::string_view fields_##class_name = {#__VA_ARGS__};             \
   constexpr std::string_view name_##class_name = table_name;                   \
   MAKE_REFLECT_MEMBERS(class_name,                                             \
-                       MAKE_ARG_LIST(N, &class_name::FIELD, __VA_ARGS__))
+                       MAKE_ARG_LIST(N, &class_name::FD, __VA_ARGS__))
 
 #define REFLECTION_TEMPLATE(class_name, ...)                                   \
   MAKE_META_DATA(class_name, #class_name, MACRO_ARGS_SIZE(__VA_ARGS__),        \
@@ -333,7 +333,7 @@ namespace lynx {
                  __VA_ARGS__)
 
 template <typename T>
-using reflect_members = decltype(reflect_members_func(std::declval<T>()));
+using reflect_members = decltype(reflectMembersFunc(std::declval<T>()));
 
 template <typename T, typename = void>
 struct is_reflection : std::false_type {};
@@ -358,33 +358,33 @@ template <typename T>
 inline constexpr bool is_reflection_v = is_reflection<T>::value;
 
 template <typename... Args, typename A, typename F, std::size_t... Idx>
-constexpr void for_each(const std::tuple<Args...> &t, const A &arr, F &&f,
-                        std::index_sequence<Idx...> /*unused*/) {
+constexpr void forEach(const std::tuple<Args...> &t, const A &arr, F &&f,
+                       std::index_sequence<Idx...> /*unused*/) {
   (std::forward<F>(f)(std::get<Idx>(t), arr[Idx],
                       std::integral_constant<size_t, Idx>{}),
    ...);
 }
 
 template <typename... Args, typename F, std::size_t... Idx>
-constexpr void for_each(std::tuple<Args...> &t, F &&f,
-                        std::index_sequence<Idx...> /*unused*/) {
+constexpr void forEach(std::tuple<Args...> &t, F &&f,
+                       std::index_sequence<Idx...> /*unused*/) {
   (std::forward<F>(f)(std::get<Idx>(t), std::integral_constant<size_t, Idx>{}),
    ...);
 }
 
 template <typename T, typename F>
-constexpr std::enable_if_t<is_reflection<T>::value> for_each(T &&t, F &&f) {
-  using M = decltype(reflect_members_func(std::forward<T>(t)));
-  for_each(M::apply_impl(), M::arr(), std::forward<F>(f),
-           std::make_index_sequence<M::value()>{});
+constexpr std::enable_if_t<is_reflection<T>::value> forEach(T &&t, F &&f) {
+  using M = decltype(reflectMembersFunc(std::forward<T>(t)));
+  forEach(M::applyImpl(), M::arr(), std::forward<F>(f),
+          std::make_index_sequence<M::value()>{});
 }
 
 template <typename T, typename F>
 constexpr std::enable_if_t<!is_reflection<T>::value &&
                            is_tuple<std::decay_t<T>>::value>
-for_each(T &&t, F &&f) {
-  for_each(std::forward<T>(t), std::forward<F>(f),
-           std::make_index_sequence<std::tuple_size_v<std::decay_t<T>>>{});
+forEach(T &&t, F &&f) {
+  forEach(std::forward<T>(t), std::forward<F>(f),
+          std::make_index_sequence<std::tuple_size_v<std::decay_t<T>>>{});
 }
 
 template <typename T>
@@ -395,7 +395,7 @@ constexpr void set_param_values(std::ostream &os, const std::string_view &field,
 
 template <typename T> std::string serialize(T &t) {
   std::stringstream ss;
-  for_each(t, [&t, &ss](auto item, auto field, auto i) {
+  forEach(t, [&t, &ss](auto item, auto field, auto i) {
     set_param_values(ss, field, t.*item, i);
   });
   return ss.str();
@@ -403,19 +403,19 @@ template <typename T> std::string serialize(T &t) {
 
 template <typename T>
 constexpr typename std::enable_if<!is_reflection<T>::value, std::size_t>::type
-get_value() {
+getValue() {
   return 0;
 }
 
 template <typename T>
 constexpr typename std::enable_if<is_reflection<T>::value, std::size_t>::type
-get_value() {
-  using M = decltype(reflect_members_func(std::declval<T>()));
+getValue() {
+  using M = decltype(reflectMembersFunc(std::declval<T>()));
   return M::value();
 }
 
-template <typename T> constexpr std::size_t get_index(std::string_view field) {
-  using M = decltype(reflect_members_func(std::declval<T>()));
+template <typename T> constexpr std::size_t getIndex(std::string_view field) {
+  using M = decltype(reflectMembersFunc(std::declval<T>()));
   auto arr = M::arr();
   auto it = std::find_if(arr.begin(), arr.end(), [&field](auto f) {
     return std::string_view(f) == field;
@@ -423,48 +423,47 @@ template <typename T> constexpr std::size_t get_index(std::string_view field) {
   return std::distance(arr.begin(), it);
 }
 
-template <typename T> constexpr auto get_array() {
-  using M = decltype(reflect_members_func(std::declval<T>()));
+template <typename T> constexpr auto getArray() {
+  using M = decltype(reflectMembersFunc(std::declval<T>()));
   return M::arr();
 }
 
-template <typename T> constexpr std::string_view get_field() {
-  using M = decltype(reflect_members_func(std::declval<T>()));
+template <typename T> constexpr std::string_view getField() {
+  using M = decltype(reflectMembersFunc(std::declval<T>()));
   return M::fields();
 }
 
-template <typename T> constexpr auto get_name() {
-  using M = decltype(reflect_members_func(std::declval<T>()));
+template <typename T> constexpr auto getName() {
+  using M = decltype(reflectMembersFunc(std::declval<T>()));
   return M::name();
 }
 
-template <typename T> constexpr auto get_name(size_t idx) {
-  using M = decltype(reflect_members_func(std::declval<T>()));
+template <typename T> constexpr auto getName(size_t idx) {
+  using M = decltype(reflectMembersFunc(std::declval<T>()));
   return M::arr()[idx];
 }
 
-template <typename T, std::size_t I> constexpr auto get_name() {
-  using M = decltype(reflect_members_func(std::declval<T>()));
+template <typename T, std::size_t I> constexpr auto getName() {
+  using M = decltype(reflectMembersFunc(std::declval<T>()));
   static_assert(I < M::value(), "index out of range");
   return M::arr()[I];
 }
 
-template <typename T>
-std::string_view get_name_impl(const T &t, std::size_t i) {
-  return get_name<T>(i);
+template <typename T> std::string_view getNameImpl(const T &t, std::size_t i) {
+  return getName<T>(i);
 }
 
 template <size_t I, typename T> constexpr decltype(auto) get(T &&t) {
-  using M = decltype(reflect_members_func(std::forward<T>(t)));
-  using U = decltype(std::forward<T>(t).*(std::get<I>(M::apply_impl())));
+  using M = decltype(reflectMembersFunc(std::forward<T>(t)));
+  using U = decltype(std::forward<T>(t).*(std::get<I>(M::applyImpl())));
 
   if constexpr (std::is_array_v<U>) {
-    auto s = std::forward<T>(t).*(std::get<I>(M::apply_impl()));
+    auto s = std::forward<T>(t).*(std::get<I>(M::applyImpl()));
     std::array<char, sizeof(U)> arr;
     memcpy(arr.data(), s, arr.size());
     return arr;
   } else {
-    return std::forward<T>(t).*(std::get<I>(M::apply_impl()));
+    return std::forward<T>(t).*(std::get<I>(M::applyImpl()));
   }
 }
 

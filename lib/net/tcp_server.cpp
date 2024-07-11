@@ -54,7 +54,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
   loop_->assertInLoopThread();
   EventLoop *io_loop = thread_pool_->getNextLoop();
   char buf[64];
-  snprintf(buf, sizeof buf, "-%s#%d", ip_port_.c_str(), next_conn_id_);
+  snprintf(buf, sizeof(buf), "-%s#%d", ip_port_.c_str(), next_conn_id_);
   ++next_conn_id_;
   std::string conn_name = name_ + buf;
 

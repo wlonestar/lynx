@@ -17,8 +17,8 @@ template <typename RNT_TYPE> struct Selectable {
       : expr_(std::string(op) + "(" + std::string(field) + ")"),
         tbl_name_(tbl_name){};
 
-  inline std::string to_string() const { return expr_; }
-  inline std::string table_name() const { return tbl_name_; }
+  inline std::string toString() const { return expr_; }
+  inline std::string tableName() const { return tbl_name_; }
 
   RNT_TYPE return_type;
 
@@ -32,7 +32,7 @@ public:
   Expr(std::string_view &&field, std::string_view &&tbl_name)
       : expr_(field), tbl_name_(tbl_name){};
 
-  template <typename T> Expr make_expr(std::string &&op, T value) {
+  template <typename T> Expr makeExpr(std::string &&op, T value) {
     using U = std::decay_t<T>;
     if constexpr (std::is_array<U>::value || std::is_same_v<U, std::string> ||
                   std::is_same_v<U, const char *>) {
@@ -45,40 +45,40 @@ public:
   }
 
   template <typename T> inline Expr operator==(T value) {
-    return Expr(make_expr("=", value));
+    return Expr(makeExpr("=", value));
   }
   template <typename T> inline Expr operator=(T value) {
-    return Expr(make_expr("=", value));
+    return Expr(makeExpr("=", value));
   }
   template <typename T> inline Expr operator|(T value) {
-    return Expr(make_expr(",", value));
+    return Expr(makeExpr(",", value));
   }
   template <typename T> inline Expr operator!=(T value) {
-    return Expr(make_expr("!=", value));
+    return Expr(makeExpr("!=", value));
   }
   template <typename T> inline Expr operator<(T value) {
-    return Expr(make_expr("<", value));
+    return Expr(makeExpr("<", value));
   }
   template <typename T> inline Expr operator>(T value) {
-    return Expr(make_expr(">", value));
+    return Expr(makeExpr(">", value));
   }
   template <typename T> inline Expr operator<=(T value) {
-    return Expr(make_expr("<=", value));
+    return Expr(makeExpr("<=", value));
   }
   template <typename T> inline Expr operator>=(T value) {
-    return Expr(make_expr(">=", value));
+    return Expr(makeExpr(">=", value));
   }
   inline Expr operator%(std::string &&value) {
-    return Expr(make_expr("like", value));
+    return Expr(makeExpr("like", value));
   }
   inline Expr operator^(std::string &&value) {
-    return Expr(make_expr("not like", value));
+    return Expr(makeExpr("not like", value));
   }
-  inline Expr operator&&(Expr &&value) { return Expr(make_expr("and", value)); }
-  inline Expr operator||(Expr &&value) { return Expr(make_expr("or", value)); }
+  inline Expr operator&&(Expr &&value) { return Expr(makeExpr("and", value)); }
+  inline Expr operator||(Expr &&value) { return Expr(makeExpr("or", value)); }
 
-  inline std::string to_string() const { return expr_; }
-  inline std::string table_name() const { return tbl_name_; }
+  inline std::string toString() const { return expr_; }
+  inline std::string tableName() const { return tbl_name_; }
   inline std::string print() const { return tbl_name_ + ", " + expr_; }
 
 private:
@@ -135,17 +135,17 @@ public:
         update_sql_(update_sql), set_sql_(set_sql) {}
 
   template <typename... Args>
-  inline void select_impl(std::string &sql, Args &&...args) {
+  inline void selectImpl(std::string &sql, Args &&...args) {
     constexpr auto size = sizeof...(Args);
     auto tp = std::make_tuple(std::forward<Args>(args)...);
-    for_each(tp, [&](auto arg, auto i) {
+    forEach(tp, [&](auto arg, auto i) {
       if constexpr (std::is_same_v<decltype(arg),
                                    Selectable<decltype(arg.return_type)>>) {
-        bool same_table = arg.table_name() == table_name_;
+        bool same_table = arg.tableName() == table_name_;
         assert(same_table);
         (void)same_table;
-        table_name_ = arg.table_name();
-        sql += arg.to_string();
+        table_name_ = arg.tableName();
+        sql += arg.toString();
         if (i != size - 1) {
           sql += ", ";
         }
@@ -155,7 +155,7 @@ public:
 
   template <typename... Args>
   inline QueryObject<std::tuple<Args...>>
-  new_query(std::tuple<Args...> &&query_result) {
+  newQuery(std::tuple<Args...> &&query_result) {
     return QueryObject<std::tuple<Args...>>(
         conn_, table_name_, query_result, select_sql_, where_sql_,
         group_by_sql_, having_sql_, order_by_sql_, limit_sql_, offset_sql_,
@@ -165,44 +165,44 @@ public:
   template <typename... Args> inline auto select(Args &&...args) {
     std::string sql = "select ";
     if constexpr (sizeof...(Args) > 0) {
-      select_impl(sql, std::forward<Args>(args)...);
+      selectImpl(sql, std::forward<Args>(args)...);
     } else {
       sql += " * ";
     }
     sql += " from " + table_name_;
     (*this).select_sql_ = sql;
-    return new_query(std::tuple<decltype(args.return_type)...>{});
+    return newQuery(std::tuple<decltype(args.return_type)...>{});
   }
 
   inline QueryObject &&set(const Expr &expression) {
-    table_name_ = expression.table_name();
-    (*this).set_sql_ = " set " + expression.to_string();
+    table_name_ = expression.tableName();
+    (*this).set_sql_ = " set " + expression.toString();
     return std::move(*this);
   }
 
   inline QueryObject &&where(const Expr &expression) {
-    table_name_ = expression.table_name();
-    (*this).where_sql_ = " where (" + expression.to_string() + ")";
+    table_name_ = expression.tableName();
+    (*this).where_sql_ = " where (" + expression.toString() + ")";
     return std::move(*this);
   }
 
   inline QueryObject &&group_by(const Expr &expression) {
-    (*this).group_by_sql_ = " group by (" + expression.to_string() + ")";
+    (*this).group_by_sql_ = " group by (" + expression.toString() + ")";
     return std::move(*this);
   }
 
   inline QueryObject &&having(const Expr &expression) {
-    (*this).having_sql_ = " having (" + expression.to_string() + ")";
+    (*this).having_sql_ = " having (" + expression.toString() + ")";
     return std::move(*this);
   }
 
   inline QueryObject &&order_by(const Expr &expression) {
-    (*this).order_by_sql_ = " order by " + expression.to_string() + " asc";
+    (*this).order_by_sql_ = " order by " + expression.toString() + " asc";
     return std::move(*this);
   }
 
   inline QueryObject &&order_by_desc(const Expr &expression) {
-    (*this).order_by_sql_ = " order by " + expression.to_string() + " desc";
+    (*this).order_by_sql_ = " order by " + expression.toString() + " desc";
     return std::move(*this);
   }
 
@@ -216,7 +216,7 @@ public:
     return std::move(*this);
   }
 
-  std::string to_string() {
+  std::string toString() {
     if (select_sql_.empty() && delete_sql_.empty() && update_sql_.empty()) {
       select_sql_ = "select * from " + table_name_;
     }
@@ -226,7 +226,7 @@ public:
   }
 
   template <typename T>
-  constexpr void assign_value(T &&value, int row, int col) {
+  constexpr void assignValue(T &&value, int row, int col) {
     using U = std::remove_const_t<std::remove_reference_t<T>>;
     if constexpr (std::is_integral<U>::value &&
                   !(std::is_same<U, int64_t>::value ||
@@ -265,8 +265,8 @@ public:
     size_t ntuples = PQntuples(res_);
     for (size_t i = 0; i < ntuples; i++) {
       T tp = {};
-      for_each(tp, [this, &tp, &i](auto item, auto field, auto j) {
-        this->assign_value(tp.*item, i, static_cast<int>(decltype(j)::value));
+      forEach(tp, [this, &tp, &i](auto item, auto field, auto j) {
+        this->assignValue(tp.*item, i, static_cast<int>(decltype(j)::value));
       });
       ret_vector.push_back(std::move(tp));
     }
@@ -289,15 +289,15 @@ public:
     for (size_t i = 0; i < ntuples; i++) {
       T tp = {};
       int index = 0;
-      for_each(tp, [this, &i, &index](auto &item, auto j) {
+      forEach(tp, [this, &i, &index](auto &item, auto j) {
         if constexpr (is_reflection_v<std::decay_t<decltype(item)>>) {
           std::decay_t<decltype(item)> t = {};
-          for_each(t, [this, &index, &t](auto ele, auto field, auto j) {
-            assign_value(t.*ele, j, index++);
+          forEach(t, [this, &index, &t](auto ele, auto field, auto j) {
+            assignValue(t.*ele, j, index++);
           });
           item = std::move(t);
         } else {
-          assign_value(item, static_cast<int>(i), index++);
+          assignValue(item, static_cast<int>(i), index++);
         }
       });
       ret_vector.push_back(tp);
@@ -306,12 +306,10 @@ public:
     return ret_vector;
   }
 
-  std::vector<QueryResult> to_vector() {
-    return query<QueryResult>(to_string());
-  }
+  std::vector<QueryResult> toVector() { return query<QueryResult>(toString()); }
 
   bool execute() {
-    auto sql = to_string();
+    auto sql = toString();
     LOG_DEBUG << "exec: " << sql;
     res_ = PQexec(conn_, sql.data());
     bool ret = PQresultStatus(res_) == PGRES_COMMAND_OK;
@@ -320,46 +318,46 @@ public:
   }
 };
 
-template <typename T> struct field_attribute;
+template <typename T> struct FieldAttribute;
 
-template <typename T, typename U> struct field_attribute<U T::*> {
+template <typename T, typename U> struct FieldAttribute<U T::*> {
   using type = T;
   using return_type = U;
 };
 
 template <typename U>
-constexpr std::string_view get_field_name(std::string_view full_name) {
-  using T = typename field_attribute<U>::type;
-  return full_name.substr(get_name<T>().length() + 2, full_name.length());
+constexpr std::string_view getFieldName(std::string_view full_name) {
+  using T = typename FieldAttribute<U>::type;
+  return full_name.substr(getName<T>().length() + 2, full_name.length());
 }
 
 template <typename U>
-constexpr std::string_view get_table_name(std::string_view full_name) {
-  using T = typename field_attribute<U>::type;
-  return get_name<T>();
+constexpr std::string_view getTableName(std::string_view full_name) {
+  using T = typename FieldAttribute<U>::type;
+  return getName<T>();
 }
 
-#define FD(field)                                                              \
-  lynx::Expr(                                                                  \
-      lynx::get_field_name<decltype(&(field))>(std::string_view(#field)),      \
-      lynx::get_table_name<decltype(&(field))>(std::string_view(#field)))
+#define FIELD(field)                                                           \
+  lynx::Expr(lynx::getFieldName<decltype(&(field))>(std::string_view(#field)), \
+             lynx::getTableName<decltype(&(field))>(std::string_view(#field)))
 
 #define ORM_AGG(field, op, type)                                               \
   lynx::Selectable<type>(                                                      \
-      lynx::get_field_name<decltype(&(field))>(std::string_view(#field)),      \
-      lynx::get_table_name<decltype(&(field))>(std::string_view(#field)), op)
+      lynx::getFieldName<decltype(&(field))>(std::string_view(#field)),        \
+      lynx::getTableName<decltype(&(field))>(std::string_view(#field)), op)
 
 #define RNT(field)                                                             \
-  ORM_AGG(field, "", lynx::field_attribute<decltype(&(field))>::return_type)
+  ORM_AGG(field, "", lynx::FieldAttribute<decltype(&(field))>::return_type)
+
 #define ORM_COUNT(field) ORM_AGG(field, "count", std::size_t)
 #define ORM_SUM(field)                                                         \
-  ORM_AGG(field, "sum", lynx::field_attribute<decltype(&(field))>::return_type)
+  ORM_AGG(field, "sum", lynx::FieldAttribute<decltype(&(field))>::return_type)
 #define ORM_AVG(field)                                                         \
-  ORM_AGG(field, "avg", lynx::field_attribute<decltype(&(field))>::return_type)
+  ORM_AGG(field, "avg", lynx::FieldAttribute<decltype(&(field))>::return_type)
 #define ORM_MAX(field)                                                         \
-  ORM_AGG(field, "max", lynx::field_attribute<decltype(&(field))>::return_type)
+  ORM_AGG(field, "max", lynx::FieldAttribute<decltype(&(field))>::return_type)
 #define ORM_MIN(field)                                                         \
-  ORM_AGG(field, "min", lynx::field_attribute<decltype(&(field))>::return_type)
+  ORM_AGG(field, "min", lynx::FieldAttribute<decltype(&(field))>::return_type)
 
 } // namespace lynx
 

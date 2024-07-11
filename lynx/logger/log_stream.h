@@ -34,7 +34,7 @@ public:
   void add(size_t len) { cur_ += len; }
 
   void reset() { cur_ = data_; }
-  void bzero() { ::bzero(data_, sizeof(data_)); }
+  void bzero() { ::memset(data_, 0, sizeof(data_)); }
 
   void setCookie(void (*cookie)()) { cookie_ = cookie; }
 

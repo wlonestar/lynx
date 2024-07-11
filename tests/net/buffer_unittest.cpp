@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(testBufferPrepend) {
   BOOST_CHECK_EQUAL(buf.prependableBytes(), lynx::Buffer::K_CHEAP_PREPEND);
 
   int x = 0;
-  buf.prepend(&x, sizeof x);
+  buf.prepend(&x, sizeof(x));
   BOOST_CHECK_EQUAL(buf.readableBytes(), 204);
   BOOST_CHECK_EQUAL(buf.writableBytes(), lynx::Buffer::K_INITIAL_SIZE - 200);
   BOOST_CHECK_EQUAL(buf.prependableBytes(), lynx::Buffer::K_CHEAP_PREPEND - 4);

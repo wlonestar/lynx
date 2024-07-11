@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     clients.reserve(n);
     for (int i = 0; i < n; ++i) {
       char buf[32];
-      snprintf(buf, sizeof buf, "%d", i + 1);
+      snprintf(buf, sizeof(buf), "%d", i + 1);
       clients.emplace_back(new EchoClient(&loop, server_addr, buf));
     }
 

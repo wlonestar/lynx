@@ -178,16 +178,16 @@ void EventLoop::abortNotInLoopThread() {
 
 void EventLoop::wakeup() {
   uint64_t one = 1;
-  ssize_t n = sockets::write(wakeup_fd_, &one, sizeof one);
-  if (n != sizeof one) {
+  ssize_t n = sockets::write(wakeup_fd_, &one, (one));
+  if (n != sizeof(one)) {
     LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
   }
 }
 
 void EventLoop::handleRead() {
   uint64_t one = 1;
-  ssize_t n = sockets::read(wakeup_fd_, &one, sizeof one);
-  if (n != sizeof one) {
+  ssize_t n = sockets::read(wakeup_fd_, &one, sizeof(one));
+  if (n != sizeof(one)) {
     LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
   }
 }
