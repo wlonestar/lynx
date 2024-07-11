@@ -20,7 +20,7 @@ template <typename RNT_TYPE> struct Selectable {
   inline std::string toString() const { return expr_; }
   inline std::string tableName() const { return tbl_name_; }
 
-  RNT_TYPE return_type;
+  RNT_TYPE return_type; // NOLINT
 
 private:
   std::string expr_;
@@ -179,38 +179,31 @@ public:
     (*this).set_sql_ = " set " + expression.toString();
     return std::move(*this);
   }
-
   inline QueryObject &&where(const Expr &expression) {
     table_name_ = expression.tableName();
     (*this).where_sql_ = " where (" + expression.toString() + ")";
     return std::move(*this);
   }
-
-  inline QueryObject &&group_by(const Expr &expression) {
+  inline QueryObject &&groupBy(const Expr &expression) {
     (*this).group_by_sql_ = " group by (" + expression.toString() + ")";
     return std::move(*this);
   }
-
   inline QueryObject &&having(const Expr &expression) {
     (*this).having_sql_ = " having (" + expression.toString() + ")";
     return std::move(*this);
   }
-
-  inline QueryObject &&order_by(const Expr &expression) {
+  inline QueryObject &&orderBy(const Expr &expression) {
     (*this).order_by_sql_ = " order by " + expression.toString() + " asc";
     return std::move(*this);
   }
-
-  inline QueryObject &&order_by_desc(const Expr &expression) {
+  inline QueryObject &&orderByDesc(const Expr &expression) {
     (*this).order_by_sql_ = " order by " + expression.toString() + " desc";
     return std::move(*this);
   }
-
   inline QueryObject &&limit(std::size_t n) {
     (*this).limit_sql_ = " limit " + std::to_string(n);
     return std::move(*this);
   }
-
   inline QueryObject &&offset(std::size_t n) {
     (*this).offset_sql_ = " offset " + std::to_string(n);
     return std::move(*this);
@@ -337,7 +330,7 @@ constexpr std::string_view getTableName(std::string_view full_name) {
   return getName<T>();
 }
 
-#define FIELD(field)                                                           \
+#define VALUE(field)                                                           \
   lynx::Expr(lynx::getFieldName<decltype(&(field))>(std::string_view(#field)), \
              lynx::getTableName<decltype(&(field))>(std::string_view(#field)))
 
@@ -346,7 +339,7 @@ constexpr std::string_view getTableName(std::string_view full_name) {
       lynx::getFieldName<decltype(&(field))>(std::string_view(#field)),        \
       lynx::getTableName<decltype(&(field))>(std::string_view(#field)), op)
 
-#define RNT(field)                                                             \
+#define FIELD(field)                                                           \
   ORM_AGG(field, "", lynx::FieldAttribute<decltype(&(field))>::return_type)
 
 #define ORM_COUNT(field) ORM_AGG(field, "count", std::size_t)

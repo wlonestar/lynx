@@ -7,7 +7,7 @@ BUILD_DIR = build
 DEBUG_BUILD = $(BUILD_DIR)/debug
 RELEASE_BUILD = $(BUILD_DIR)/release
 
-INSTALL_DIR = /tmp/install
+INSTALL_DIR = /home/wjl/work/demos/http_server
 
 .DEFAULT_GOAL := build
 

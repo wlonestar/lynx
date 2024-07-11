@@ -178,7 +178,7 @@ void EventLoop::abortNotInLoopThread() {
 
 void EventLoop::wakeup() {
   uint64_t one = 1;
-  ssize_t n = sockets::write(wakeup_fd_, &one, (one));
+  ssize_t n = sockets::write(wakeup_fd_, &one, sizeof(one));
   if (n != sizeof(one)) {
     LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
   }

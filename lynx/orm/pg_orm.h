@@ -13,15 +13,15 @@
 namespace lynx {
 
 struct KeyMap {
-  std::string fields;
+  std::string fields; // NOLINT
 };
 
 struct AutoKeyMap {
-  std::string fields;
+  std::string fields; // NOLINT
 };
 
 struct NotNullMap {
-  std::set<std::string> fields;
+  std::set<std::string> fields; // NOLINT
 };
 
 template <typename... Args>
@@ -38,22 +38,51 @@ constexpr auto sortTuple(const std::tuple<Args...> &t) {
 
 class PQconnection {
 public:
-  template <typename... Args> PQconnection(Args &&...args) {
-    auto args_tp = std::make_tuple(std::forward<Args>(args)...);
-    auto index = std::make_index_sequence<sizeof...(Args)>();
-    constexpr size_t size = std::tuple_size<decltype(args_tp)>::value;
-    std::string sql;
-    if constexpr (size == 5) {
-      auto fields =
-          std::make_tuple("host", "port", "user", "password", "dbname");
-      sql = generateConnectSql(fields, args_tp, index);
-    }
-    if constexpr (size == 6) {
-      auto fields = std::make_tuple("host", "port", "user", "password",
-                                    "dbname", "connect_timeout");
-      sql = generateConnectSql(fields, args_tp, index);
-    }
+  // template <typename... Args> PQconnection(Args &&...args) {
+  //   auto args_tp = std::make_tuple(std::forward<Args>(args)...);
+  //   auto index = std::make_index_sequence<sizeof...(Args)>();
+  //   constexpr size_t size = std::tuple_size<decltype(args_tp)>::value;
+  //   std::string sql;
+  //   if constexpr (size == 5) {
+  //     auto fields =
+  //         std::make_tuple("host", "port", "user", "password", "dbname");
+  //     sql = generateConnectSql(fields, args_tp, index);
+  //   }
+  //   if constexpr (size == 6) {
+  //     auto fields = std::make_tuple("host", "port", "user", "password",
+  //                                   "dbname", "connect_timeout");
+  //     sql = generateConnectSql(fields, args_tp, index);
+  //   }
+  //   LOG_DEBUG << "connect: " << sql;
+  //   conn_ = PQconnectdb(sql.data());
+  //   if (PQstatus(conn_) != CONNECTION_OK) {
+  //     LOG_ERROR << PQerrorMessage(conn_);
+  //   }
+  // }
 
+  PQconnection(const std::string &host, const std::string &port,
+               const std::string &user, const std::string &password,
+               const std::string &dbname) {
+    auto fields = std::make_tuple("host", "port", "user", "password", "dbname");
+    auto args_tp = std::make_tuple(host, port, user, password, dbname);
+    auto index = std::make_index_sequence<5>();
+    std::string sql = generateConnectSql(fields, args_tp, index);
+    LOG_DEBUG << "connect: " << sql;
+    conn_ = PQconnectdb(sql.data());
+    if (PQstatus(conn_) != CONNECTION_OK) {
+      LOG_ERROR << PQerrorMessage(conn_);
+    }
+  }
+
+  PQconnection(const std::string &host, const std::string &port,
+               const std::string &user, const std::string &password,
+               const std::string &dbname, const std::string &connectTimeout) {
+    auto fields = std::make_tuple("host", "port", "user", "password", "dbname",
+                                  "connect_timeout");
+    auto args_tp =
+        std::make_tuple(host, port, user, password, dbname, connectTimeout);
+    auto index = std::make_index_sequence<6>();
+    std::string sql = generateConnectSql(fields, args_tp, index);
     LOG_DEBUG << "connect: " << sql;
     conn_ = PQconnectdb(sql.data());
     if (PQstatus(conn_) != CONNECTION_OK) {
@@ -69,17 +98,6 @@ public:
     }
   }
 
-  template <typename T> bool prepare(const std::string &sql) {
-    res_ = PQprepare(conn_, "", sql.data(), static_cast<int>(getValue<T>()),
-                     nullptr);
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQerrorMessage(conn_);
-      return false;
-    }
-    PQclear(res_);
-    return true;
-  }
-
   template <typename T, typename... Args> bool createTable(Args &&...args) {
     std::string sql = generateCreateTableSql<T>(std::forward<Args>(args)...);
     LOG_DEBUG << "create: " << sql;
@@ -92,85 +110,11 @@ public:
     return true;
   }
 
-  template <typename T> constexpr auto generateInsertSql(bool replace) {
-    std::string sql = replace ? "replace into " : "insert into ";
-    std::string table_name = getName<T>().data();
-    std::string field_name_pack = getField<T>().data();
-    sql += table_name + "(" + field_name_pack + ") values(";
-    constexpr auto field_size = getValue<T>();
-    for (size_t i = 0; i < field_size; i++) {
-      sql += "$";
-      sql += std::to_string(i + 1);
-      if (i != field_size - 1) {
-        sql += ", ";
-      }
-    }
-    sql += ");";
-    return sql;
-  }
-
-  template <typename T>
-  constexpr void setParamValues(std::vector<std::vector<char>> &param_values,
-                                T &&value) {
-    using U = std::remove_const_t<std::remove_reference_t<T>>;
-    if constexpr (std::is_same_v<U, int64_t> || std::is_same_v<U, uint64_t>) {
-      std::vector<char> temp(65, 0);
-      auto v_str = std::to_string(value);
-      memcpy(temp.data(), v_str.data(), v_str.size());
-      param_values.push_back(temp);
-    } else if constexpr (std::is_integral_v<U> || std::is_floating_point_v<U>) {
-      std::vector<char> temp(20, 0);
-      auto v_str = std::to_string(value);
-      memcpy(temp.data(), v_str.data(), v_str.size());
-      param_values.push_back(std::move(temp));
-    } else if constexpr (std::is_enum_v<U>) {
-      std::vector<char> temp(20, 0);
-      auto v_str =
-          std::to_string(static_cast<std::underlying_type_t<U>>(value));
-      memcpy(temp.data(), v_str.data(), v_str.size());
-      param_values.push_back(std::move(temp));
-    } else if constexpr (std::is_same_v<U, std::string>) {
-      std::vector<char> temp = {};
-      std::copy(value.data(), value.data() + value.size() + 1,
-                std::back_inserter(temp));
-      param_values.push_back(std::move(temp));
-    } else if constexpr (std::is_array<U>::value) {
-      std::vector<char> temp = {};
-      std::copy(value, value + ArraySize<U>::value, std::back_inserter(temp));
-      param_values.push_back(std::move(temp));
-    }
-  }
-
-  template <typename T> bool insertImpl(std::string &sql, T &&t) {
-    std::vector<std::vector<char>> param_values;
-    forEach(t, [&](auto &item, auto field, auto j) {
-      setParamValues(param_values, t.*item);
-    });
-    if (param_values.empty()) {
-      return false;
-    }
-    std::vector<const char *> param_values_buf;
-    param_values_buf.reserve(param_values.size());
-    for (auto &item : param_values) {
-      param_values_buf.push_back(item.data());
-    }
-
-    std::cout << "params: ";
-    for (size_t i = 0; i < param_values_buf.size(); i++) {
-      std::cout << i << "=" << *(param_values_buf.data() + i) << ", ";
-    }
-    std::cout << std::endl;
-    res_ = PQexecPrepared(conn_, "", static_cast<int>(param_values.size()),
-                          param_values_buf.data(), nullptr, nullptr, 0);
-
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQresultErrorMessage(res_);
-      PQclear(res_);
-      return false;
-    }
-
+  bool execute(const std::string &sql) {
+    res_ = PQexec(conn_, sql.data());
+    bool ret = PQresultStatus(res_) == PGRES_COMMAND_OK;
     PQclear(res_);
-    return true;
+    return ret;
   }
 
   template <typename T> int insert(T &&t) {
@@ -201,41 +145,74 @@ public:
     return t.size();
   }
 
+  template <typename T>
+  constexpr
+      typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type
+      query() {
+    return QueryObject<T>(conn_, getName<T>());
+  }
+
+  template <typename T>
+  constexpr
+      typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type
+      del() {
+    return QueryObject<T>(conn_, getName<T>(), "delete", "");
+  }
+
+  template <typename T>
+  constexpr
+      typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type
+      update() {
+    return QueryObject<T>(conn_, getName<T>(), "", "update");
+  }
+
+private:
+  template <typename T> bool prepare(const std::string &sql) {
+    res_ = PQprepare(conn_, "", sql.data(), static_cast<int>(getValue<T>()),
+                     nullptr);
+    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQerrorMessage(conn_);
+      return false;
+    }
+    PQclear(res_);
+    return true;
+  }
+
   template <typename T> constexpr auto getTypeNames() {
     constexpr auto field_size = getValue<T>();
     std::array<std::string, field_size> field_types;
     forEach(T{}, [&](auto &item, auto field, auto j) {
-      constexpr auto Idx = decltype(j)::value;
-      using U = std::remove_reference_t<decltype(get<Idx>(std::declval<T>()))>;
+      constexpr auto idx = decltype(j)::value;
+      using U = std::remove_reference_t<decltype(get<idx>(std::declval<T>()))>;
       if constexpr (std::is_same_v<U, bool> || std::is_same_v<U, int> ||
                     std::is_same_v<U, int32_t> || std::is_same_v<U, uint32_t> ||
                     std::is_enum_v<U>) {
-        field_types[Idx] = "integer";
+        field_types[idx] = "integer";
         return;
       }
       if constexpr (std::is_same_v<U, int8_t> || std::is_same_v<U, uint8_t> ||
                     std::is_same_v<U, int16_t> || std::is_same_v<U, uint16_t>) {
-        field_types[Idx] = "smallint";
+        field_types[idx] = "smallint";
         return;
       }
       if constexpr (std::is_same_v<U, int64_t> || std::is_same_v<U, uint64_t>) {
-        field_types[Idx] = "bigint";
+        field_types[idx] = "bigint";
         return;
       }
       if constexpr (std::is_same_v<U, float>) {
-        field_types[Idx] = "real";
+        field_types[idx] = "real";
         return;
       }
       if constexpr (std::is_same_v<U, double>) {
-        field_types[Idx] = "double precision";
+        field_types[idx] = "double precision";
         return;
       }
       if constexpr (std::is_same_v<U, std::string>) {
-        field_types[Idx] = "text";
+        field_types[idx] = "text";
         return;
       }
       if constexpr (std::is_array<U>::value) {
-        field_types[Idx] =
+        field_types[idx] =
             "varchar(" + std::to_string(ArraySize<U>::value) + ")";
         return;
       }
@@ -320,35 +297,87 @@ public:
     return sql;
   }
 
-  template <typename T>
-  constexpr
-      typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type
-      query() {
-    return QueryObject<T>(conn_, getName<T>());
-  }
+  template <typename T> bool insertImpl(std::string &sql, T &&t) {
+    std::vector<std::vector<char>> param_values;
+    forEach(t, [&](auto &item, auto field, auto j) {
+      setParamValues(param_values, t.*item);
+    });
+    if (param_values.empty()) {
+      return false;
+    }
+    std::vector<const char *> param_values_buf;
+    param_values_buf.reserve(param_values.size());
+    for (auto &item : param_values) {
+      param_values_buf.push_back(item.data());
+    }
 
-  template <typename T>
-  constexpr
-      typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type
-      del() {
-    return QueryObject<T>(conn_, getName<T>(), "delete", "");
-  }
+    std::cout << "params: ";
+    for (size_t i = 0; i < param_values_buf.size(); i++) {
+      std::cout << i << "=" << *(param_values_buf.data() + i) << ", ";
+    }
+    std::cout << std::endl;
+    res_ = PQexecPrepared(conn_, "", static_cast<int>(param_values.size()),
+                          param_values_buf.data(), nullptr, nullptr, 0);
 
-  template <typename T>
-  constexpr
-      typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type
-      update() {
-    return QueryObject<T>(conn_, getName<T>(), "", "update");
-  }
+    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQresultErrorMessage(res_);
+      PQclear(res_);
+      return false;
+    }
 
-  bool execute(const std::string &sql) {
-    res_ = PQexec(conn_, sql.data());
-    bool ret = PQresultStatus(res_) == PGRES_COMMAND_OK;
     PQclear(res_);
-    return ret;
+    return true;
   }
 
-private:
+  template <typename T> constexpr auto generateInsertSql(bool replace) {
+    std::string sql = replace ? "replace into " : "insert into ";
+    std::string table_name = getName<T>().data();
+    std::string field_name_pack = getField<T>().data();
+    sql += table_name + "(" + field_name_pack + ") values(";
+    constexpr auto field_size = getValue<T>();
+    for (size_t i = 0; i < field_size; i++) {
+      sql += "$";
+      sql += std::to_string(i + 1);
+      if (i != field_size - 1) {
+        sql += ", ";
+      }
+    }
+    sql += ");";
+    return sql;
+  }
+
+  template <typename T>
+  constexpr void setParamValues(std::vector<std::vector<char>> &param_values,
+                                T &&value) {
+    using U = std::remove_const_t<std::remove_reference_t<T>>;
+    if constexpr (std::is_same_v<U, int64_t> || std::is_same_v<U, uint64_t>) {
+      std::vector<char> temp(65, 0);
+      auto v_str = std::to_string(value);
+      memcpy(temp.data(), v_str.data(), v_str.size());
+      param_values.push_back(temp);
+    } else if constexpr (std::is_integral_v<U> || std::is_floating_point_v<U>) {
+      std::vector<char> temp(20, 0);
+      auto v_str = std::to_string(value);
+      memcpy(temp.data(), v_str.data(), v_str.size());
+      param_values.push_back(std::move(temp));
+    } else if constexpr (std::is_enum_v<U>) {
+      std::vector<char> temp(20, 0);
+      auto v_str =
+          std::to_string(static_cast<std::underlying_type_t<U>>(value));
+      memcpy(temp.data(), v_str.data(), v_str.size());
+      param_values.push_back(std::move(temp));
+    } else if constexpr (std::is_same_v<U, std::string>) {
+      std::vector<char> temp = {};
+      std::copy(value.data(), value.data() + value.size() + 1,
+                std::back_inserter(temp));
+      param_values.push_back(std::move(temp));
+    } else if constexpr (std::is_array<U>::value) {
+      std::vector<char> temp = {};
+      std::copy(value, value + ArraySize<U>::value, std::back_inserter(temp));
+      param_values.push_back(std::move(temp));
+    }
+  }
+
   template <typename Tuple1, typename Tuple2, size_t... Idx>
   std::string generateConnectSql(const Tuple1 &t1, const Tuple2 &t2,
                                  std::index_sequence<Idx...> /*unused*/) {

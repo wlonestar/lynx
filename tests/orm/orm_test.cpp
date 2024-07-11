@@ -11,8 +11,7 @@ enum Gender : int {
   Femail,
 };
 
-// NOLINTNEXTLINE
-struct person {
+struct Person {
   short id;      // NOLINT
   char name[10]; // NOLINT
   Gender gender; // NOLINT
@@ -20,7 +19,7 @@ struct person {
   float score;   // NOLINT
 } __attribute__((packed));
 
-REFLECTION_TEMPLATE(person, id, name, gender, age, score)
+REFLECTION_TEMPLATE_WITH_NAME(Person, "person", id, name, gender, age, score)
 
 int main() {
   std::cout << std::boolalpha;
@@ -33,15 +32,15 @@ int main() {
   lynx::KeyMap key_map{"id"};
   lynx::NotNullMap not_null_map;
   not_null_map.fields = {"id", "age"};
-  conn.createTable<person>(key_map, not_null_map);
+  conn.createTable<Person>(key_map, not_null_map);
 
   // insert data
-  person p1{1, "hxf1", Gender::Femail, 30, 101.1F};
-  person p2{2, "hxf2", Gender::Femail, 28, 102.2F};
-  person p3{3, "hxf3", Gender::Mail, 27, 103.3F};
-  person p4{4, "hxf4", Gender::Femail, 26, 104.4F};
-  person p5{5, "hxf1", Gender::Mail, 30, 108.1F};
-  person p6{6, "hxf3", Gender::Femail, 30, 109.1F};
+  Person p1{1, "hxf1", Gender::Femail, 30, 101.1F};
+  Person p2{2, "hxf2", Gender::Femail, 28, 102.2F};
+  Person p3{3, "hxf3", Gender::Mail, 27, 103.3F};
+  Person p4{4, "hxf4", Gender::Femail, 26, 104.4F};
+  Person p5{5, "hxf1", Gender::Mail, 30, 108.1F};
+  Person p6{6, "hxf3", Gender::Femail, 30, 109.1F};
 
   conn.insert(p1);
   conn.insert(p2);
@@ -50,9 +49,9 @@ int main() {
   conn.insert(p5);
   conn.insert(p6);
 
-  std::vector<person> persons;
+  std::vector<Person> persons;
   for (size_t i = 6; i < 10; i++) {
-    person p;
+    Person p;
     p.id = i + 1;
     std::string name = "hxf" + std::to_string(i + 1);
     strncpy(p.name, name.c_str(), name.size());
@@ -64,8 +63,8 @@ int main() {
   conn.insert(persons);
 
   // query 1 return person struct
-  auto pn1 = conn.query<person>()
-                 .where(FIELD(person::age) > 27 && FIELD(person::id) < 3)
+  auto pn1 = conn.query<Person>()
+                 .where(VALUE(Person::age) > 27 && VALUE(Person::id) < 3)
                  .limit(2)
                  .toVector();
 
@@ -75,10 +74,10 @@ int main() {
   }
 
   // query 2 return an array of tuple objects
-  auto pn2 = conn.query<person>()
-                 .select(RNT(person::id), RNT(person::name),
-                         RNT(person::gender), RNT(person::age))
-                 .where(FIELD(person::age) >= 28 && FIELD(person::id) < 5)
+  auto pn2 = conn.query<Person>()
+                 .select(FIELD(Person::id), FIELD(Person::name),
+                         FIELD(Person::gender), FIELD(Person::age))
+                 .where(VALUE(Person::age) >= 28 && VALUE(Person::id) < 5)
                  .toVector();
 
   for (auto it : pn2) {
@@ -87,13 +86,13 @@ int main() {
   }
 
   // query 3 return an array of tuple objects, use group by
-  auto pn3 = conn.query<person>()
-                 .select(RNT(person::age), ORM_SUM(person::score),
-                         ORM_COUNT(person::name))
-                 .where(FIELD(person::age) > 24 && FIELD(person::id) < 7)
+  auto pn3 = conn.query<Person>()
+                 .select(FIELD(Person::age), ORM_SUM(Person::score),
+                         ORM_COUNT(Person::name))
+                 .where(VALUE(Person::age) > 24 && VALUE(Person::id) < 7)
                  .limit(3)
-                 .group_by(FIELD(person::age))
-                 .order_by_desc(FIELD(person::age))
+                 .groupBy(VALUE(Person::age))
+                 .orderByDesc(VALUE(Person::age))
                  .toVector();
 
   for (auto it : pn3) {
@@ -103,14 +102,14 @@ int main() {
 
   // update
   auto res2 =
-      conn.update<person>()
-          .set((FIELD(person::age) = 50) | (FIELD(person::name) = "hxf100"))
-          .where(FIELD(person::age) > 29)
+      conn.update<Person>()
+          .set((VALUE(Person::age) = 50) | (VALUE(Person::name) = "hxf100"))
+          .where(VALUE(Person::age) > 29)
           .execute();
   (void)res2;
 
   // query all
-  auto pn4 = conn.query<person>().toVector();
+  auto pn4 = conn.query<Person>().toVector();
 
   for (auto it : pn4) {
     std::cout << it.id << " " << it.name << " " << it.gender << " " << it.age
@@ -118,7 +117,7 @@ int main() {
   }
 
   // delete
-  auto res = conn.del<person>().where(FIELD(person::age) > 29).execute();
+  auto res = conn.del<Person>().where(VALUE(Person::age) > 29).execute();
   (void)res;
 
   return 0;
