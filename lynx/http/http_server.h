@@ -23,9 +23,7 @@ public:
 
   EventLoop *getLoop() const { return server_.getLoop(); }
 
-  /// Not thread safe, callback be registered before calling start().
   void setHttpCallback(const HttpCallback &cb) { http_callback_ = cb; }
-
   void setThreadNum(int numThreads) { server_.setThreadNum(numThreads); }
 
   void start();

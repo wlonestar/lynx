@@ -22,9 +22,9 @@ bool HttpContext::processRequestLine(const char *begin, const char *end) {
       succeed = end - start == 8 && std::equal(start, end - 1, "HTTP/1.");
       if (succeed) {
         if (*(end - 1) == '1') {
-          request_.setVersion(HttpRequest::kHttp11);
+          request_.setVersion(HttpRequest::HTTP11);
         } else if (*(end - 1) == '0') {
-          request_.setVersion(HttpRequest::kHttp10);
+          request_.setVersion(HttpRequest::HTTP10);
         } else {
           succeed = false;
         }
@@ -34,43 +34,39 @@ bool HttpContext::processRequestLine(const char *begin, const char *end) {
   return succeed;
 }
 
-// return false if any error
 bool HttpContext::parseRequest(Buffer *buf, Timestamp receiveTime) {
   bool ok = true;
   bool has_more = true;
   while (has_more) {
-    if (state_ == kExpectRequestLine) {
+    if (state_ == EXPECT_REQUEST_LINE) {
       const char *crlf = buf->findCRLF();
       if (crlf != nullptr) {
         ok = processRequestLine(buf->peek(), crlf);
         if (ok) {
           request_.setReceiveTime(receiveTime);
           buf->retrieveUntil(crlf + 2);
-          state_ = kExpectHeaders;
+          state_ = EXPECT_HEADERS;
         } else {
           has_more = false;
         }
       } else {
         has_more = false;
       }
-    } else if (state_ == kExpectHeaders) {
+    } else if (state_ == EXPECT_HEADERS) {
       const char *crlf = buf->findCRLF();
       if (crlf != nullptr) {
         const char *colon = std::find(buf->peek(), crlf, ':');
         if (colon != crlf) {
           request_.addHeader(buf->peek(), colon, crlf);
         } else {
-          // empty line, end of header
-          // FIXME:
-          state_ = kGotAll;
+          state_ = GOT_ALL;
           has_more = false;
         }
         buf->retrieveUntil(crlf + 2);
       } else {
         has_more = false;
       }
-    } else if (state_ == kExpectBody) {
-      // FIXME:
+    } else if (state_ == EXPECT_BODY) {
     }
   }
   return ok;

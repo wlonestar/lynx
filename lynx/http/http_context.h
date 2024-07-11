@@ -12,20 +12,20 @@ class Buffer;
 class HttpContext : public Copyable {
 public:
   enum HttpRequestParseState {
-    kExpectRequestLine,
-    kExpectHeaders,
-    kExpectBody,
-    kGotAll,
+    EXPECT_REQUEST_LINE,
+    EXPECT_HEADERS,
+    EXPECT_BODY,
+    GOT_ALL,
   };
 
   HttpContext() = default;
 
   bool parseRequest(Buffer *buf, Timestamp receiveTime);
 
-  bool gotAll() const { return state_ == kGotAll; }
+  bool gotAll() const { return state_ == GOT_ALL; }
 
   void reset() {
-    state_ = kExpectRequestLine;
+    state_ = EXPECT_REQUEST_LINE;
     HttpRequest dummy;
     request_.swap(dummy);
   }

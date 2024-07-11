@@ -11,7 +11,7 @@ namespace lynx {
 namespace detail {
 
 void defaultHttpCallback(const HttpRequest & /*unused*/, HttpResponse *resp) {
-  resp->setStatusCode(HttpResponse::k404NotFound);
+  resp->setStatusCode(HttpResponse::NotFound404);
   resp->setStatusMessage("Not Found");
   resp->setCloseConnection(true);
 }
@@ -65,7 +65,7 @@ void HttpServer::onRequest(const TcpConnectionPtr &conn,
   const std::string &connection = req.getHeader("Connection");
   bool close =
       connection == "close" ||
-      (req.getVersion() == HttpRequest::kHttp10 && connection != "Keep-Alive");
+      (req.getVersion() == HttpRequest::HTTP10 && connection != "Keep-Alive");
   HttpResponse response(close);
   http_callback_(req, &response);
   Buffer buf;

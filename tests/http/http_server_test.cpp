@@ -23,7 +23,7 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
   }
 
   if (req.path() == "/") {
-    resp->setStatusCode(lynx::HttpResponse::k200Ok);
+    resp->setStatusCode(lynx::HttpResponse::OK200);
     resp->setStatusMessage("OK");
     resp->setContentType("text/html");
     resp->addHeader("Server", "lynx");
@@ -32,19 +32,19 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
                   "<body><h1>Hello</h1>Now is " +
                   now + "</body></html>");
   } else if (req.path() == "/favicon.ico") {
-    resp->setStatusCode(lynx::HttpResponse::k200Ok);
+    resp->setStatusCode(lynx::HttpResponse::OK200);
     resp->setStatusMessage("OK");
     resp->setContentType("image/png");
     resp->setBody(
         std::string(reinterpret_cast<char *>(favicon_jpg), favicon_jpg_len));
   } else if (req.path() == "/hello") {
-    resp->setStatusCode(lynx::HttpResponse::k200Ok);
+    resp->setStatusCode(lynx::HttpResponse::OK200);
     resp->setStatusMessage("OK");
     resp->setContentType("text/plain");
     resp->addHeader("Server", "lynx");
     resp->setBody("hello, world!\n");
   } else {
-    resp->setStatusCode(lynx::HttpResponse::k404NotFound);
+    resp->setStatusCode(lynx::HttpResponse::NotFound404);
     resp->setStatusMessage("Not Found");
     resp->setCloseConnection(true);
   }

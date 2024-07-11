@@ -16,9 +16,9 @@ BOOST_AUTO_TEST_CASE(testParseRequestAllInOne) {
   BOOST_CHECK(context.parseRequest(&input, lynx::Timestamp::now()));
   BOOST_CHECK(context.gotAll());
   const lynx::HttpRequest &request = context.request();
-  BOOST_CHECK_EQUAL(request.method(), lynx::HttpRequest::kGet);
+  BOOST_CHECK_EQUAL(request.method(), lynx::HttpRequest::GET);
   BOOST_CHECK_EQUAL(request.path(), std::string("/index.html"));
-  BOOST_CHECK_EQUAL(request.getVersion(), lynx::HttpRequest::kHttp11);
+  BOOST_CHECK_EQUAL(request.getVersion(), lynx::HttpRequest::HTTP11);
   BOOST_CHECK_EQUAL(request.getHeader("Host"), std::string("www.lynx.com"));
   BOOST_CHECK_EQUAL(request.getHeader("User-Agent"), std::string(""));
 }
@@ -40,9 +40,9 @@ BOOST_AUTO_TEST_CASE(testParseRequestInTwoPieces) {
     BOOST_CHECK(context.parseRequest(&input, lynx::Timestamp::now()));
     BOOST_CHECK(context.gotAll());
     const lynx::HttpRequest &request = context.request();
-    BOOST_CHECK_EQUAL(request.method(), lynx::HttpRequest::kGet);
+    BOOST_CHECK_EQUAL(request.method(), lynx::HttpRequest::GET);
     BOOST_CHECK_EQUAL(request.path(), std::string("/index.html"));
-    BOOST_CHECK_EQUAL(request.getVersion(), lynx::HttpRequest::kHttp11);
+    BOOST_CHECK_EQUAL(request.getVersion(), lynx::HttpRequest::HTTP11);
     BOOST_CHECK_EQUAL(request.getHeader("Host"), std::string("www.lynx.com"));
     BOOST_CHECK_EQUAL(request.getHeader("User-Agent"), std::string(""));
   }
@@ -60,9 +60,9 @@ BOOST_AUTO_TEST_CASE(testParseRequestEmptyHeaderValue) {
   BOOST_CHECK(context.parseRequest(&input, lynx::Timestamp::now()));
   BOOST_CHECK(context.gotAll());
   const lynx::HttpRequest &request = context.request();
-  BOOST_CHECK_EQUAL(request.method(), lynx::HttpRequest::kGet);
+  BOOST_CHECK_EQUAL(request.method(), lynx::HttpRequest::GET);
   BOOST_CHECK_EQUAL(request.path(), std::string("/index.html"));
-  BOOST_CHECK_EQUAL(request.getVersion(), lynx::HttpRequest::kHttp11);
+  BOOST_CHECK_EQUAL(request.getVersion(), lynx::HttpRequest::HTTP11);
   BOOST_CHECK_EQUAL(request.getHeader("Host"), std::string("www.lynx.com"));
   BOOST_CHECK_EQUAL(request.getHeader("User-Agent"), std::string(""));
   BOOST_CHECK_EQUAL(request.getHeader("Accept-Encoding"), std::string(""));

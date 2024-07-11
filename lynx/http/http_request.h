@@ -14,42 +14,42 @@ namespace lynx {
 class HttpRequest : public Copyable {
 public:
   enum Method {
-    kInvalid,
-    kGet,
-    kPost,
-    kHead,
-    kPut,
-    kDelete,
+    INVALID,
+    GET,
+    POST,
+    HEAD,
+    PUT,
+    DELETE,
   };
+
   enum Version {
-    kUnknown,
-    kHttp10,
-    kHttp11,
+    UNKNOWN,
+    HTTP10,
+    HTTP11,
   };
 
   HttpRequest() = default;
 
   void setVersion(Version v) { version_ = v; }
-
   Version getVersion() const { return version_; }
 
   bool setMethod(const char *start, const char *end) {
-    assert(method_ == kInvalid);
+    assert(method_ == INVALID);
     std::string m(start, end);
     if (m == "GET") {
-      method_ = kGet;
+      method_ = GET;
     } else if (m == "POST") {
-      method_ = kPost;
+      method_ = POST;
     } else if (m == "HEAD") {
-      method_ = kHead;
+      method_ = HEAD;
     } else if (m == "PUT") {
-      method_ = kPut;
+      method_ = PUT;
     } else if (m == "DELETE") {
-      method_ = kDelete;
+      method_ = DELETE;
     } else {
-      method_ = kInvalid;
+      method_ = INVALID;
     }
-    return method_ != kInvalid;
+    return method_ != INVALID;
   }
 
   Method method() const { return method_; }
@@ -57,19 +57,19 @@ public:
   const char *methodString() const {
     const char *result = "UNKNOWN";
     switch (method_) {
-    case kGet:
+    case GET:
       result = "GET";
       break;
-    case kPost:
+    case POST:
       result = "POST";
       break;
-    case kHead:
+    case HEAD:
       result = "HEAD";
       break;
-    case kPut:
+    case PUT:
       result = "PUT";
       break;
-    case kDelete:
+    case DELETE:
       result = "DELETE";
       break;
     default:

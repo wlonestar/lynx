@@ -13,11 +13,11 @@ class Buffer;
 class HttpResponse : public Copyable {
 public:
   enum HttpStatusCode {
-    kUnknown,
-    k200Ok = 200,
-    k301MovedPermanently = 301,
-    k400BadRequest = 400,
-    k404NotFound = 404,
+    UNKNOWN,
+    Ok200 = 200,
+    MovedPermanently301 = 301,
+    BadRequest400 = 400,
+    NotFound404 = 404,
   };
 
   explicit HttpResponse(bool close) : close_connection_(close) {}
@@ -36,7 +36,6 @@ public:
     addHeader("Content-Type", contentType);
   }
 
-  // FIXME: replace string with StringPiece
   void addHeader(const std::string &key, const std::string &value) {
     headers_[key] = value;
   }
@@ -48,7 +47,6 @@ public:
 private:
   std::map<std::string, std::string> headers_;
   HttpStatusCode status_code_{};
-  // FIXME: add http version
   std::string status_message_;
   bool close_connection_;
   std::string body_;
