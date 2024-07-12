@@ -17,131 +17,131 @@ namespace lynx {
 #define SEPERATOR ,
 
 #define CON_STR_1(elem, ...) ADD_VIEW(elem)
-#define CON_STR_2(elem, ...)                                                \
+#define CON_STR_2(elem, ...)                                                   \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_1(__VA_ARGS__))
-#define CON_STR_3(elem, ...)                                                \
+#define CON_STR_3(elem, ...)                                                   \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_2(__VA_ARGS__))
-#define CON_STR_4(elem, ...)                                                \
+#define CON_STR_4(elem, ...)                                                   \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_3(__VA_ARGS__))
-#define CON_STR_5(elem, ...)                                                \
+#define CON_STR_5(elem, ...)                                                   \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_4(__VA_ARGS__))
-#define CON_STR_6(elem, ...)                                                \
+#define CON_STR_6(elem, ...)                                                   \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_5(__VA_ARGS__))
-#define CON_STR_7(elem, ...)                                                \
+#define CON_STR_7(elem, ...)                                                   \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_6(__VA_ARGS__))
-#define CON_STR_8(elem, ...)                                                \
+#define CON_STR_8(elem, ...)                                                   \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_7(__VA_ARGS__))
-#define CON_STR_9(elem, ...)                                                \
+#define CON_STR_9(elem, ...)                                                   \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_8(__VA_ARGS__))
-#define CON_STR_10(elem, ...)                                               \
+#define CON_STR_10(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_9(__VA_ARGS__))
-#define CON_STR_11(elem, ...)                                               \
+#define CON_STR_11(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_10(__VA_ARGS__))
-#define CON_STR_12(elem, ...)                                               \
+#define CON_STR_12(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_11(__VA_ARGS__))
-#define CON_STR_13(elem, ...)                                               \
+#define CON_STR_13(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_12(__VA_ARGS__))
-#define CON_STR_14(elem, ...)                                               \
+#define CON_STR_14(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_13(__VA_ARGS__))
-#define CON_STR_15(elem, ...)                                               \
+#define CON_STR_15(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_14(__VA_ARGS__))
-#define CON_STR_16(elem, ...)                                               \
+#define CON_STR_16(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_15(__VA_ARGS__))
-#define CON_STR_17(elem, ...)                                               \
+#define CON_STR_17(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_16(__VA_ARGS__))
-#define CON_STR_18(elem, ...)                                               \
+#define CON_STR_18(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_17(__VA_ARGS__))
-#define CON_STR_19(elem, ...)                                               \
+#define CON_STR_19(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_18(__VA_ARGS__))
-#define CON_STR_20(elem, ...)                                               \
+#define CON_STR_20(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_19(__VA_ARGS__))
-#define CON_STR_21(elem, ...)                                               \
+#define CON_STR_21(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_20(__VA_ARGS__))
-#define CON_STR_22(elem, ...)                                               \
+#define CON_STR_22(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_21(__VA_ARGS__))
-#define CON_STR_23(elem, ...)                                               \
+#define CON_STR_23(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_22(__VA_ARGS__))
-#define CON_STR_24(elem, ...)                                               \
+#define CON_STR_24(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_23(__VA_ARGS__))
-#define CON_STR_25(elem, ...)                                               \
+#define CON_STR_25(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_24(__VA_ARGS__))
-#define CON_STR_26(elem, ...)                                               \
+#define CON_STR_26(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_25(__VA_ARGS__))
-#define CON_STR_27(elem, ...)                                               \
+#define CON_STR_27(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_26(__VA_ARGS__))
-#define CON_STR_28(elem, ...)                                               \
+#define CON_STR_28(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_27(__VA_ARGS__))
-#define CON_STR_29(elem, ...)                                               \
+#define CON_STR_29(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_28(__VA_ARGS__))
-#define CON_STR_30(elem, ...)                                               \
+#define CON_STR_30(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_29(__VA_ARGS__))
-#define CON_STR_31(elem, ...)                                               \
+#define CON_STR_31(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_30(__VA_ARGS__))
-#define CON_STR_32(elem, ...)                                               \
+#define CON_STR_32(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_31(__VA_ARGS__))
-#define CON_STR_33(elem, ...)                                               \
+#define CON_STR_33(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_32(__VA_ARGS__))
-#define CON_STR_34(elem, ...)                                               \
+#define CON_STR_34(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_33(__VA_ARGS__))
-#define CON_STR_35(elem, ...)                                               \
+#define CON_STR_35(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_34(__VA_ARGS__))
-#define CON_STR_36(elem, ...)                                               \
+#define CON_STR_36(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_35(__VA_ARGS__))
-#define CON_STR_37(elem, ...)                                               \
+#define CON_STR_37(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_36(__VA_ARGS__))
-#define CON_STR_38(elem, ...)                                               \
+#define CON_STR_38(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_37(__VA_ARGS__))
-#define CON_STR_39(elem, ...)                                               \
+#define CON_STR_39(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_38(__VA_ARGS__))
-#define CON_STR_40(elem, ...)                                               \
+#define CON_STR_40(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_39(__VA_ARGS__))
-#define CON_STR_41(elem, ...)                                               \
+#define CON_STR_41(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_40(__VA_ARGS__))
-#define CON_STR_42(elem, ...)                                               \
+#define CON_STR_42(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_41(__VA_ARGS__))
-#define CON_STR_43(elem, ...)                                               \
+#define CON_STR_43(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_42(__VA_ARGS__))
-#define CON_STR_44(elem, ...)                                               \
+#define CON_STR_44(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_43(__VA_ARGS__))
-#define CON_STR_45(elem, ...)                                               \
+#define CON_STR_45(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_44(__VA_ARGS__))
-#define CON_STR_46(elem, ...)                                               \
+#define CON_STR_46(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_45(__VA_ARGS__))
-#define CON_STR_47(elem, ...)                                               \
+#define CON_STR_47(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_46(__VA_ARGS__))
-#define CON_STR_48(elem, ...)                                               \
+#define CON_STR_48(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_47(__VA_ARGS__))
-#define CON_STR_49(elem, ...)                                               \
+#define CON_STR_49(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_48(__VA_ARGS__))
-#define CON_STR_50(elem, ...)                                               \
+#define CON_STR_50(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_49(__VA_ARGS__))
-#define CON_STR_51(elem, ...)                                               \
+#define CON_STR_51(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_50(__VA_ARGS__))
-#define CON_STR_52(elem, ...)                                               \
+#define CON_STR_52(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_51(__VA_ARGS__))
-#define CON_STR_53(elem, ...)                                               \
+#define CON_STR_53(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_52(__VA_ARGS__))
-#define CON_STR_54(elem, ...)                                               \
+#define CON_STR_54(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_53(__VA_ARGS__))
-#define CON_STR_55(elem, ...)                                               \
+#define CON_STR_55(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_54(__VA_ARGS__))
-#define CON_STR_56(elem, ...)                                               \
+#define CON_STR_56(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_55(__VA_ARGS__))
-#define CON_STR_57(elem, ...)                                               \
+#define CON_STR_57(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_56(__VA_ARGS__))
-#define CON_STR_58(elem, ...)                                               \
+#define CON_STR_58(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_57(__VA_ARGS__))
-#define CON_STR_59(elem, ...)                                               \
+#define CON_STR_59(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_58(__VA_ARGS__))
-#define CON_STR_60(elem, ...)                                               \
+#define CON_STR_60(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_59(__VA_ARGS__))
-#define CON_STR_61(elem, ...)                                               \
+#define CON_STR_61(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_60(__VA_ARGS__))
-#define CON_STR_62(elem, ...)                                               \
+#define CON_STR_62(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_61(__VA_ARGS__))
-#define CON_STR_63(elem, ...)                                               \
+#define CON_STR_63(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_62(__VA_ARGS__))
-#define CON_STR_64(elem, ...)                                               \
+#define CON_STR_64(elem, ...)                                                  \
   ADD_VIEW(elem) SEPERATOR MACRO_EXPAND(CON_STR_63(__VA_ARGS__))
 
 #define MACRO_ARGS_(exp) exp
@@ -296,6 +296,16 @@ namespace lynx {
 #define MAKE_ARG_LIST(N, op, arg, ...)                                         \
   MACRO_CONCAT(MAKE_ARG_LIST, N)(op, arg, __VA_ARGS__)
 
+///
+/// `classname`: The name of the class whose members are being reflected.
+/// `...`: A variadic parameter pack representing the members of the class.
+///
+/// `applyImpl`: Returns a tuple of the class members.
+/// `size_type`: A type alias represents the number of members.
+/// `name`: Returns the name of the class.
+/// `fields`: Returns the fields of the class as a string view.
+/// `value`: Returns the number of members by accessing `size_type::value`.
+/// `arr`: Returns an array of string views representing the field names.
 #define MAKE_REFLECT_MEMBERS(class_name, ...)                                  \
   inline auto reflectMembersFunc(class_name const &) {                         \
     struct ReflectMembers {                                                    \
@@ -316,6 +326,12 @@ namespace lynx {
     return ReflectMembers{};                                                   \
   }
 
+///
+/// `class_name`: The name of the class
+/// `table_name`: A string representing the table name, used for metadata
+/// purposes.
+/// `N`: The number of class members.
+/// `...`: Variadic arguments representing the class members.
 #define MAKE_META_DATA(class_name, table_name, N, ...)                         \
   constexpr std::array<std::string_view, N> arr_##class_name = {               \
       MACRO_EXPAND(MACRO_CONCAT(CON_STR, N)(__VA_ARGS__))};                    \
@@ -335,9 +351,25 @@ namespace lynx {
 template <typename T>
 using reflect_members = decltype(reflectMembersFunc(std::declval<T>()));
 
+///
+/// `T`: The type to check for reflection capabilities.
+///
+/// By default,, the type `T` is not considered reflective.
 template <typename T, typename = void>
 struct is_reflection : std::false_type {}; // NOLINT
 
+///
+/// `T`: The type to check for reflection capabilities.
+///
+/// This specialization uses `std::void_t<decltype(reflect_members<T>::arr())>`
+/// as the second template parameter.
+///
+/// `std::void_t` is a helper template that converts any valid type expression
+/// into `void`.
+///
+/// If `decltype(reflect_members<T>::arr())` is valid, `std::void_t` converts it
+/// into `void`, making the specialization applicable, indicating that the type
+/// `T` is considered reflective.
 template <typename T>
 struct is_reflection<T, std::void_t<decltype(reflect_members<T>::arr())>>
     : std::true_type {};
@@ -357,6 +389,14 @@ struct is_tuple : is_template_instant_of<std::tuple, T> {}; // NOLINT
 template <typename T>
 inline constexpr bool is_reflection_v = is_reflection<T>::value; // NOLINT
 
+///
+/// forEach function with array
+///
+/// This function uses a fold expression to apply the callable `f` to each
+/// element of the tuple `t`, each corresponding element of the array `arr`.
+///
+/// The fold expression expands to a series of function calls, one for each
+/// element of the tuple.
 template <typename... Args, typename A, typename F, std::size_t... Idx>
 constexpr void forEach(const std::tuple<Args...> &t, const A &arr, F &&f,
                        std::index_sequence<Idx...> /*unused*/) {
@@ -365,6 +405,7 @@ constexpr void forEach(const std::tuple<Args...> &t, const A &arr, F &&f,
    ...);
 }
 
+/// forEach function without array
 template <typename... Args, typename F, std::size_t... Idx>
 constexpr void forEach(std::tuple<Args...> &t, F &&f,
                        std::index_sequence<Idx...> /*unused*/) {
@@ -372,6 +413,7 @@ constexpr void forEach(std::tuple<Args...> &t, F &&f,
    ...);
 }
 
+/// forEach function for reflective types
 template <typename T, typename F>
 constexpr std::enable_if_t<is_reflection<T>::value> forEach(T &&t, F &&f) {
   using M = decltype(reflectMembersFunc(std::forward<T>(t)));
@@ -379,6 +421,7 @@ constexpr std::enable_if_t<is_reflection<T>::value> forEach(T &&t, F &&f) {
           std::make_index_sequence<M::value()>{});
 }
 
+/// forEach function for tuple
 template <typename T, typename F>
 constexpr std::enable_if_t<!is_reflection<T>::value &&
                            is_tuple<std::decay_t<T>>::value>
@@ -389,7 +432,7 @@ forEach(T &&t, F &&f) {
 
 template <typename T>
 constexpr void setParamValues(std::ostream &os, const std::string_view &field,
-                                T &&value, size_t idx) {
+                              T &&value, size_t /*idx*/) {
   os << field << ":" << value << " ";
 }
 

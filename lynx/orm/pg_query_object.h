@@ -87,25 +87,6 @@ private:
 };
 
 template <typename QueryResult> class QueryObject {
-private:
-  PGconn *conn_;
-
-  std::string table_name_;
-  QueryResult query_result_;
-
-  std::string select_sql_;
-  std::string where_sql_;
-  std::string group_by_sql_;
-  std::string having_sql_;
-  std::string order_by_sql_;
-  std::string limit_sql_;
-  std::string offset_sql_;
-  std::string delete_sql_;
-  std::string update_sql_;
-  std::string set_sql_;
-
-  PGresult *res_;
-
 public:
   QueryObject(PGconn *conn, std::string_view table_name)
       : conn_(conn), table_name_(table_name) {}
@@ -133,34 +114,6 @@ public:
         order_by_sql_(order_by_sql), limit_sql_(limit_sql),
         offset_sql_(offset_sql), delete_sql_(delete_sql),
         update_sql_(update_sql), set_sql_(set_sql) {}
-
-  template <typename... Args>
-  inline void selectImpl(std::string &sql, Args &&...args) {
-    constexpr auto size = sizeof...(Args);
-    auto tp = std::make_tuple(std::forward<Args>(args)...);
-    forEach(tp, [&](auto arg, auto i) {
-      if constexpr (std::is_same_v<decltype(arg),
-                                   Selectable<decltype(arg.return_type)>>) {
-        bool same_table = arg.tableName() == table_name_;
-        assert(same_table);
-        (void)same_table;
-        table_name_ = arg.tableName();
-        sql += arg.toString();
-        if (i != size - 1) {
-          sql += ", ";
-        }
-      }
-    });
-  }
-
-  template <typename... Args>
-  inline QueryObject<std::tuple<Args...>>
-  newQuery(std::tuple<Args...> &&query_result) {
-    return QueryObject<std::tuple<Args...>>(
-        conn_, table_name_, query_result, select_sql_, where_sql_,
-        group_by_sql_, having_sql_, order_by_sql_, limit_sql_, offset_sql_,
-        delete_sql_, update_sql_, set_sql_);
-  }
 
   template <typename... Args> inline auto select(Args &&...args) {
     std::string sql = "select ";
@@ -209,6 +162,15 @@ public:
     return std::move(*this);
   }
 
+  bool execute() {
+    auto sql = toString();
+    LOG_DEBUG << "exec: " << sql;
+    res_ = PQexec(conn_, sql.data());
+    bool ret = PQresultStatus(res_) == PGRES_COMMAND_OK;
+    PQclear(res_);
+    return ret;
+  }
+
   std::string toString() {
     if (select_sql_.empty() && delete_sql_.empty() && update_sql_.empty()) {
       select_sql_ = "select * from " + table_name_;
@@ -218,32 +180,9 @@ public:
            offset_sql_ + ";";
   }
 
-  template <typename T>
-  constexpr void assignValue(T &&value, int row, int col) {
-    using U = std::remove_const_t<std::remove_reference_t<T>>;
-    if constexpr (std::is_integral<U>::value &&
-                  !(std::is_same<U, int64_t>::value ||
-                    std::is_same<U, uint64_t>::value)) {
-      value = atoi(PQgetvalue(res_, row, col));
-    } else if constexpr (std::is_enum_v<U>) {
-      value = static_cast<U>(atoi(PQgetvalue(res_, row, col)));
-    } else if constexpr (std::is_floating_point<U>::value) {
-      value = atof(PQgetvalue(res_, row, col));
-    } else if constexpr (std::is_same<U, int64_t>::value ||
-                         std::is_same<U, uint64_t>::value) {
-      value = atoll(PQgetvalue(res_, row, col));
-    } else if constexpr (std::is_same<U, std::string>::value) {
-      value = PQgetvalue(res_, row, col);
-    } else if constexpr (std::is_array<U>::value &&
-                         std::is_same<char, std::remove_pointer_t<
-                                                std::decay_t<U>>>::value) {
-      auto ptr = PQgetvalue(res_, row, col);
-      memcpy(value, ptr, sizeof(U));
-    } else {
-      LOG_ERROR << "unsupported type:" << std::is_array<U>::value;
-    }
-  }
+  std::vector<QueryResult> toVector() { return query<QueryResult>(toString()); }
 
+private:
   template <typename T>
   constexpr std::enable_if_t<is_reflection<T>::value, std::vector<T>>
   query(const std::string &sql) {
@@ -299,16 +238,77 @@ public:
     return ret_vector;
   }
 
-  std::vector<QueryResult> toVector() { return query<QueryResult>(toString()); }
-
-  bool execute() {
-    auto sql = toString();
-    LOG_DEBUG << "exec: " << sql;
-    res_ = PQexec(conn_, sql.data());
-    bool ret = PQresultStatus(res_) == PGRES_COMMAND_OK;
-    PQclear(res_);
-    return ret;
+  template <typename... Args>
+  inline QueryObject<std::tuple<Args...>>
+  newQuery(std::tuple<Args...> &&query_result) {
+    return QueryObject<std::tuple<Args...>>(
+        conn_, table_name_, query_result, select_sql_, where_sql_,
+        group_by_sql_, having_sql_, order_by_sql_, limit_sql_, offset_sql_,
+        delete_sql_, update_sql_, set_sql_);
   }
+
+  template <typename... Args>
+  inline void selectImpl(std::string &sql, Args &&...args) {
+    constexpr auto size = sizeof...(Args);
+    auto tp = std::make_tuple(std::forward<Args>(args)...);
+    forEach(tp, [&](auto arg, auto i) {
+      if constexpr (std::is_same_v<decltype(arg),
+                                   Selectable<decltype(arg.return_type)>>) {
+        bool same_table = arg.tableName() == table_name_;
+        assert(same_table);
+        (void)same_table;
+        table_name_ = arg.tableName();
+        sql += arg.toString();
+        if (i != size - 1) {
+          sql += ", ";
+        }
+      }
+    });
+  }
+
+  template <typename T>
+  constexpr void assignValue(T &&value, int row, int col) {
+    using U = std::remove_const_t<std::remove_reference_t<T>>;
+    if constexpr (std::is_integral<U>::value &&
+                  !(std::is_same<U, int64_t>::value ||
+                    std::is_same<U, uint64_t>::value)) {
+      value = atoi(PQgetvalue(res_, row, col));
+    } else if constexpr (std::is_enum_v<U>) {
+      value = static_cast<U>(atoi(PQgetvalue(res_, row, col)));
+    } else if constexpr (std::is_floating_point<U>::value) {
+      value = atof(PQgetvalue(res_, row, col));
+    } else if constexpr (std::is_same<U, int64_t>::value ||
+                         std::is_same<U, uint64_t>::value) {
+      value = atoll(PQgetvalue(res_, row, col));
+    } else if constexpr (std::is_same<U, std::string>::value) {
+      value = PQgetvalue(res_, row, col);
+    } else if constexpr (std::is_array<U>::value &&
+                         std::is_same<char, std::remove_pointer_t<
+                                                std::decay_t<U>>>::value) {
+      auto ptr = PQgetvalue(res_, row, col);
+      memcpy(value, ptr, sizeof(U));
+    } else {
+      LOG_ERROR << "unsupported type:" << std::is_array<U>::value;
+    }
+  }
+
+  PGconn *conn_;
+
+  std::string table_name_;
+  QueryResult query_result_;
+
+  std::string select_sql_;
+  std::string where_sql_;
+  std::string group_by_sql_;
+  std::string having_sql_;
+  std::string order_by_sql_;
+  std::string limit_sql_;
+  std::string offset_sql_;
+  std::string delete_sql_;
+  std::string update_sql_;
+  std::string set_sql_;
+
+  PGresult *res_;
 };
 
 template <typename T> struct FieldAttribute;

@@ -12,9 +12,9 @@ template <typename T, typename Tuple> struct HasType {};
 ///
 /// Checks if `T` is the same as each type in `Args`.
 ///
-/// typename T: The type we are checking for
-/// typename Args...: A variadic template parameter pack representing the types
-///   contained in the std::tuple
+/// typename `T`: The type we are checking for
+/// typename `Args...`: A variadic template parameter pack representing the
+/// types contained in the std::tuple
 ///
 /// `std::disjuncion` is a type trait acts like a logical OR over its template
 /// parameters.

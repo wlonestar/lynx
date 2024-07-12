@@ -67,7 +67,7 @@ public:
     auto args_tp = std::make_tuple(host, port, user, password, dbname);
     auto index = std::make_index_sequence<5>();
     std::string sql = generateConnectSql(fields, args_tp, index);
-    LOG_DEBUG << "connect: " << sql;
+    LOG_DEBUG << "Pg connect: " << sql;
     conn_ = PQconnectdb(sql.data());
     if (PQstatus(conn_) != CONNECTION_OK) {
       LOG_ERROR << PQerrorMessage(conn_);
@@ -83,7 +83,7 @@ public:
         std::make_tuple(host, port, user, password, dbname, connectTimeout);
     auto index = std::make_index_sequence<6>();
     std::string sql = generateConnectSql(fields, args_tp, index);
-    LOG_DEBUG << "connect: " << sql;
+    LOG_DEBUG << "Pg connect: " << sql;
     conn_ = PQconnectdb(sql.data());
     if (PQstatus(conn_) != CONNECTION_OK) {
       LOG_ERROR << PQerrorMessage(conn_);
@@ -92,15 +92,15 @@ public:
 
   ~PQconnection() {
     if (conn_ != nullptr) {
-      LOG_DEBUG << "release pg conn";
       PQfinish(conn_);
+      LOG_DEBUG << "Pg disconnect";
       conn_ = nullptr;
     }
   }
 
   template <typename T, typename... Args> bool createTable(Args &&...args) {
     std::string sql = generateCreateTableSql<T>(std::forward<Args>(args)...);
-    LOG_DEBUG << "create: " << sql;
+    LOG_TRACE << "create: " << sql;
     res_ = PQexec(conn_, sql.data());
     if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
       LOG_ERROR << PQerrorMessage(conn_);
@@ -119,7 +119,7 @@ public:
 
   template <typename T> int insert(T &&t) {
     std::string sql = generateInsertSql<T>(false);
-    LOG_DEBUG << "insert prepare: " << sql;
+    LOG_TRACE << "insert prepare: " << sql;
     if (!prepare<T>(sql)) {
       return false;
     }
@@ -128,7 +128,7 @@ public:
 
   template <typename T> int insert(std::vector<T> &t) {
     std::string sql = generateInsertSql<T>(false);
-    LOG_DEBUG << "insert prepare: " << sql;
+    LOG_TRACE << "insert prepare: " << sql;
     if (!prepare<T>(sql)) {
       return 0;
     }
