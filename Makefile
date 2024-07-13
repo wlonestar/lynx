@@ -7,7 +7,7 @@ BUILD_DIR = build
 DEBUG_BUILD = $(BUILD_DIR)/debug
 RELEASE_BUILD = $(BUILD_DIR)/release
 
-INSTALL_DIR = /home/wjl/work/demos/http_server
+INSTALL_DIR = /home/wjl/work/demos/http_server/lynx-1.0.0
 
 .DEFAULT_GOAL := build
 
@@ -39,6 +39,9 @@ install: release-build
 test:
 	@cd $(DEBUG_BUILD) && ctest
 	@cd $(RELEASE_BUILD) && ctest
+
+format:
+	@ninja -C $(RELEASE_BUILD) clang-format
 
 clean:
 	@rm -rf $(BUILD_DIR) compile_commands.json

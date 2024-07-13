@@ -293,6 +293,7 @@ private:
   }
 
   PGconn *conn_;
+  PGresult *res_;
 
   std::string table_name_;
   QueryResult query_result_;
@@ -307,8 +308,6 @@ private:
   std::string delete_sql_;
   std::string update_sql_;
   std::string set_sql_;
-
-  PGresult *res_;
 };
 
 template <typename T> struct FieldAttribute;

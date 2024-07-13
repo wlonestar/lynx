@@ -34,8 +34,8 @@ endif()
 find_program(CLANG_FORMAT_EXE NAMES clang-format)
 if (CLANG_FORMAT_EXE)
   file(GLOB_RECURSE ALL_SOURCE_FILES
-    "${CMAKE_SOURCE_DIR}/lynx/*/*.h"
-    "${CMAKE_SOURCE_DIR}/lib/*/*.cpp"
+    "${CMAKE_SOURCE_DIR}/lynx/*.h"
+    "${CMAKE_SOURCE_DIR}/lib/*.cpp"
     )
 
   add_custom_target(clang-format
@@ -62,15 +62,33 @@ add_subdirectory(src)
 add_subdirectory(tests)
 
 # Set library source files
-file(GLOB LIB_SRC lib/*/*.cpp)
-add_library(lynx SHARED ${LIB_SRC})
+# file(GLOB LIB_SRC lib/*/*.cpp)
+file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
+add_library(lynx STATIC ${LIB_SRC})
 target_link_libraries(lynx PUBLIC pthread pq)
 
-# Install library file
-install(TARGETS lynx DESTINATION lib)
+# 
+# Install
+# 
+
+# Set header files searching paths
+# Distinguish between build-time and install-time header file paths
+target_include_directories(lynx PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lynx>
+  $<INSTALL_INTERFACE:include>
+)
+
+# Install library and export config file
+install(
+  TARGETS lynx EXPORT lynxConfig
+  LIBRARY DESTINATION lib
+)
 
 # Install header files
 install(DIRECTORY lynx/ 
   DESTINATION include/lynx 
   FILES_MATCHING PATTERN "*.h"
   )
+
+# Install exported config file
+install(EXPORT lynxConfig DESTINATION share/lynx/cmake)

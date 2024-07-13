@@ -1,4 +1,4 @@
-#include "lynx/orm/pg_orm.h"
+#include "lynx/db/pg_connection.h"
 
 #include <iostream>
 #include <string>
