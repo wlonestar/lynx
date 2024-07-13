@@ -6,6 +6,8 @@
 #include "lynx/orm/reflection.h"
 #include "lynx/orm/traits_util.h"
 
+#include <atomic>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <set>
@@ -36,71 +38,42 @@ constexpr auto sortTuple(const std::tuple<Args...> &t) {
   return t;
 }
 
-class PQconnection {
+class PgConnection {
 public:
-  // template <typename... Args> PQconnection(Args &&...args) {
-  //   auto args_tp = std::make_tuple(std::forward<Args>(args)...);
-  //   auto index = std::make_index_sequence<sizeof...(Args)>();
-  //   constexpr size_t size = std::tuple_size<decltype(args_tp)>::value;
-  //   std::string sql;
-  //   if constexpr (size == 5) {
-  //     auto fields =
-  //         std::make_tuple("host", "port", "user", "password", "dbname");
-  //     sql = generateConnectSql(fields, args_tp, index);
-  //   }
-  //   if constexpr (size == 6) {
-  //     auto fields = std::make_tuple("host", "port", "user", "password",
-  //                                   "dbname", "connect_timeout");
-  //     sql = generateConnectSql(fields, args_tp, index);
-  //   }
-  //   LOG_DEBUG << "connect: " << sql;
-  //   conn_ = PQconnectdb(sql.data());
-  //   if (PQstatus(conn_) != CONNECTION_OK) {
-  //     LOG_ERROR << PQerrorMessage(conn_);
-  //   }
-  // }
-
-  PQconnection(const std::string &host, const std::string &port,
-               const std::string &user, const std::string &password,
-               const std::string &dbname) {
-    auto fields = std::make_tuple("host", "port", "user", "password", "dbname");
-    auto args_tp = std::make_tuple(host, port, user, password, dbname);
-    auto index = std::make_index_sequence<5>();
-    std::string sql = generateConnectSql(fields, args_tp, index);
-    LOG_DEBUG << "Pg connect: " << sql;
-    conn_ = PQconnectdb(sql.data());
-    if (PQstatus(conn_) != CONNECTION_OK) {
-      LOG_ERROR << PQerrorMessage(conn_);
-    }
+  PgConnection(const std::string &name = std::string()) : name_(name) {
+    setDefaultName();
   }
 
-  PQconnection(const std::string &host, const std::string &port,
+  bool connect(const std::string &host, const std::string &port,
                const std::string &user, const std::string &password,
-               const std::string &dbname, const std::string &connectTimeout) {
+               const std::string &dbname,
+               const std::string &connectTimeout = std::string("10")) {
     auto fields = std::make_tuple("host", "port", "user", "password", "dbname",
                                   "connect_timeout");
     auto args_tp =
         std::make_tuple(host, port, user, password, dbname, connectTimeout);
     auto index = std::make_index_sequence<6>();
     std::string sql = generateConnectSql(fields, args_tp, index);
-    LOG_DEBUG << "Pg connect: " << sql;
+    LOG_DEBUG << name_ << " connect: " << sql;
     conn_ = PQconnectdb(sql.data());
     if (PQstatus(conn_) != CONNECTION_OK) {
       LOG_ERROR << PQerrorMessage(conn_);
+      return false;
     }
+    return true;
   }
 
-  ~PQconnection() {
+  ~PgConnection() {
     if (conn_ != nullptr) {
       PQfinish(conn_);
-      LOG_DEBUG << "Pg disconnect";
+      LOG_DEBUG << name_ << " disconnect";
       conn_ = nullptr;
     }
   }
 
   template <typename T, typename... Args> bool createTable(Args &&...args) {
     std::string sql = generateCreateTableSql<T>(std::forward<Args>(args)...);
-    LOG_TRACE << "create: " << sql;
+    LOG_TRACE << name_ << " create: " << sql;
     res_ = PQexec(conn_, sql.data());
     if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
       LOG_ERROR << PQerrorMessage(conn_);
@@ -119,7 +92,7 @@ public:
 
   template <typename T> int insert(T &&t) {
     std::string sql = generateInsertSql<T>(false);
-    LOG_TRACE << "insert prepare: " << sql;
+    LOG_TRACE << name_ << " insert prepare: " << sql;
     if (!prepare<T>(sql)) {
       return false;
     }
@@ -128,7 +101,7 @@ public:
 
   template <typename T> int insert(std::vector<T> &t) {
     std::string sql = generateInsertSql<T>(false);
-    LOG_TRACE << "insert prepare: " << sql;
+    LOG_TRACE << name_ << " insert prepare: " << sql;
     if (!prepare<T>(sql)) {
       return 0;
     }
@@ -391,8 +364,20 @@ private:
     return os.str();
   }
 
+  void setDefaultName() {
+    int num = num_created.fetch_add(1);
+    if (name_.empty()) {
+      char buf[32];
+      snprintf(buf, sizeof(buf), "PgConn%d", num);
+      name_ = buf;
+    }
+  }
+
+  std::string name_;
   PGresult *res_ = nullptr;
   PGconn *conn_ = nullptr;
+
+  static std::atomic_int32_t num_created;
 };
 
 } // namespace lynx

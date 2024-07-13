@@ -1,0 +1,2 @@
+add_executable(pg_connection_pool_test pg_connection_pool_test.cpp)
+target_link_libraries(pg_connection_pool_test lynx)

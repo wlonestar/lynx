@@ -53,14 +53,14 @@ inline LogStream &operator<<(LogStream &s, const Logger::SourceFile &v) {
   return s;
 }
 
-void defauleOutput(const char *msg, int len) {
-  size_t n = ::fwrite(msg, 1, len, stdout);
+void defaultOutput(const char *msg, int len) {
+  size_t n = ::fwrite(msg, 1, len, stderr);
   (void)n;
 }
 
-void defaultFlush() { ::fflush(stdout); }
+void defaultFlush() { ::fflush(stderr); }
 
-Logger::OutputFunc g_output = defauleOutput;
+Logger::OutputFunc g_output = defaultOutput;
 Logger::FlushFunc g_flush = defaultFlush;
 
 Logger::Impl::Impl(LogLevel level, int oldErrno, const SourceFile &file,

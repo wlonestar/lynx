@@ -30,6 +30,7 @@ void ThreadPool::start(int numThreads) {
     thread_init_callback_();
   }
 }
+
 void ThreadPool::stop() {
   {
     std::lock_guard<std::mutex> lock(mutex_);

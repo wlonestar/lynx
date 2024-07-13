@@ -25,7 +25,8 @@ int main() {
   std::cout << std::boolalpha;
 
   // connect database
-  lynx::PQconnection conn("127.0.0.1", "5432", "postgres", "123456", "demo");
+  lynx::PgConnection conn("PgConn");
+  conn.connect("127.0.0.1", "5432", "postgres", "123456", "demo");
   // delete table
   conn.execute("drop table person;");
   // create table
