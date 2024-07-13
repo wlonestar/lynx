@@ -31,6 +31,7 @@ public:
 
 private:
   enum States { kDisconnected, kConnecting, kConnected };
+
   static const int K_MAX_RETRY_DELAY_MS = 30 * 1000;
   static const int K_INIT_RETRY_DELAY_MS = 500;
 

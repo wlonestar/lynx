@@ -79,6 +79,15 @@ template <typename T> void LogStream::formatInteger(T v) {
   }
 }
 
+LogStream &LogStream::operator<<(bool v) {
+  if (v) {
+    buffer_.append("true", 4);
+  } else {
+    buffer_.append("false", 5);
+  }
+  return *this;
+}
+
 LogStream &LogStream::operator<<(int16_t v) {
   *this << static_cast<int32_t>(v);
   return *this;
@@ -109,6 +118,19 @@ LogStream &LogStream::operator<<(uint64_t v) {
   return *this;
 }
 
+LogStream &LogStream::operator<<(float v) {
+  *this << static_cast<double>(v);
+  return *this;
+}
+
+LogStream &LogStream::operator<<(double v) {
+  if (buffer_.avail() >= K_MAX_NUMERIC_SIZE) {
+    int len = snprintf(buffer_.current(), K_MAX_NUMERIC_SIZE, "%.12g", v);
+    buffer_.add(len);
+  }
+  return *this;
+}
+
 LogStream &LogStream::operator<<(const void *p) {
   auto v = reinterpret_cast<uintptr_t>(p);
   if (buffer_.avail() >= K_MAX_NUMERIC_SIZE) {
@@ -121,11 +143,31 @@ LogStream &LogStream::operator<<(const void *p) {
   return *this;
 }
 
-LogStream &LogStream::operator<<(double v) {
-  if (buffer_.avail() >= K_MAX_NUMERIC_SIZE) {
-    int len = snprintf(buffer_.current(), K_MAX_NUMERIC_SIZE, "%.12g", v);
-    buffer_.add(len);
+LogStream &LogStream::operator<<(char v) {
+  buffer_.append(&v, 1);
+  return *this;
+}
+
+LogStream &LogStream::operator<<(const char *str) {
+  if (str != nullptr) {
+    buffer_.append(str, strlen(str));
+  } else {
+    buffer_.append("(null)", 6);
   }
+  return *this;
+}
+
+LogStream &LogStream::operator<<(const unsigned char *str) {
+  return operator<<(reinterpret_cast<const char *>(str));
+}
+
+LogStream &LogStream::operator<<(const std::string &str) {
+  buffer_.append(str.c_str(), str.size());
+  return *this;
+}
+
+LogStream &LogStream::operator<<(const Buffer &v) {
+  *this << v.toString();
   return *this;
 }
 

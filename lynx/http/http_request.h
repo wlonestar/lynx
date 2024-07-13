@@ -79,17 +79,14 @@ public:
   }
 
   void setPath(const char *start, const char *end) { path_.assign(start, end); }
-
   const std::string &path() const { return path_; }
 
   void setQuery(const char *start, const char *end) {
     query_.assign(start, end);
   }
-
   const std::string &query() const { return query_; }
 
   void setReceiveTime(Timestamp t) { receive_time_ = t; }
-
   Timestamp receiveTime() const { return receive_time_; }
 
   void addHeader(const char *start, const char *colon, const char *end) {

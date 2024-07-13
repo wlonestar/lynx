@@ -61,9 +61,15 @@ public:
   template <typename T> int insert(T &&t);
   template <typename T> int insert(std::vector<T> &t);
 
-  template <typename T> constexpr transaction_type<T> query();
-  template <typename T> constexpr transaction_type<T> del();
-  template <typename T> constexpr transaction_type<T> update();
+  template <typename T> constexpr transaction_type<T> query() {
+    return QueryObject<T>(conn_, getName<T>());
+  }
+  template <typename T> constexpr transaction_type<T> del() {
+    return QueryObject<T>(conn_, getName<T>(), "delete", "");
+  }
+  template <typename T> constexpr transaction_type<T> update() {
+    return QueryObject<T>(conn_, getName<T>(), "", "update");
+  }
 
 private:
   template <typename T> bool insertImpl(std::string &sql, T &&t);
@@ -144,21 +150,6 @@ template <typename T> int PgConnection::insert(std::vector<T> &t) {
   return t.size();
 }
 
-template <typename T>
-constexpr PgConnection::transaction_type<T> PgConnection::query() {
-  return QueryObject<T>(conn_, getName<T>());
-}
-
-template <typename T>
-constexpr PgConnection::transaction_type<T> PgConnection::del() {
-  return QueryObject<T>(conn_, getName<T>(), "delete", "");
-}
-
-template <typename T>
-constexpr PgConnection::transaction_type<T> PgConnection::update() {
-  return QueryObject<T>(conn_, getName<T>(), "", "update");
-}
-
 template <typename T> bool PgConnection::insertImpl(std::string &sql, T &&t) {
   std::vector<std::vector<char>> param_values;
   forEach(t, [&](auto &item, auto field, auto j) {
@@ -214,7 +205,6 @@ std::string PgConnection::generateCreateTableSql(Args &&...args) {
   auto field_types = getTypeNames<T>();
   using TT = std::tuple<std::decay_t<Args>...>;
   if constexpr (sizeof...(Args) > 0) {
-
     static_assert(
         !(HasType<KeyMap, TT>::value && HasType<AutoKeyMap, TT>::value),
         "KeyMap and AutoKeyMap cannot be used together");

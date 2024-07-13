@@ -33,7 +33,6 @@ private:
   const int check_every_n_;
 
   int count_;
-
   std::unique_ptr<std::mutex> mutex_;
   time_t start_of_period_;
   time_t last_roll_;

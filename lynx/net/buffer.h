@@ -98,13 +98,11 @@ public:
   std::string toString() const { return {peek(), readableBytes()}; }
 
   void append(const std::string &str) { append(str.data(), str.size()); }
-
   void append(const char * /*restrict*/ data, size_t len) {
     ensureWritableBytes(len);
     std::copy(data, data + len, beginWrite());
     hasWritten(len);
   }
-
   void append(const void * /*restrict*/ data, size_t len) {
     append(static_cast<const char *>(data), len);
   }
@@ -117,7 +115,6 @@ public:
   }
 
   char *beginWrite() { return begin() + writer_index_; }
-
   const char *beginWrite() const { return begin() + writer_index_; }
 
   void hasWritten(size_t len) {

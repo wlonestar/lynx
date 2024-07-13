@@ -64,6 +64,7 @@ public:
   void doNotLogHup() { log_hup_ = false; }
 
   EventLoop *ownerLoop() { return loop_; }
+
   void remove();
 
 private:

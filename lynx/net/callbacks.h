@@ -28,6 +28,7 @@ inline ::std::shared_ptr<To> downPointerCast(const ::std::shared_ptr<From> &f) {
 
 class Buffer;
 class TcpConnection;
+
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
 using TimerCallback = std::function<void()>;
 using ConnectionCallback = std::function<void(const TcpConnectionPtr &)>;

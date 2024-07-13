@@ -16,7 +16,6 @@ const int K_LARGE_BUFFER = 4000 * 1000;
 template <int SIZE> class FixedBuffer : Noncopyable {
 public:
   FixedBuffer() : cur_(data_) { setCookie(cookieStart); }
-
   ~FixedBuffer() { setCookie(cookieEnd); }
 
   void append(const char *buf, size_t len) {
@@ -59,57 +58,21 @@ class LogStream : Noncopyable {
 public:
   using Buffer = detail::FixedBuffer<detail::K_SMALL_BUFFER>;
 
-  self &operator<<(bool v) {
-    if (v) {
-      buffer_.append("true", 4);
-    } else {
-      buffer_.append("false", 5);
-    }
-    return *this;
-  }
-
+  self &operator<<(bool);
   self &operator<<(int16_t);
   self &operator<<(uint16_t);
   self &operator<<(int32_t);
   self &operator<<(uint32_t);
   self &operator<<(int64_t);
   self &operator<<(uint64_t);
-
-  self &operator<<(const void *);
-
-  self &operator<<(float v) {
-    *this << static_cast<double>(v);
-    return *this;
-  }
+  self &operator<<(float);
   self &operator<<(double);
-
-  self &operator<<(char v) {
-    buffer_.append(&v, 1);
-    return *this;
-  }
-
-  self &operator<<(const char *str) {
-    if (str != nullptr) {
-      buffer_.append(str, strlen(str));
-    } else {
-      buffer_.append("(null)", 6);
-    }
-    return *this;
-  }
-
-  self &operator<<(const unsigned char *str) {
-    return operator<<(reinterpret_cast<const char *>(str));
-  }
-
-  self &operator<<(const std::string &str) {
-    buffer_.append(str.c_str(), str.size());
-    return *this;
-  }
-
-  self &operator<<(const Buffer &v) {
-    *this << v.toString();
-    return *this;
-  }
+  self &operator<<(const void *);
+  self &operator<<(char);
+  self &operator<<(const char *);
+  self &operator<<(const unsigned char *);
+  self &operator<<(const std::string &);
+  self &operator<<(const Buffer &);
 
   void append(const char *data, size_t len) { buffer_.append(data, len); }
   const Buffer &buffer() const { return buffer_; }

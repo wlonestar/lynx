@@ -18,6 +18,7 @@ public:
                    int64_t *modifyTime, int64_t *createTime);
 
   int readToBuffer(int *size);
+
   const char *buffer() const { return buf_; }
 
   static const int K_BUFFER_DIZE = 64 * 1024;
@@ -43,6 +44,7 @@ public:
 
   void append(const char *logline, size_t len);
   void flush();
+
   off_t writtenBytes() const { return written_bytes_; }
 
 private:

@@ -35,6 +35,7 @@ public:
   EventLoop *getLoop() const { return loop_; }
 
   void setThreadNum(int numThreads);
+
   void setThreadInitCallback(const ThreadInitCallback &cb) {
     thread_init_callback_ = cb;
   }
