@@ -58,7 +58,6 @@ include_directories(${PostgreSQL_INCLUDE_DIRS})
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-add_subdirectory(src)
 add_subdirectory(tests)
 
 # Set library source files

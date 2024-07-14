@@ -1,7 +1,6 @@
 #ifndef LYNX_NET_INET_ADDRESS_H
 #define LYNX_NET_INET_ADDRESS_H
 
-#include "lynx/base/copyable.h"
 
 #include <netinet/in.h>
 #include <string>
@@ -12,7 +11,7 @@ namespace sockets {
 const struct sockaddr *sockaddrCast(const struct sockaddr_in6 *addr);
 }
 
-class InetAddress : public Copyable {
+class InetAddress  {
 public:
   explicit InetAddress(uint16_t port = 0, bool loopbackOnly = false,
                        bool ipv6 = false);
@@ -34,9 +33,9 @@ public:
 
   uint16_t portNetEndian() const { return addr_.sin_port; }
 
-  static bool resolve(std::string hostname, InetAddress *out);
-
   void setScopeId(uint32_t scope_id);
+
+  static bool resolve(std::string hostname, InetAddress *out);
 
 private:
   union {

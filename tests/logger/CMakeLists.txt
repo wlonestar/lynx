@@ -7,5 +7,8 @@ foreach(SRC ${LOGGER_SRC})
   add_test(NAME ${EXEC_NAME} COMMAND ${EXEC_NAME})
 endforeach()
 
+add_executable(async_logging_test async_logging_test.cpp)
+target_link_libraries(async_logging_test lynx)
+
 add_executable(log_stream_bench log_stream_bench.cpp)
 target_link_libraries(log_stream_bench lynx)

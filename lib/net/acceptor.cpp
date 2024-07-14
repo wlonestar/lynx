@@ -39,7 +39,7 @@ void Acceptor::listen() {
 void Acceptor::handleRead() {
   loop_->assertInLoopThread();
   InetAddress peer_addr;
-  // FIXME loop until no more
+
   int connfd = accept_socket_.accept(&peer_addr);
   if (connfd >= 0) {
     if (new_connection_callback_) {

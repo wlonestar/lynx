@@ -62,7 +62,6 @@ public:
   std::string eventsToString() const;
 
   void doNotLogHup() { log_hup_ = false; }
-
   EventLoop *ownerLoop() { return loop_; }
 
   void remove();

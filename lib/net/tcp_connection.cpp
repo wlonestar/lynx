@@ -92,7 +92,7 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
     return;
   }
   if (!channel_->isWriting() && output_buffer_.readableBytes() == 0) {
-    nwrote = sockets::write(channel_->fd(), data, len);
+    nwrote = ::write(channel_->fd(), data, len);
     if (nwrote >= 0) {
       remaining = len - nwrote;
       if (remaining == 0 && write_complete_callback_) {
@@ -243,7 +243,7 @@ void TcpConnection::handleRead(Timestamp receiveTime) {
 void TcpConnection::handleWrite() {
   loop_->assertInLoopThread();
   if (channel_->isWriting()) {
-    ssize_t n = sockets::write(channel_->fd(), output_buffer_.peek(),
+    ssize_t n = ::write(channel_->fd(), output_buffer_.peek(),
                                output_buffer_.readableBytes());
     if (n > 0) {
       output_buffer_.retrieve(n);
@@ -281,7 +281,7 @@ void TcpConnection::handleClose() {
 void TcpConnection::handleError() {
   int err = sockets::getSocketError(channel_->fd());
   LOG_ERROR << "TcpConnection::handleError [" << name_
-            << "] - SO_ERROR = " << err << " " << strErrorTl(err);
+            << "] - SO_ERROR = " << err << " " << current_thread::strError(err);
 }
 
 } // namespace lynx

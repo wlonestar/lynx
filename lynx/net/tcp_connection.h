@@ -95,7 +95,6 @@ private:
 
   std::unique_ptr<Socket> socket_;
   std::unique_ptr<Channel> channel_;
-
   const InetAddress local_addr_;
   const InetAddress peer_addr_;
 

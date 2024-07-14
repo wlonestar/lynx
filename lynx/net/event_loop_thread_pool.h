@@ -23,9 +23,7 @@ public:
   void start(const ThreadInitCallback &cb = ThreadInitCallback());
 
   EventLoop *getNextLoop();
-
   EventLoop *getLoopForHash(size_t hashCode);
-
   std::vector<EventLoop *> getAllLoops();
 
   bool started() const { return started_; }

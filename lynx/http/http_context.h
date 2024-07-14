@@ -1,7 +1,6 @@
 #ifndef LYNX_HTTP_HTTP_CONTEXT_H
 #define LYNX_HTTP_HTTP_CONTEXT_H
 
-#include "lynx/base/copyable.h"
 #include "lynx/base/timestamp.h"
 #include "lynx/http/http_request.h"
 
@@ -9,7 +8,7 @@ namespace lynx {
 
 class Buffer;
 
-class HttpContext : public Copyable {
+class HttpContext  {
 public:
   enum HttpRequestParseState {
     EXPECT_REQUEST_LINE,

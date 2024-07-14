@@ -1,6 +1,5 @@
 #include "lynx/base/thread.h"
 #include "lynx/base/current_thread.h"
-#include "lynx/base/exception.h"
 #include "lynx/logger/logging.h"
 
 #include <cassert>
@@ -52,12 +51,6 @@ struct ThreadData {
     try {
       func_();
       current_thread::t_thread_name = "finished";
-    } catch (const Exception &ex) {
-      current_thread::t_thread_name = "crashed";
-      fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
-      fprintf(stderr, "reason: %s\n", ex.what());
-      fprintf(stderr, "stack trace: %s\n", ex.stackTrace());
-      abort();
     } catch (const std::exception &ex) {
       current_thread::t_thread_name = "crashed";
       fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
@@ -100,7 +93,7 @@ void Thread::start() {
   auto *data = new detail::ThreadData(func_, name_, &tid_, &latch_);
   if (pthread_create(&pthread_id_, nullptr, &detail::startThread, data) != 0) {
     started_ = false;
-    delete data; // or no delete?
+    delete data;
     LOG_SYSFATAL << "Failed in pthread_create";
   } else {
     latch_.wait();

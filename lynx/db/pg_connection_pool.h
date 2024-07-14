@@ -20,7 +20,6 @@ public:
       const std::string &timeout = std::string("10"), size_t minSize = 5,
       size_t maxSize = 10,
       const std::string &name = std::string("PgConnectionPool"));
-
   ~PgConnectionPool();
 
   void start();
@@ -41,9 +40,8 @@ private:
 
   size_t min_size_;
   size_t max_size_;
-  bool running_ = false;
-
   std::string name_;
+  bool running_ = false;
 
   mutable std::mutex mutex_;
   std::condition_variable not_empty_;

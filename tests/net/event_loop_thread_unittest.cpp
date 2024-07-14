@@ -27,7 +27,7 @@ int main() {
     lynx::EventLoopThread thr2;
     lynx::EventLoop *loop = thr2.startLoop();
     loop->runInLoop([loop] { return print(loop); });
-    lynx::current_thread::sleepUsec(500 * 1000);
+    std::this_thread::sleep_for(std::chrono::microseconds(500 * 1000));
   }
 
   {
@@ -35,6 +35,6 @@ int main() {
     lynx::EventLoopThread thr3;
     lynx::EventLoop *loop = thr3.startLoop();
     loop->runInLoop([loop] { return quit(loop); });
-    lynx::current_thread::sleepUsec(500 * 1000);
+    std::this_thread::sleep_for(std::chrono::microseconds(500 * 1000));
   }
 }

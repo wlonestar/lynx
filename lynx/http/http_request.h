@@ -1,7 +1,6 @@
 #ifndef LYNX_HTTP_HTTP_REQUEST_H
 #define LYNX_HTTP_HTTP_REQUEST_H
 
-#include "lynx/base/copyable.h"
 #include "lynx/base/timestamp.h"
 
 #include <cassert>
@@ -11,7 +10,7 @@
 
 namespace lynx {
 
-class HttpRequest : public Copyable {
+class HttpRequest  {
 public:
   enum Method {
     INVALID,

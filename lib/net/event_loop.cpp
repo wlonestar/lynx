@@ -28,13 +28,10 @@ int createEventfd() {
   return evtfd;
 }
 
-#pragma GCC diagnostic ignored "-Wold-style-cast"
 class IgnoreSigPipe {
 public:
   IgnoreSigPipe() { ::signal(SIGPIPE, SIG_IGN); }
 };
-#pragma GCC diagnostic error "-Wold-style-cast"
-
 IgnoreSigPipe init_obj;
 
 } // namespace
@@ -81,7 +78,7 @@ void EventLoop::loop() {
     active_channels_.clear();
     poll_return_time_ = poller_->poll(K_POLL_TIME_MS, &active_channels_);
     ++iteration_;
-    if (Logger::logLevel() <= TRACE) {
+    if (Logger::logLevel() <= Logger::TRACE) {
       printActiveChannels();
     }
     event_handling_ = true;
@@ -178,7 +175,7 @@ void EventLoop::abortNotInLoopThread() {
 
 void EventLoop::wakeup() {
   uint64_t one = 1;
-  ssize_t n = sockets::write(wakeup_fd_, &one, sizeof(one));
+  ssize_t n = ::write(wakeup_fd_, &one, sizeof(one));
   if (n != sizeof(one)) {
     LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
   }
@@ -186,7 +183,7 @@ void EventLoop::wakeup() {
 
 void EventLoop::handleRead() {
   uint64_t one = 1;
-  ssize_t n = sockets::read(wakeup_fd_, &one, sizeof(one));
+  ssize_t n = ::read(wakeup_fd_, &one, sizeof(one));
   if (n != sizeof(one)) {
     LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
   }

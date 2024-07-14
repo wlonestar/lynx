@@ -1,7 +1,6 @@
 #ifndef LYNX_HTTP_HTTP_RESPONSE_H
 #define LYNX_HTTP_HTTP_RESPONSE_H
 
-#include "lynx/base/copyable.h"
 
 #include <map>
 #include <string>
@@ -10,7 +9,7 @@ namespace lynx {
 
 class Buffer;
 
-class HttpResponse : public Copyable {
+class HttpResponse  {
 public:
   enum HttpStatusCode {
     UNKNOWN,
@@ -23,7 +22,6 @@ public:
   explicit HttpResponse(bool close) : close_connection_(close) {}
 
   void setStatusCode(HttpStatusCode code) { status_code_ = code; }
-
   void setStatusMessage(const std::string &message) {
     status_message_ = message;
   }

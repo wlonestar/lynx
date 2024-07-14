@@ -1,4 +1,5 @@
 #include "lynx/base/file_util.h"
+#include "lynx/base/current_thread.h"
 #include "lynx/logger/logging.h"
 
 #include <cassert>
@@ -104,7 +105,8 @@ void AppendFile::append(const char *logline, size_t len) {
     if (n != remain) {
       int err = ::ferror(fp_);
       if (err != 0) {
-        fprintf(stderr, "AppendFile::append() failed %s\n", strErrorTl(err));
+        fprintf(stderr, "AppendFile::append() failed %s\n",
+                current_thread::strError(err));
         break;
       }
     }

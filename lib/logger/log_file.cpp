@@ -1,6 +1,5 @@
 #include "lynx/logger/log_file.h"
 #include "lynx/base/file_util.h"
-#include "lynx/base/process_info.h"
 
 #include <cassert>
 #include <memory>
@@ -86,10 +85,15 @@ std::string LogFile::getLogFileName(const std::string &basename, time_t *now) {
   strftime(timebuf, sizeof(timebuf), ".%Y%m%d-%H%M%S.", &tm);
   filename += timebuf;
 
-  filename += process_info::hostname();
+  char buf[256];
+  if (::gethostname(buf, sizeof(buf)) == 0) {
+    filename += buf;
+  } else {
+    filename += "unknownhost";
+  }
 
   char pidbuf[32];
-  snprintf(pidbuf, sizeof(pidbuf), ".%d", process_info::pid());
+  snprintf(pidbuf, sizeof(pidbuf), ".%d", ::getpid());
   filename += pidbuf;
 
   filename += ".log";

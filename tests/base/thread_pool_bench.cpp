@@ -2,7 +2,9 @@
 #include "lynx/base/thread_pool.h"
 #include "lynx/logger/logging.h"
 
+#include <chrono>
 #include <cstdio>
+#include <thread>
 #include <unistd.h>
 
 void print() { printf("tid=%d\n", lynx::current_thread::tid()); }
@@ -49,7 +51,7 @@ void testMove()
 
 void longTask(int num) {
   LOG_INFO << "longTask " << num;
-  lynx::current_thread::sleepUsec(3000000);
+  std::this_thread::sleep_for(std::chrono::microseconds(3000000));
 }
 
 void test2() {
@@ -67,7 +69,7 @@ void test2() {
       "thread1");
   thread1.start();
 
-  lynx::current_thread::sleepUsec(5000000);
+  std::this_thread::sleep_for(std::chrono::microseconds(5000000));
   LOG_WARN << "stop pool";
   pool.stop(); // early stop
 

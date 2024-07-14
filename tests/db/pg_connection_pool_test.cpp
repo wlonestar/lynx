@@ -50,7 +50,7 @@ void selectFromDB(lynx::PgConnectionPool &db_pool) {
                  .limit(2)
                  .toVector();
   int usec = rand() % 2 == 0 ? 1000000 : 3000000;
-  lynx::current_thread::sleepUsec(usec);
+  std::this_thread::sleep_for(std::chrono::microseconds(usec));
   db_pool.release(conn);
 }
 

@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
   int num_threads = 0;
   if (argc > 1) {
     benchmark = true;
-    lynx::Logger::setLogLevel(lynx::WARN);
+    lynx::Logger::setLogLevel(lynx::Logger::WARN);
     num_threads = atoi(argv[1]);
   }
 

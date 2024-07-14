@@ -6,36 +6,36 @@
 
 namespace lynx {
 
-template <typename CLASS, typename... ARGS> class WeakCallback {
+template <typename Class, typename... Args> class WeakCallback {
 public:
-  WeakCallback(const std::weak_ptr<CLASS> &object,
-               const std::function<void(CLASS *, ARGS...)> &function)
+  WeakCallback(const std::weak_ptr<Class> &object,
+               const std::function<void(Class *, Args...)> &function)
       : object_(object), function_(function) {}
 
-  void operator()(ARGS &&...args) const {
-    std::shared_ptr<CLASS> ptr(object_.lock());
+  void operator()(Args &&...args) const {
+    std::shared_ptr<Class> ptr(object_.lock());
     if (ptr) {
-      function_(ptr.get(), std::forward<ARGS>(args)...);
+      function_(ptr.get(), std::forward<Args>(args)...);
     }
   }
 
 private:
-  std::weak_ptr<CLASS> object_;
-  std::function<void(CLASS *, ARGS...)> function_;
+  std::weak_ptr<Class> object_;
+  std::function<void(Class *, Args...)> function_;
 };
 
-template <typename CLASS, typename... ARGS>
-WeakCallback<CLASS, ARGS...>
-makeWeakCallback(const std::shared_ptr<CLASS> &object,
-                 void (CLASS::*function)(ARGS...)) {
-  return WeakCallback<CLASS, ARGS...>(object, function);
+template <typename Class, typename... Args>
+WeakCallback<Class, Args...>
+makeWeakCallback(const std::shared_ptr<Class> &object,
+                 void (Class::*function)(Args...)) {
+  return WeakCallback<Class, Args...>(object, function);
 }
 
-template <typename CLASS, typename... ARGS>
-WeakCallback<CLASS, ARGS...>
-makeWeakCallback(const std::shared_ptr<CLASS> &object,
-                 void (CLASS::*function)(ARGS...) const) {
-  return WeakCallback<CLASS, ARGS...>(object, function);
+template <typename Class, typename... Args>
+WeakCallback<Class, Args...>
+makeWeakCallback(const std::shared_ptr<Class> &object,
+                 void (Class::*function)(Args...) const) {
+  return WeakCallback<Class, Args...>(object, function);
 }
 
 } // namespace lynx

@@ -9,44 +9,27 @@
 
 namespace lynx {
 
-thread_local char t_errnobuf[512];
 thread_local char t_time[64];
 thread_local time_t t_last_second;
 
-const char *strErrorTl(int savedErrno) {
-  return strerror_r(savedErrno, t_errnobuf, sizeof(t_errnobuf));
+Logger::LogLevel initLogLevel() {
+  char *log_level = ::getenv("LYNX_LOG");
+  if (log_level != nullptr) {
+    if (strncmp(log_level, "TRACE", 5) == 0) {
+      return Logger::LogLevel::TRACE;
+    }
+    if (strncmp(log_level, "DEBUG", 5) == 0) {
+      return Logger::LogLevel::DEBUG;
+    }
+  }
+  return Logger::LogLevel::INFO;
 }
 
-LogLevel initLogLevel() {
-  if (::getenv("LYNX_LOG_TRACE") != nullptr) {
-    return LogLevel::TRACE;
-  }
-  if (::getenv("LYNX_LOG_DEBUG") != nullptr) {
-    return LogLevel::DEBUG;
-  }
-  return LogLevel::INFO;
-}
+Logger::LogLevel g_log_level = initLogLevel();
 
-LogLevel g_log_level = initLogLevel();
-
-const char *log_level_name[LogLevel::NUM_LOG_LEVELS] = {
+const static char *log_level_name[Logger::LogLevel::NUM_LOG_LEVELS] = {
     "TRACE ", "DEBUG ", "INFO  ", "WARN  ", "ERROR ", "FATAL ",
 };
-
-class T {
-public:
-  T(const char *str, unsigned len) : str_(str), len_(len) {
-    assert(strlen(str) == len);
-  }
-
-  const char *str_;
-  const unsigned len_;
-};
-
-inline LogStream &operator<<(LogStream &s, T v) {
-  s.append(v.str_, v.len_);
-  return s;
-}
 
 inline LogStream &operator<<(LogStream &s, const Logger::SourceFile &v) {
   s.append(v.data_, v.size_);
@@ -54,11 +37,11 @@ inline LogStream &operator<<(LogStream &s, const Logger::SourceFile &v) {
 }
 
 void defaultOutput(const char *msg, int len) {
-  size_t n = ::fwrite(msg, 1, len, stderr);
+  size_t n = ::fwrite(msg, 1, len, stdout);
   (void)n;
 }
 
-void defaultFlush() { ::fflush(stderr); }
+void defaultFlush() { ::fflush(stdout); }
 
 Logger::OutputFunc g_output = defaultOutput;
 Logger::FlushFunc g_flush = defaultFlush;
@@ -69,10 +52,11 @@ Logger::Impl::Impl(LogLevel level, int oldErrno, const SourceFile &file,
       basename_(file) {
   formatTime();
   current_thread::tid();
-  stream_ << T(current_thread::tidString(), current_thread::tidStringLength());
-  stream_ << T(log_level_name[level], 6);
+  stream_ << current_thread::tidString();
+  stream_ << log_level_name[level];
   if (oldErrno != 0) {
-    stream_ << strErrorTl(oldErrno) << "( errno=" << oldErrno << ") ";
+    stream_ << current_thread::strError(oldErrno) << "( errno=" << oldErrno
+            << ") ";
   }
 }
 
@@ -95,8 +79,7 @@ void Logger::Impl::formatTime() {
 
   char us[16];
   snprintf(us, sizeof(us), ".%06d ", micro_seconds);
-
-  stream_ << T(t_time, 17) << T(us, 8);
+  stream_ << t_time << us;
 }
 
 void Logger::Impl::finish() {
@@ -127,9 +110,7 @@ Logger::~Logger() {
 }
 
 void Logger::setLogLevel(LogLevel level) { g_log_level = level; }
-
 void Logger::setOutput(OutputFunc out) { g_output = out; }
-
 void Logger::setFlush(FlushFunc flush) { g_flush = flush; }
 
 } // namespace lynx

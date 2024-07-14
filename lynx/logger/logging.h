@@ -8,18 +8,20 @@
 
 namespace lynx {
 
-enum LogLevel {
-  TRACE,
-  DEBUG,
-  INFO,
-  WARN,
-  ERROR,
-  FATAL,
-  NUM_LOG_LEVELS,
-};
-
 class Logger {
 public:
+  enum LogLevel {
+    TRACE,
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR,
+    FATAL,
+    NUM_LOG_LEVELS,
+  };
+
+  using LogLevel = Logger::LogLevel;
+
   class SourceFile {
   public:
     template <int N>
@@ -77,25 +79,23 @@ private:
   Impl impl_;
 };
 
-extern LogLevel g_log_level;
-inline LogLevel Logger::logLevel() { return g_log_level; }
+extern Logger::LogLevel g_log_level;
+inline Logger::LogLevel Logger::logLevel() { return g_log_level; }
 
 #define LOG_TRACE                                                              \
-  if (lynx::Logger::logLevel() <= lynx::TRACE)                                 \
-  lynx::Logger(__FILE__, __LINE__, lynx::TRACE, __func__).stream()
+  if (lynx::Logger::logLevel() <= lynx::Logger::TRACE)                         \
+  lynx::Logger(__FILE__, __LINE__, lynx::Logger::TRACE, __func__).stream()
 #define LOG_DEBUG                                                              \
-  if (lynx::Logger::logLevel() <= lynx::DEBUG)                                 \
-  lynx::Logger(__FILE__, __LINE__, lynx::DEBUG, __func__).stream()
+  if (lynx::Logger::logLevel() <= lynx::Logger::DEBUG)                         \
+  lynx::Logger(__FILE__, __LINE__, lynx::Logger::DEBUG, __func__).stream()
 #define LOG_INFO                                                               \
-  if (lynx::Logger::logLevel() <= lynx::INFO)                                  \
+  if (lynx::Logger::logLevel() <= lynx::Logger::INFO)                          \
   lynx::Logger(__FILE__, __LINE__).stream()
-#define LOG_WARN lynx::Logger(__FILE__, __LINE__, lynx::WARN).stream()
-#define LOG_ERROR lynx::Logger(__FILE__, __LINE__, lynx::ERROR).stream()
-#define LOG_FATAL lynx::Logger(__FILE__, __LINE__, lynx::FATAL).stream()
+#define LOG_WARN lynx::Logger(__FILE__, __LINE__, lynx::Logger::WARN).stream()
+#define LOG_ERROR lynx::Logger(__FILE__, __LINE__, lynx::Logger::ERROR).stream()
+#define LOG_FATAL lynx::Logger(__FILE__, __LINE__, lynx::Logger::FATAL).stream()
 #define LOG_SYSERR lynx::Logger(__FILE__, __LINE__, false).stream()
 #define LOG_SYSFATAL lynx::Logger(__FILE__, __LINE__, true).stream()
-
-const char *strErrorTl(int savedErrno);
 
 #define CHECK_NOTNULL(val)                                                     \
   lynx::checkNotNull(__FILE__, __LINE__, "'" #val "' Must be non null", (val))
@@ -103,7 +103,7 @@ const char *strErrorTl(int savedErrno);
 template <typename T>
 T *checkNotNull(Logger::SourceFile file, int line, const char *names, T *ptr) {
   if (ptr == NULL) {
-    Logger(file, line, FATAL).stream() << names;
+    Logger(file, line, Logger::FATAL).stream() << names;
   }
   return ptr;
 }

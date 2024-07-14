@@ -1,5 +1,4 @@
 #include "lynx/base/thread_pool.h"
-#include "lynx/base/exception.h"
 #include "lynx/base/thread.h"
 
 #include <cassert>
@@ -82,11 +81,6 @@ void ThreadPool::runInThread() {
         task();
       }
     }
-  } catch (const Exception &ex) {
-    fprintf(stderr, "exception caught in ThreadPool %s\n", name_.c_str());
-    fprintf(stderr, "reason: %s\n", ex.what());
-    fprintf(stderr, "stack trace: %s\n", ex.stackTrace());
-    abort();
   } catch (const std::exception &ex) {
     fprintf(stderr, "exception caught in ThreadPool %s\n", name_.c_str());
     fprintf(stderr, "reason: %s\n", ex.what());

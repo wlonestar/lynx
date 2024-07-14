@@ -1,7 +1,6 @@
 #ifndef LYNX_NET_BUFFER_H
 #define LYNX_NET_BUFFER_H
 
-#include "lynx/base/copyable.h"
 
 #include <algorithm>
 #include <cassert>
@@ -12,7 +11,7 @@
 
 namespace lynx {
 
-class Buffer : public Copyable {
+class Buffer  {
 public:
   static const size_t K_CHEAP_PREPEND = 8;
   static const size_t K_INITIAL_SIZE = 1024;

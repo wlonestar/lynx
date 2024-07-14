@@ -1,8 +1,6 @@
 #ifndef LYNX_BASE_TIMESTAMP_H
 #define LYNX_BASE_TIMESTAMP_H
 
-#include "lynx/base/copyable.h"
-
 #include <cinttypes>
 #include <cstdio>
 #include <ctime>
@@ -11,7 +9,7 @@
 
 namespace lynx {
 
-class Timestamp : public Copyable {
+class Timestamp {
 public:
   Timestamp() : micro_seconds_since_epoch_(0) {}
 
