@@ -13,8 +13,8 @@ extern unsigned char favicon_jpg[];
 extern unsigned int favicon_jpg_len;
 
 enum Gender : int {
-  Mail,
-  Femail,
+  Male,
+  Female,
 };
 
 struct Person {
@@ -96,12 +96,12 @@ void initDB(lynx::PgConnectionPool &pool) {
   conn->createTable<Person>(key_map, not_null_map);
 
   // insert data
-  Person p1{1, "hxf1", Gender::Femail, 30, 101.1F};
-  Person p2{2, "hxf2", Gender::Femail, 28, 102.2F};
-  Person p3{3, "hxf3", Gender::Mail, 27, 103.3F};
-  Person p4{4, "hxf4", Gender::Femail, 26, 104.4F};
-  Person p5{5, "hxf1", Gender::Mail, 30, 108.1F};
-  Person p6{6, "hxf3", Gender::Femail, 30, 109.1F};
+  Person p1{1, "wjl1", Gender::Female, 30, 101.1F};
+  Person p2{2, "wjl2", Gender::Female, 28, 102.2F};
+  Person p3{3, "wjl3", Gender::Male, 27, 103.3F};
+  Person p4{4, "wjl4", Gender::Female, 26, 104.4F};
+  Person p5{5, "wjl1", Gender::Male, 30, 108.1F};
+  Person p6{6, "wjl3", Gender::Female, 30, 109.1F};
 
   conn->insert(p1);
   conn->insert(p2);
@@ -135,6 +135,4 @@ int main(int argc, char *argv[]) {
 
   server.start();
   loop.loop();
-
-  pool.stop();
 }

@@ -4,18 +4,19 @@
 #include "lynx/logger/logging.h"
 #include "lynx/orm/reflection.h"
 
+#include <libpq-fe.h>
+
 #include <cassert>
 #include <cstring>
 #include <iostream>
-#include <libpq-fe.h>
 
 namespace lynx {
 
 template <typename RNT_TYPE> struct Selectable {
-  Selectable(std::string_view &&field, std::string_view &&tbl_name,
+  Selectable(std::string_view &&field, std::string_view &&tblName,
              std::string_view &&op)
       : expr_(std::string(op) + "(" + std::string(field) + ")"),
-        tbl_name_(tbl_name){};
+        tbl_name_(tblName) {}
 
   inline std::string toString() const { return expr_; }
   inline std::string tableName() const { return tbl_name_; }
@@ -29,8 +30,8 @@ private:
 
 class Expr {
 public:
-  Expr(std::string_view &&field, std::string_view &&tbl_name)
-      : expr_(field), tbl_name_(tbl_name){};
+  Expr(std::string_view &&field, std::string_view &&tblName)
+      : expr_(field), tbl_name_(tblName) {}
 
   template <typename T> Expr makeExpr(std::string &&op, T value) {
     using U = std::decay_t<T>;
@@ -88,32 +89,30 @@ private:
 
 template <typename QueryResult> class QueryObject {
 public:
-  QueryObject(PGconn *conn, std::string_view table_name)
-      : conn_(conn), table_name_(table_name) {}
+  QueryObject(PGconn *conn, std::string_view tableName)
+      : conn_(conn), table_name_(tableName) {}
 
-  QueryObject(PGconn *conn, std::string_view table_name,
-              const std::string &delete_sql, const std::string &update_sql)
-      : conn_(conn), table_name_(table_name),
-        delete_sql_(update_sql.empty()
-                        ? delete_sql + " from " + std::string(table_name)
+  QueryObject(PGconn *conn, std::string_view tableName,
+              const std::string &deleteSql, const std::string &updateSql)
+      : conn_(conn), table_name_(tableName),
+        delete_sql_(updateSql.empty()
+                        ? deleteSql + " from " + std::string(tableName)
                         : ""),
-        update_sql_(delete_sql.empty()
-                        ? update_sql + " " + std::string(table_name)
-                        : "") {}
+        update_sql_(deleteSql.empty() ? updateSql + " " + std::string(tableName)
+                                      : "") {}
 
-  QueryObject(PGconn *conn, std::string_view table_name,
-              QueryResult &query_result, const std::string &select_sql,
-              const std::string &where_sql, const std::string &group_by_sql,
-              const std::string &having_sql, const std::string &order_by_sql,
-              const std::string &limit_sql, const std::string &offset_sql,
-              const std::string &delete_sql, const std::string &update_sql,
-              const std::string &set_sql)
-      : conn_(conn), table_name_(table_name), query_result_(query_result),
-        select_sql_(select_sql), where_sql_(where_sql),
-        group_by_sql_(group_by_sql), having_sql_(having_sql),
-        order_by_sql_(order_by_sql), limit_sql_(limit_sql),
-        offset_sql_(offset_sql), delete_sql_(delete_sql),
-        update_sql_(update_sql), set_sql_(set_sql) {}
+  QueryObject(PGconn *conn, std::string_view tableName,
+              QueryResult &queryResult, const std::string &selectSql,
+              const std::string &whereSql, const std::string &groupBySql,
+              const std::string &havingSql, const std::string &orderBySql,
+              const std::string &limitSql, const std::string &offsetSql,
+              const std::string &deleteSql, const std::string &updateSql,
+              const std::string &setSql)
+      : conn_(conn), table_name_(tableName), query_result_(queryResult),
+        select_sql_(selectSql), where_sql_(whereSql), group_by_sql_(groupBySql),
+        having_sql_(havingSql), order_by_sql_(orderBySql), limit_sql_(limitSql),
+        offset_sql_(offsetSql), delete_sql_(deleteSql), update_sql_(updateSql),
+        set_sql_(setSql) {}
 
   template <typename... Args> inline auto select(Args &&...args) {
     std::string sql = "select ";
@@ -127,30 +126,30 @@ public:
     return newQuery(std::tuple<decltype(args.return_type)...>{});
   }
 
-  inline QueryObject &&set(const Expr &expression) {
-    table_name_ = expression.tableName();
-    (*this).set_sql_ = " set " + expression.toString();
+  inline QueryObject &&set(const Expr &expr) {
+    table_name_ = expr.tableName();
+    (*this).set_sql_ = " set " + expr.toString();
     return std::move(*this);
   }
-  inline QueryObject &&where(const Expr &expression) {
-    table_name_ = expression.tableName();
-    (*this).where_sql_ = " where (" + expression.toString() + ")";
+  inline QueryObject &&where(const Expr &expr) {
+    table_name_ = expr.tableName();
+    (*this).where_sql_ = " where (" + expr.toString() + ")";
     return std::move(*this);
   }
-  inline QueryObject &&groupBy(const Expr &expression) {
-    (*this).group_by_sql_ = " group by (" + expression.toString() + ")";
+  inline QueryObject &&groupBy(const Expr &expr) {
+    (*this).group_by_sql_ = " group by (" + expr.toString() + ")";
     return std::move(*this);
   }
-  inline QueryObject &&having(const Expr &expression) {
-    (*this).having_sql_ = " having (" + expression.toString() + ")";
+  inline QueryObject &&having(const Expr &expr) {
+    (*this).having_sql_ = " having (" + expr.toString() + ")";
     return std::move(*this);
   }
-  inline QueryObject &&orderBy(const Expr &expression) {
-    (*this).order_by_sql_ = " order by " + expression.toString() + " asc";
+  inline QueryObject &&orderBy(const Expr &expr) {
+    (*this).order_by_sql_ = " order by " + expr.toString() + " asc";
     return std::move(*this);
   }
-  inline QueryObject &&orderByDesc(const Expr &expression) {
-    (*this).order_by_sql_ = " order by " + expression.toString() + " desc";
+  inline QueryObject &&orderByDesc(const Expr &expr) {
+    (*this).order_by_sql_ = " order by " + expr.toString() + " desc";
     return std::move(*this);
   }
   inline QueryObject &&limit(std::size_t n) {
@@ -224,8 +223,8 @@ private:
       forEach(tp, [this, &i, &index](auto &item, auto j) {
         if constexpr (is_reflection_v<std::decay_t<decltype(item)>>) {
           std::decay_t<decltype(item)> t = {};
-          forEach(t, [this, &index, &t](auto ele, auto field, auto j) {
-            assignValue(t.*ele, j, index++);
+          forEach(t, [this, &index, &t](auto elem, auto field, auto j) {
+            assignValue(t.*elem, j, index++);
           });
           item = std::move(t);
         } else {
@@ -240,11 +239,11 @@ private:
 
   template <typename... Args>
   inline QueryObject<std::tuple<Args...>>
-  newQuery(std::tuple<Args...> &&query_result) {
+  newQuery(std::tuple<Args...> &&queryResult) {
     return QueryObject<std::tuple<Args...>>(
-        conn_, table_name_, query_result, select_sql_, where_sql_,
-        group_by_sql_, having_sql_, order_by_sql_, limit_sql_, offset_sql_,
-        delete_sql_, update_sql_, set_sql_);
+        conn_, table_name_, queryResult, select_sql_, where_sql_, group_by_sql_,
+        having_sql_, order_by_sql_, limit_sql_, offset_sql_, delete_sql_,
+        update_sql_, set_sql_);
   }
 
   template <typename... Args>
@@ -318,13 +317,13 @@ template <typename T, typename U> struct FieldAttribute<U T::*> {
 };
 
 template <typename U>
-constexpr std::string_view getFieldName(std::string_view full_name) {
+constexpr std::string_view getFieldName(std::string_view fullName) {
   using T = typename FieldAttribute<U>::type;
-  return full_name.substr(getName<T>().length() + 2, full_name.length());
+  return fullName.substr(getName<T>().length() + 2, fullName.length());
 }
 
 template <typename U>
-constexpr std::string_view getTableName(std::string_view full_name) {
+constexpr std::string_view getTableName(std::string_view fullName) {
   using T = typename FieldAttribute<U>::type;
   return getName<T>();
 }

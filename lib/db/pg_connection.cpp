@@ -36,6 +36,7 @@ bool PgConnection::connect(const std::string &host, const std::string &port,
 }
 
 bool PgConnection::execute(const std::string &sql) {
+  LOG_DEBUG << "exec: " << sql;
   res_ = PQexec(conn_, sql.data());
   bool ret = PQresultStatus(res_) == PGRES_COMMAND_OK;
   PQclear(res_);

@@ -74,7 +74,7 @@ target_link_libraries(lynx PUBLIC pthread pq)
 # Set header files searching paths
 # Distinguish between build-time and install-time header file paths
 target_include_directories(lynx PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lynx>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
 )
 

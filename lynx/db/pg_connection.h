@@ -210,6 +210,8 @@ std::string PgConnection::generateCreateTableSql(Args &&...args) {
         "KeyMap and AutoKeyMap cannot be used together");
   }
 
+  std::string sequence_name;
+
   auto tp = sortTuple(std::make_tuple(std::forward<Args>(args)...));
   constexpr auto field_size = getValue<T>();
   static_assert(field_size == field_names.size(),
@@ -231,10 +233,12 @@ std::string PgConnection::generateCreateTableSql(Args &&...args) {
 
       if constexpr (std::is_same_v<decltype(item), AutoKeyMap>) {
         if (!has_add) {
+          sequence_name =
+              std::string(table_name.data()) + "_" + field_name + "_seq";
           sql.append(field_name)
               .append(" ")
               .append(field_type)
-              .append(" serial primary key");
+              .append(" not null default nextval('" + sequence_name + "')");
           has_add = true;
         }
       } else if constexpr (std::is_same_v<decltype(item), KeyMap>) {
@@ -269,6 +273,12 @@ std::string PgConnection::generateCreateTableSql(Args &&...args) {
     }
   }
   sql += ");";
+
+  /// For auto key, create sequence first
+  if (!sequence_name.empty()) {
+    sql = "create sequence " + sequence_name + "; " + sql;
+  }
+
   return sql;
 }
 
@@ -280,8 +290,7 @@ constexpr auto PgConnection::generateInsertSql(bool replace) {
   sql += table_name + "(" + field_name_pack + ") values(";
   constexpr auto field_size = getValue<T>();
   for (size_t i = 0; i < field_size; i++) {
-    sql += "$";
-    sql += std::to_string(i + 1);
+    sql += "$" + std::to_string(i + 1);
     if (i != field_size - 1) {
       sql += ", ";
     }
@@ -336,27 +345,29 @@ constexpr void
 PgConnection::setParamValues(std::vector<std::vector<char>> &paramValues,
                              T &&value) {
   using U = std::remove_const_t<std::remove_reference_t<T>>;
-  if constexpr (std::is_same_v<U, int64_t> || std::is_same_v<U, uint64_t>) {
+  if constexpr (std::is_same_v<U, int64_t> ||
+                std::is_same_v<U, uint64_t>) { /// 64 bit integer type
     std::vector<char> temp(65, 0);
     auto v_str = std::to_string(value);
     memcpy(temp.data(), v_str.data(), v_str.size());
     paramValues.push_back(temp);
-  } else if constexpr (std::is_integral_v<U> || std::is_floating_point_v<U>) {
+  } else if constexpr (std::is_integral_v<U> ||
+                       std::is_floating_point_v<U>) { /// floating type
     std::vector<char> temp(20, 0);
     auto v_str = std::to_string(value);
     memcpy(temp.data(), v_str.data(), v_str.size());
     paramValues.push_back(std::move(temp));
-  } else if constexpr (std::is_enum_v<U>) {
+  } else if constexpr (std::is_enum_v<U>) { /// enum type
     std::vector<char> temp(20, 0);
     auto v_str = std::to_string(static_cast<std::underlying_type_t<U>>(value));
     memcpy(temp.data(), v_str.data(), v_str.size());
     paramValues.push_back(std::move(temp));
-  } else if constexpr (std::is_same_v<U, std::string>) {
+  } else if constexpr (std::is_same_v<U, std::string>) { /// std::string type
     std::vector<char> temp = {};
     std::copy(value.data(), value.data() + value.size() + 1,
               std::back_inserter(temp));
     paramValues.push_back(std::move(temp));
-  } else if constexpr (std::is_array<U>::value) {
+  } else if constexpr (std::is_array<U>::value) { /// array type
     std::vector<char> temp = {};
     std::copy(value, value + ArraySize<U>::value, std::back_inserter(temp));
     paramValues.push_back(std::move(temp));

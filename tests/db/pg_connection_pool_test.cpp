@@ -3,11 +3,9 @@
 #include "lynx/db/pg_connection_pool.h"
 #include "lynx/logger/logging.h"
 
-#include <thread>
-
 enum Gender : int {
-  Mail,
-  Femail,
+  Male,
+  Female,
 };
 
 struct Person {
@@ -30,12 +28,12 @@ void createTable(lynx::PgConnectionPool &db_pool) {
   not_null_map.fields = {"id", "age"};
   conn->createTable<Person>(key_map, not_null_map);
   // insert data
-  Person p1{1, "hxf1", Gender::Femail, 30, 101.1F};
-  Person p2{2, "hxf2", Gender::Femail, 28, 102.2F};
-  Person p3{3, "hxf3", Gender::Mail, 27, 103.3F};
-  Person p4{4, "hxf4", Gender::Femail, 26, 104.4F};
-  Person p5{5, "hxf1", Gender::Mail, 30, 108.1F};
-  Person p6{6, "hxf3", Gender::Femail, 30, 109.1F};
+  Person p1{1, "wjl1", Gender::Female, 30, 101.1F};
+  Person p2{2, "wjl2", Gender::Female, 28, 102.2F};
+  Person p3{3, "wjl3", Gender::Male, 27, 103.3F};
+  Person p4{4, "wjl4", Gender::Female, 26, 104.4F};
+  Person p5{5, "wjl1", Gender::Male, 30, 108.1F};
+  Person p6{6, "wjl3", Gender::Female, 30, 109.1F};
   conn->insert(p1);
   conn->insert(p2);
   conn->insert(p3);
@@ -54,11 +52,6 @@ void selectFromDB(lynx::PgConnectionPool &db_pool) {
   int usec = rand() % 2 == 0 ? 1000000 : 3000000;
   lynx::current_thread::sleepUsec(usec);
   db_pool.release(conn);
-
-  for (auto it : pn1) {
-    std::cout << it.id << " " << it.name << " " << it.gender << " " << it.age
-              << " " << it.score << std::endl;
-  }
 }
 
 void test(int maxSize) {
