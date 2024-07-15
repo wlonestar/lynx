@@ -1,7 +1,6 @@
 #ifndef LYNX_HTTP_HTTP_RESPONSE_H
 #define LYNX_HTTP_HTTP_RESPONSE_H
 
-
 #include <map>
 #include <string>
 
@@ -9,7 +8,7 @@ namespace lynx {
 
 class Buffer;
 
-class HttpResponse  {
+class HttpResponse {
 public:
   enum HttpStatusCode {
     UNKNOWN,

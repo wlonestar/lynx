@@ -1,7 +1,6 @@
 #ifndef LYNX_NET_INET_ADDRESS_H
 #define LYNX_NET_INET_ADDRESS_H
 
-
 #include <netinet/in.h>
 #include <string>
 
@@ -11,7 +10,7 @@ namespace sockets {
 const struct sockaddr *sockaddrCast(const struct sockaddr_in6 *addr);
 }
 
-class InetAddress  {
+class InetAddress {
 public:
   explicit InetAddress(uint16_t port = 0, bool loopbackOnly = false,
                        bool ipv6 = false);

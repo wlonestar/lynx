@@ -10,7 +10,7 @@
 
 namespace lynx {
 
-class HttpRequest  {
+class HttpRequest {
 public:
   enum Method {
     INVALID,

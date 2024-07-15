@@ -8,7 +8,7 @@ namespace lynx {
 
 class Buffer;
 
-class HttpContext  {
+class HttpContext {
 public:
   enum HttpRequestParseState {
     EXPECT_REQUEST_LINE,

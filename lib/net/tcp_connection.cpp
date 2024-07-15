@@ -244,7 +244,7 @@ void TcpConnection::handleWrite() {
   loop_->assertInLoopThread();
   if (channel_->isWriting()) {
     ssize_t n = ::write(channel_->fd(), output_buffer_.peek(),
-                               output_buffer_.readableBytes());
+                        output_buffer_.readableBytes());
     if (n > 0) {
       output_buffer_.retrieve(n);
       if (output_buffer_.readableBytes() == 0) {

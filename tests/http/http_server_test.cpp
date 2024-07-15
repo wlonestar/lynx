@@ -1,8 +1,9 @@
+#include "student.h"
+
 #include "lynx/db/pg_connection_pool.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
 #include "lynx/http/http_server.h"
-#include "lynx/logger/logging.h"
 #include "lynx/net/event_loop.h"
 
 #include <iostream>
@@ -12,33 +13,18 @@
 extern unsigned char favicon_jpg[];
 extern unsigned int favicon_jpg_len;
 
-enum Gender : int {
-  Male,
-  Female,
-};
-
-struct Person {
-  short id;      // NOLINT
-  char name[10]; // NOLINT
-  Gender gender; // NOLINT
-  int age;       // NOLINT
-  float score;   // NOLINT
-} __attribute__((packed));
-
-REFLECTION_TEMPLATE_WITH_NAME(Person, "person", id, name, gender, age, score)
-
-bool benchmark = false;
-lynx::PgConnectionPool *g_pool = nullptr;
+StudentController *controller;
 
 void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
   std::cout << "Headers " << req.methodString() << " " << req.path()
             << std::endl;
-  if (!benchmark) {
-    const std::map<std::string, std::string> &headers = req.headers();
-    for (const auto &header : headers) {
-      std::cout << header.first << ": " << header.second << std::endl;
-    }
+
+  const std::map<std::string, std::string> &headers = req.headers();
+  for (const auto &header : headers) {
+    std::cout << header.first << ": " << header.second << std::endl;
   }
+
+  controller->registe(req, resp);
 
   if (req.path() == "/") {
     resp->setStatusCode(lynx::HttpResponse::Ok200);
@@ -55,27 +41,6 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
     resp->setContentType("image/png");
     resp->setBody(
         std::string(reinterpret_cast<char *>(favicon_jpg), favicon_jpg_len));
-  } else if (req.path() == "/hello") {
-    resp->setStatusCode(lynx::HttpResponse::Ok200);
-    resp->setStatusMessage("OK");
-    resp->setContentType("text/plain");
-    resp->addHeader("Server", "lynx");
-
-    auto conn = g_pool->acquire();
-    auto pn1 = conn->query<Person>()
-                   .where(VALUE(Person::age) > 27 && VALUE(Person::id) < 3)
-                   .limit(2)
-                   .toVector();
-    g_pool->release(conn);
-
-    std::stringstream ss;
-    for (auto it : pn1) {
-      ss << it.id << " " << it.name << " " << it.gender << " " << it.age << " "
-         << it.score << std::endl;
-    }
-    std::string body = ss.str() + "\n";
-
-    resp->setBody(body);
   } else {
     resp->setStatusCode(lynx::HttpResponse::NotFound404);
     resp->setStatusMessage("Not Found");
@@ -84,42 +49,49 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
 }
 
 void initDB(lynx::PgConnectionPool &pool) {
-  // connect database
-  auto conn = pool.acquire();
+  /// Connect database
+  lynx::PgConnection conn("PgConnection");
+  conn.connect("127.0.0.1", "5432", "postgres", "123456", "demo");
 
-  // delete table
-  conn->execute("drop table person;");
-  // create table
+  /// Create table (drop if table already exists)
+  conn.execute("drop table student;");
   lynx::KeyMap key_map{"id"};
   lynx::NotNullMap not_null_map;
-  not_null_map.fields = {"id", "age"};
-  conn->createTable<Person>(key_map, not_null_map);
+  not_null_map.fields = {"id", "name", "gender", "entry_year"};
+  bool flag = conn.createTable<Student>(key_map, not_null_map);
+  if (!flag) {
+    abort();
+  }
 
-  // insert data
-  Person p1{1, "wjl1", Gender::Female, 30, 101.1F};
-  Person p2{2, "wjl2", Gender::Female, 28, 102.2F};
-  Person p3{3, "wjl3", Gender::Male, 27, 103.3F};
-  Person p4{4, "wjl4", Gender::Female, 26, 104.4F};
-  Person p5{5, "wjl1", Gender::Male, 30, 108.1F};
-  Person p6{6, "wjl3", Gender::Female, 30, 109.1F};
+  /// Insert 1: insert one
+  Student s1{2024033001, "Li Ming 1", Gender::Male, 2024, "SE", 3.8};
+  Student s2{2024033002, "Li Ming 2", Gender::Male, 2024, "SE", 3.82};
+  Student s3{2024033003, "Li Ming 3", Gender::Female, 2024, "CS", 3.78};
+  Student s4{2023033024, "Liu Hua 1", Gender::Male, 2023, "SE", 3.98};
+  Student s5{2024033035, "Liu Hua 2", Gender::Female, 2023, "CS", 3.89};
+  conn.insert(s1);
+  conn.insert(s2);
+  conn.insert(s3);
+  conn.insert(s4);
+  conn.insert(s5);
 
-  conn->insert(p1);
-  conn->insert(p2);
-  conn->insert(p3);
-  conn->insert(p4);
-  conn->insert(p5);
-  conn->insert(p6);
-
-  pool.release(conn);
+  /// Insert 2: insert many
+  std::vector<Student> students;
+  for (int i = 0; i < 10; i++) {
+    Student s;
+    s.id = 2023033001 + i;
+    s.name = "Che hen " + std::to_string(i);
+    s.gender = rand() % 2 == 0 ? Gender::Female : Gender::Male;
+    s.entry_year = 2023;
+    s.major = rand() % 2 == 0 ? "CS" : "SE";
+    s.gpa = 3.5 + (rand() % 10) * 0.05;
+    students.push_back(s);
+  }
+  conn.insert(students);
 }
 
 int main(int argc, char *argv[]) {
-  int num_threads = 0;
-  if (argc > 1) {
-    benchmark = true;
-    lynx::Logger::setLogLevel(lynx::Logger::WARN);
-    num_threads = atoi(argv[1]);
-  }
+  int num_threads = 5;
 
   lynx::EventLoop loop;
   lynx::HttpServer server(&loop, lynx::InetAddress(8000), "dummy");
@@ -129,9 +101,12 @@ int main(int argc, char *argv[]) {
   lynx::PgConnectionPool pool("127.0.0.1", "5432", "postgres", "123456",
                               "demo");
   pool.start();
-  g_pool = &pool;
 
   initDB(pool);
+
+  StudentRepository repository(pool);
+  StudentService service(repository);
+  controller = new StudentController(service);
 
   server.start();
   loop.loop();

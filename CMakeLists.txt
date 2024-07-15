@@ -56,6 +56,9 @@ include_directories(${Boost_INCLUDE_DIRS})
 find_package(PostgreSQL REQUIRED)
 include_directories(${PostgreSQL_INCLUDE_DIRS})
 
+# Find nlohmann::json
+find_package(nlohmann_json 3.11.3 REQUIRED)
+
 include_directories(${PROJECT_SOURCE_DIR})
 
 add_subdirectory(tests)
@@ -64,7 +67,7 @@ add_subdirectory(tests)
 # file(GLOB LIB_SRC lib/*/*.cpp)
 file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
 add_library(lynx STATIC ${LIB_SRC})
-target_link_libraries(lynx PUBLIC pthread pq)
+target_link_libraries(lynx PUBLIC pthread pq nlohmann_json::nlohmann_json)
 
 # 
 # Install

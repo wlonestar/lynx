@@ -1,7 +1,6 @@
 #ifndef LYNX_NET_BUFFER_H
 #define LYNX_NET_BUFFER_H
 
-
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -11,7 +10,7 @@
 
 namespace lynx {
 
-class Buffer  {
+class Buffer {
 public:
   static const size_t K_CHEAP_PREPEND = 8;
   static const size_t K_INITIAL_SIZE = 1024;
