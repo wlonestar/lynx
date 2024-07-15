@@ -1,0 +1,8 @@
+site_name: Lynx Docs
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+plugins:
+  - search

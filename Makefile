@@ -43,5 +43,8 @@ test:
 format:
 	@ninja -C $(RELEASE_BUILD) clang-format
 
+doc_preview:
+	@mkdocs serve -a 127.0.0.1:3000
+
 clean:
 	@rm -rf $(BUILD_DIR) compile_commands.json
