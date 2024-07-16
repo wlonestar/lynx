@@ -1,4 +1,6 @@
 #include "lynx/db/pg_connection.h"
+#include "lynx/logger/logging.h"
+#include "lynx/orm/key_util.h"
 
 #include <cstdlib>
 #include <tuple>
@@ -20,6 +22,7 @@ struct Student {
 
 REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
                               major, gpa)
+REGISTER_AUTO_KEY(Student, id)
 
 int main() {
   /// Connect database
@@ -28,8 +31,10 @@ int main() {
 
   /// Create table (drop if table already exists)
   conn.execute("drop table student; drop sequence student_id_seq;");
-  // lynx::KeyMap key_map{"id"};
   lynx::AutoKeyMap key_map{"id"};
+  // conn.execute("drop table student; drop sequence student_id_seq;");
+  // lynx::KeyMap key_map{"id"};
+
   lynx::NotNullMap not_null_map;
   not_null_map.fields = {"id", "name", "gender", "entry_year"};
   bool flag = conn.createTable<Student>(key_map, not_null_map);

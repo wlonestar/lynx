@@ -1,5 +1,5 @@
-#ifndef LYNX_ORM_REFLECTION_H
-#define LYNX_ORM_REFLECTION_H
+#ifndef LYNX_REFLECTION_H
+#define LYNX_REFLECTION_H
 
 #include <algorithm>
 #include <array>
@@ -13,6 +13,135 @@
 namespace lynx {
 
 #define MACRO_EXPAND(...) __VA_ARGS__
+
+#define MAKE_ARG_LIST_1(op, arg, ...) op(arg)
+#define MAKE_ARG_LIST_2(op, arg, ...)                                          \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_1(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_3(op, arg, ...)                                          \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_2(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_4(op, arg, ...)                                          \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_3(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_5(op, arg, ...)                                          \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_4(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_6(op, arg, ...)                                          \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_5(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_7(op, arg, ...)                                          \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_6(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_8(op, arg, ...)                                          \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_7(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_9(op, arg, ...)                                          \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_8(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_10(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_9(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_11(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_10(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_12(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_11(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_13(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_12(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_14(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_13(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_15(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_14(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_16(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_15(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_17(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_16(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_18(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_17(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_19(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_18(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_20(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_19(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_21(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_20(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_22(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_21(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_23(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_22(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_24(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_23(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_25(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_24(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_26(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_25(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_27(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_26(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_28(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_27(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_29(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_28(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_30(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_29(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_31(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_30(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_32(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_31(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_33(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_32(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_34(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_33(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_35(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_34(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_36(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_35(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_37(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_36(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_38(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_37(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_39(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_38(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_40(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_39(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_41(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_40(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_42(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_41(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_43(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_42(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_44(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_43(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_45(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_44(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_46(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_45(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_47(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_46(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_48(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_47(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_49(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_48(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_50(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_49(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_51(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_50(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_52(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_51(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_53(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_52(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_54(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_53(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_55(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_54(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_56(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_55(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_57(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_56(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_58(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_57(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_59(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_58(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_60(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_59(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_61(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_60(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_62(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_61(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_63(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_62(op, __VA_ARGS__))
+#define MAKE_ARG_LIST_64(op, arg, ...)                                         \
+  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_63(op, __VA_ARGS__))
+
 #define ADD_VIEW(str) std::string_view(#str, sizeof(#str) - 1)
 #define SEPERATOR ,
 
@@ -157,139 +286,12 @@ namespace lynx {
       45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28,  \
       27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10,  \
       9, 8, 7, 6, 5, 4, 3, 2, 1, 0
+
 #define MACRO_ARGS_INNER(...) MACRO_FILTER(__VA_ARGS__)
 #define MACRO_ARGS_SIZE(...) MACRO_ARGS_INNER(0, ##__VA_ARGS__, REC_N())
 
 #define MACRO_CONCAT(a, b) a##_##b
 #define FD(f) f
-
-#define MAKE_ARG_LIST_1(op, arg, ...) op(arg)
-#define MAKE_ARG_LIST_2(op, arg, ...)                                          \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_1(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_3(op, arg, ...)                                          \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_2(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_4(op, arg, ...)                                          \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_3(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_5(op, arg, ...)                                          \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_4(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_6(op, arg, ...)                                          \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_5(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_7(op, arg, ...)                                          \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_6(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_8(op, arg, ...)                                          \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_7(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_9(op, arg, ...)                                          \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_8(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_10(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_9(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_11(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_10(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_12(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_11(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_13(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_12(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_14(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_13(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_15(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_14(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_16(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_15(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_17(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_16(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_18(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_17(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_19(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_18(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_20(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_19(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_21(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_20(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_22(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_21(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_23(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_22(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_24(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_23(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_25(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_24(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_26(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_25(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_27(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_26(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_28(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_27(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_29(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_28(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_30(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_29(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_31(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_30(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_32(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_31(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_33(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_32(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_34(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_33(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_35(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_34(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_36(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_35(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_37(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_36(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_38(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_37(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_39(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_38(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_40(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_39(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_41(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_40(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_42(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_41(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_43(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_42(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_44(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_43(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_45(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_44(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_46(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_45(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_47(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_46(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_48(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_47(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_49(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_48(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_50(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_49(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_51(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_50(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_52(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_51(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_53(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_52(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_54(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_53(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_55(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_54(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_56(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_55(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_57(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_56(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_58(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_57(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_59(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_58(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_60(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_59(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_61(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_60(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_62(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_61(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_63(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_62(op, __VA_ARGS__))
-#define MAKE_ARG_LIST_64(op, arg, ...)                                         \
-  op(arg), MACRO_EXPAND(MAKE_ARG_LIST_63(op, __VA_ARGS__))
 
 #define MAKE_ARG_LIST(N, op, arg, ...)                                         \
   MACRO_CONCAT(MAKE_ARG_LIST, N)(op, arg, __VA_ARGS__)
@@ -313,6 +315,9 @@ namespace lynx {
       using size_type =                                                        \
           std::integral_constant<size_t, MACRO_ARGS_SIZE(__VA_ARGS__)>;        \
       constexpr static std::string_view name() { return name_##class_name; }   \
+      constexpr static std::string_view struct_name() {                        \
+        return std::string_view(#class_name, sizeof(#class_name) - 1);         \
+      }                                                                        \
       constexpr static std::string_view fields() {                             \
         return fields_##class_name;                                            \
       }                                                                        \

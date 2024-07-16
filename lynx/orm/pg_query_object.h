@@ -2,13 +2,15 @@
 #define LYNX_ORM_PG_QUERY_OBJECT_H
 
 #include "lynx/logger/logging.h"
-#include "lynx/orm/reflection.h"
+#include "lynx/orm/key_util.h"
+#include "lynx/reflection.h"
 
 #include <libpq-fe.h>
 
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 namespace lynx {
 
@@ -134,6 +136,12 @@ public:
   inline QueryObject &&where(const Expr &expr) {
     table_name_ = expr.tableName();
     (*this).where_sql_ = " where (" + expr.toString() + ")";
+    return std::move(*this);
+  }
+  template <typename T, typename ID> inline QueryObject &&where(ID id) {
+    std::stringstream ss;
+    ss << " where (" << getAutoKey<T>() << " = " << id << ")";
+    (*this).where_sql_ = ss.str();
     return std::move(*this);
   }
   inline QueryObject &&groupBy(const Expr &expr) {

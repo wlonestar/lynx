@@ -24,7 +24,7 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
     std::cout << header.first << ": " << header.second << std::endl;
   }
 
-  controller->registe(req, resp);
+  controller->registr(req, resp);
 
   if (req.path() == "/") {
     resp->setStatusCode(lynx::HttpResponse::Ok200);
@@ -54,8 +54,8 @@ void initDB(lynx::PgConnectionPool &pool) {
   conn.connect("127.0.0.1", "5432", "postgres", "123456", "demo");
 
   /// Create table (drop if table already exists)
-  conn.execute("drop table student;");
-  lynx::KeyMap key_map{"id"};
+  conn.execute("drop table student; drop sequence student_id_seq;");
+  lynx::AutoKeyMap key_map{"id"};
   lynx::NotNullMap not_null_map;
   not_null_map.fields = {"id", "name", "gender", "entry_year"};
   bool flag = conn.createTable<Student>(key_map, not_null_map);

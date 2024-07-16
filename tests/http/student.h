@@ -1,8 +1,9 @@
+#include "lynx/db/pg_connection_pool.h"
+#include "lynx/http/http_request.h"
+#include "lynx/http/http_response.h"
+#include "lynx/reflection.h"
 #include "lynx/web/base_repository.h"
-#include <lynx/db/pg_connection_pool.h>
-#include <lynx/http/http_request.h>
-#include <lynx/http/http_response.h>
-#include <lynx/orm/reflection.h>
+#include "lynx/web/base_rest_controller.h"
 
 #include <nlohmann/json.hpp>
 
@@ -37,6 +38,7 @@ void to_json(json &j, const Student &s) {
 
 REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
                               major, gpa)
+REGISTER_AUTO_KEY(Student, id)
 
 class StudentRepository : public lynx::BaseRepository<Student, uint64_t> {
 public:
@@ -48,17 +50,6 @@ public:
     auto students = conn->query<Student>().toVector();
     pool_.release(conn);
     return students;
-  }
-
-  std::optional<Student> selectById(uint64_t id) {
-    auto conn = pool_.acquire();
-    auto students =
-        conn->query<Student>().where(VALUE(Student::id) == id).toVector();
-    pool_.release(conn);
-    if (students.empty()) {
-      return std::nullopt;
-    }
-    return students[0];
   }
 };
 
@@ -95,7 +86,7 @@ void to_json(json &j, const Result<T> &result) {
   j["data"] = result.data;
 }
 
-class StudentController {
+class StudentController : public BaseRestController {
 public:
   StudentController(StudentService &service) : service_(service) {}
 
@@ -127,28 +118,20 @@ public:
     return j;
   }
 
-  void registe(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+  void registr(const lynx::HttpRequest &req,
+               lynx::HttpResponse *resp) override {
     if (req.path() == "/student100") {
-      resp->setStatusCode(lynx::HttpResponse::Ok200);
-      resp->setStatusMessage("OK");
-      resp->setContentType("application/json");
-      resp->addHeader("Server", "lynx");
+      setRespOk(resp);
       resp->setBody(selectTop100().dump());
     }
     if (req.path() == "/student") {
-      resp->setStatusCode(lynx::HttpResponse::Ok200);
-      resp->setStatusMessage("OK");
-      resp->setContentType("application/json");
-      resp->addHeader("Server", "lynx");
+      setRespOk(resp);
       resp->setBody(selectAll().dump());
     }
     if (req.path() == "/student/id") {
       const auto &query = req.query();
       if (query.starts_with("?id=")) {
-        resp->setStatusCode(lynx::HttpResponse::Ok200);
-        resp->setStatusMessage("OK");
-        resp->setContentType("application/json");
-        resp->addHeader("Server", "lynx");
+        setRespOk(resp);
         uint64_t id = atoll(query.substr(4).c_str());
         resp->setBody(selectById(id).dump());
       }
