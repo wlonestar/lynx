@@ -1,10 +1,11 @@
 {
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "C_Cpp.codeAnalysis.clangTidy.enabled": true,
   "C_Cpp.intelliSenseEngine": "disabled",
-  "clangd.arguments": [
-    "--clang-tidy",
-    "--enable-config"
-  ],
-  "clangd.onConfigChanged": "restart",
+  "clangd.arguments": ["--clang-tidy", "--enable-config"],
+  "clangd.onConfigChanged": "restart"
 }

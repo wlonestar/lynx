@@ -8,45 +8,42 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
+#include <regex>
 #include <sstream>
+#include <utility>
 
 extern unsigned char favicon_jpg[];
 extern unsigned int favicon_jpg_len;
 
-StudentController *controller;
+void handleIndex(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
+void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
+void handleNotFound(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
+void setupRoutes();
 
-void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
-  std::cout << "Headers " << lynx::methodToString(req.method()) << " "
-            << req.path() << std::endl;
+void initDB(lynx::PgConnectionPool &pool);
+void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 
-  const std::map<std::string, std::string, lynx::CaseInsensitiveLess> &headers =
-      req.headers();
-  for (const auto &header : headers) {
-    std::cout << header.first << ": " << header.second << std::endl;
-  }
+int main(int argc, char *argv[]) {
+  int num_threads = 5;
+  lynx::EventLoop loop;
+  lynx::HttpServer server(&loop, lynx::InetAddress(8000), "dummy");
+  server.setHttpCallback(onRequest);
+  server.setThreadNum(num_threads);
 
-  controller->registr(req, resp);
+  lynx::PgConnectionPool pool("127.0.0.1", "5432", "postgres", "123456",
+                              "demo");
+  pool.start();
 
-  if (req.path() == "/") {
-    resp->setStatusCode(lynx::HttpResponse::Ok200);
-    resp->setStatusMessage("OK");
-    resp->setContentType("text/html");
-    resp->addHeader("Server", "lynx");
-    std::string now = lynx::Timestamp::now().toFormattedString();
-    resp->setBody("<html><head><title>This is title</title></head>"
-                  "<body><h1>Hello</h1>Now is " +
-                  now + "</body></html>");
-  } else if (req.path() == "/favicon.ico") {
-    resp->setStatusCode(lynx::HttpResponse::Ok200);
-    resp->setStatusMessage("OK");
-    resp->setContentType("image/png");
-    resp->setBody(
-        std::string(reinterpret_cast<char *>(favicon_jpg), favicon_jpg_len));
-  } else {
-    resp->setStatusCode(lynx::HttpResponse::NotFound404);
-    resp->setStatusMessage("Not Found");
-    resp->setCloseConnection(true);
-  }
+  initDB(pool);
+  setupRoutes();
+
+  StudentRepository repository(pool);
+  StudentService service(repository);
+  g_student_controller = std::make_shared<StudentController>(service);
+
+  server.start();
+  loop.loop();
 }
 
 void initDB(lynx::PgConnectionPool &pool) {
@@ -91,24 +88,61 @@ void initDB(lynx::PgConnectionPool &pool) {
   conn.insert(students);
 }
 
-int main(int argc, char *argv[]) {
-  int num_threads = 5;
+void setupRoutes() {
+  lynx::addRoute("GET", "/", handleIndex);
+  lynx::addRoute("GET", "/favicon.ico", handleFavicon);
+}
 
-  lynx::EventLoop loop;
-  lynx::HttpServer server(&loop, lynx::InetAddress(8000), "dummy");
-  server.setHttpCallback(onRequest);
-  server.setThreadNum(num_threads);
+void handleIndex(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+  resp->setStatusCode(lynx::HttpResponse::Ok200);
+  resp->setStatusMessage("OK");
+  resp->setContentType("text/html");
+  resp->addHeader("Server", "lynx");
+  std::string now = lynx::Timestamp::now().toFormattedString();
+  resp->setBody("<html><head><title>This is title</title></head>"
+                "<body><h1>Hello</h1>Now is " +
+                now + "</body></html>");
+}
 
-  lynx::PgConnectionPool pool("127.0.0.1", "5432", "postgres", "123456",
-                              "demo");
-  pool.start();
+void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+  resp->setStatusCode(lynx::HttpResponse::Ok200);
+  resp->setStatusMessage("OK");
+  resp->setContentType("image/png");
+  resp->setBody(
+      std::string(reinterpret_cast<char *>(favicon_jpg), favicon_jpg_len));
+}
 
-  initDB(pool);
+void handleNotFound(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+  resp->setStatusCode(lynx::HttpResponse::NotFound404);
+  resp->setStatusMessage("Not Found");
+  resp->setCloseConnection(true);
+}
 
-  StudentRepository repository(pool);
-  StudentService service(repository);
-  controller = new StudentController(service);
+void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+  LOG_INFO << lynx::methodToString(req.method()) << " " << req.path();
 
-  server.start();
-  loop.loop();
+  const std::map<std::string, std::string, lynx::CaseInsensitiveLess> &headers =
+      req.headers();
+  for (const auto &header : headers) {
+    std::cout << header.first << ": " << header.second << std::endl;
+  }
+
+  auto method = req.method();
+  auto &path = req.path();
+
+  bool flag = false;
+  for (auto &[pair, handler] : lynx::g_route_table) {
+    if (method == pair.first) {
+      std::regex path_regex(pair.second);
+      bool match = std::regex_match(path, path_regex);
+      if (match) {
+        flag = true;
+        handler(req, resp);
+        break;
+      }
+    }
+  }
+  if (!flag) {
+    handleNotFound(req, resp);
+  }
 }

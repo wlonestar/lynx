@@ -17,8 +17,8 @@ void testParseRequestAllInOne() {
 
   LOG_INFO << lynx::methodToString(context.request().method());
   LOG_INFO << context.request().path();
-  LOG_INFO << context.request().query();
   LOG_INFO << context.request().version();
+  LOG_INFO << context.request().body();
 }
 
 int main() { testParseRequestAllInOne(); }

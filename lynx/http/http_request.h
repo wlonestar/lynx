@@ -105,10 +105,10 @@ struct CaseInsensitiveLess {
   }
 };
 
+using MapType = std::map<std::string, std::string, CaseInsensitiveLess>;
+
 class HttpRequest {
 public:
-  using MapType = std::map<std::string, std::string, CaseInsensitiveLess>;
-
   HttpRequest(uint8_t version = 0x11, bool close = true);
 
   bool isClose() const { return close_; }

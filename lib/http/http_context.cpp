@@ -77,6 +77,9 @@ HttpContext::HttpContext() : request_(), parser_(), error_(0) {
 bool HttpContext::parseRequest(char *data, size_t len) {
   size_t offset = parser_.execute(data, len, 0);
   (void)offset;
+  /// Set body
+  parser_.content_len_ = getContentLength();
+  request_.setBody(std::string(data + parser_.body_start_, getContentLength()));
   return parser_.isFinished() && !parser_.hasError();
 }
 

@@ -3,10 +3,9 @@
 - base
 - logger
 - net
-- http (support more http protocol)
-- db
+- http
 - orm
-- json support
+- db
 
 ---
 

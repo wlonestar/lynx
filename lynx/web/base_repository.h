@@ -45,13 +45,6 @@ public:
     return ret;
   }
 
-  virtual bool updateById(ID id) {
-    auto conn = pool_.acquire();
-    auto ret = conn->update<T>().template where<T, ID>(id).execute();
-    pool_.release(conn);
-    return ret;
-  }
-
   virtual bool delById(ID id) {
     auto conn = pool_.acquire();
     auto ret = conn->del<T>().template where<T, ID>(id).execute();
