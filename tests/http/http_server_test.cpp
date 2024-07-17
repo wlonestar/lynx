@@ -16,10 +16,11 @@ extern unsigned int favicon_jpg_len;
 StudentController *controller;
 
 void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
-  std::cout << "Headers " << req.methodString() << " " << req.path()
-            << std::endl;
+  std::cout << "Headers " << lynx::methodToString(req.method()) << " "
+            << req.path() << std::endl;
 
-  const std::map<std::string, std::string> &headers = req.headers();
+  const std::map<std::string, std::string, lynx::CaseInsensitiveLess> &headers =
+      req.headers();
   for (const auto &header : headers) {
     std::cout << header.first << ": " << header.second << std::endl;
   }

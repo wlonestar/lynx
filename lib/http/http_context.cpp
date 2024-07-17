@@ -1,75 +1,90 @@
 #include "lynx/http/http_context.h"
+#include "lynx/http/http_parser.h"
+#include "lynx/http/http_request.h"
+#include "lynx/logger/logging.h"
 #include "lynx/net/buffer.h"
+
+#include <cstring>
 
 namespace lynx {
 
-bool HttpContext::processRequestLine(const char *begin, const char *end) {
-  bool succeed = false;
-  const char *start = begin;
-  const char *space = std::find(start, end, ' ');
-  if (space != end && request_.setMethod(start, space)) {
-    start = space + 1;
-    space = std::find(start, end, ' ');
-    if (space != end) {
-      const char *question = std::find(start, space, '?');
-      if (question != space) {
-        request_.setPath(start, question);
-        request_.setQuery(question, space);
-      } else {
-        request_.setPath(start, space);
-      }
-      start = space + 1;
-      succeed = end - start == 8 && std::equal(start, end - 1, "HTTP/1.");
-      if (succeed) {
-        if (*(end - 1) == '1') {
-          request_.setVersion(HttpRequest::HTTP11);
-        } else if (*(end - 1) == '0') {
-          request_.setVersion(HttpRequest::HTTP10);
-        } else {
-          succeed = false;
-        }
-      }
-    }
+void onRequestMethod(void *data, const char *at, size_t length) {
+  auto *context = static_cast<HttpContext *>(data);
+  HttpMethod m = charsToHttpMethod(at);
+  if (m == HttpMethod::INVALID_METHOD) {
+    LOG_WARN << "Invalid http request method: " << std::string(at, length);
+    return;
   }
-  return succeed;
+  context->request().setMethod(m);
 }
 
-bool HttpContext::parseRequest(Buffer *buf, Timestamp receiveTime) {
-  bool ok = true;
-  bool has_more = true;
-  while (has_more) {
-    if (state_ == EXPECT_REQUEST_LINE) {
-      const char *crlf = buf->findCRLF();
-      if (crlf != nullptr) {
-        ok = processRequestLine(buf->peek(), crlf);
-        if (ok) {
-          request_.setReceiveTime(receiveTime);
-          buf->retrieveUntil(crlf + 2);
-          state_ = EXPECT_HEADERS;
-        } else {
-          has_more = false;
-        }
-      } else {
-        has_more = false;
-      }
-    } else if (state_ == EXPECT_HEADERS) {
-      const char *crlf = buf->findCRLF();
-      if (crlf != nullptr) {
-        const char *colon = std::find(buf->peek(), crlf, ':');
-        if (colon != crlf) {
-          request_.addHeader(buf->peek(), colon, crlf);
-        } else {
-          state_ = GOT_ALL;
-          has_more = false;
-        }
-        buf->retrieveUntil(crlf + 2);
-      } else {
-        has_more = false;
-      }
-    } else if (state_ == EXPECT_BODY) {
-    }
+void onRequestUri(void *data, const char *at, size_t length) {}
+
+void onRequestFragment(void *data, const char *at, size_t length) {
+  auto *context = static_cast<HttpContext *>(data);
+  context->request().setFragment(std::string(at, length));
+}
+
+void onRequestPath(void *data, const char *at, size_t length) {
+  auto *context = static_cast<HttpContext *>(data);
+  context->request().setPath(std::string(at, length));
+}
+
+void onRequestQuery(void *data, const char *at, size_t length) {
+  auto *context = static_cast<HttpContext *>(data);
+  context->request().setQuery(std::string(at, length));
+}
+
+void onRequestVersion(void *data, const char *at, size_t length) {
+  auto *context = static_cast<HttpContext *>(data);
+  uint8_t v = 0;
+  if (strncmp(at, "HTTP/1.1", length) == 0) {
+    v = 0x11;
+  } else if (strncmp(at, "HTTP/1.0", length) == 0) {
+    v = 0x10;
+  } else {
+    LOG_WARN << "Invalid http request version: " << std::string(at, length);
+    return;
   }
-  return ok;
+  context->request().setVersion(v);
+}
+
+void onRequestHeaderDone(void *data, const char *at, size_t length) {}
+
+void onRequestHttpField(void *data, const char *field, size_t flen,
+                        const char *value, size_t vlen) {
+  auto *context = static_cast<HttpContext *>(data);
+  if (flen == 0) {
+    LOG_WARN << "invalid http request field length == 0";
+    return;
+  }
+  context->request().setHeader(std::string(field, flen),
+                               std::string(value, vlen));
+}
+
+HttpContext::HttpContext() : request_(), parser_(), error_(0) {
+  parser_.request_method_ = onRequestMethod;
+  parser_.request_uri_ = onRequestUri;
+  parser_.fragment_ = onRequestFragment;
+  parser_.request_path_ = onRequestPath;
+  parser_.query_string_ = onRequestQuery;
+  parser_.http_version_ = onRequestVersion;
+  parser_.header_done_ = onRequestHeaderDone;
+  parser_.http_field_ = onRequestHttpField;
+  parser_.data_ = this;
+}
+
+bool HttpContext::parseRequest(char *data, size_t len) {
+  size_t offset = parser_.execute(data, len, 0);
+  (void)offset;
+  return parser_.isFinished() && !parser_.hasError();
+}
+
+bool HttpContext::isFinished() { return parser_.isFinished(); }
+bool HttpContext::hasError() { return error_ || parser_.hasError(); }
+
+uint64_t HttpContext::getContentLength() {
+  return atoll(request_.getHeader("content-length").c_str());
 }
 
 } // namespace lynx

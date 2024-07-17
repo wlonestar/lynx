@@ -1,6 +1,7 @@
 #include "lynx/db/pg_connection_pool.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
+#include "lynx/logger/logging.h"
 #include "lynx/reflection.h"
 #include "lynx/web/base_repository.h"
 #include "lynx/web/base_rest_controller.h"
@@ -130,9 +131,10 @@ public:
     }
     if (req.path() == "/student/id") {
       const auto &query = req.query();
-      if (query.starts_with("?id=")) {
+      LOG_DEBUG << query;
+      if (query.starts_with("id=")) {
         setRespOk(resp);
-        uint64_t id = atoll(query.substr(4).c_str());
+        uint64_t id = atoll(query.substr(3).c_str());
         resp->setBody(selectById(id).dump());
       }
     }

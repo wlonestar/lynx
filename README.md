@@ -5,7 +5,7 @@
 - net
 - http (support more http protocol)
 - db
-- orm (adjust to support table primary key set)
+- orm
 - json support
 
 ---

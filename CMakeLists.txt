@@ -24,11 +24,11 @@ set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # Set clang-tidy check
-find_program(CLANG_TIDY_EXE NAMES clang-tidy)
-if (CLANG_TIDY_EXE)
-  set(CLANG_TIDY_OPTIONS "--config-file=${CMAKE_SOURCE_DIR}/.clang-tidy")
-  set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};${CLANG_TIDY_OPTIONS}")
-endif()
+# find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+# if (CLANG_TIDY_EXE)
+#   set(CLANG_TIDY_OPTIONS "--config-file=${CMAKE_SOURCE_DIR}/.clang-tidy")
+#   set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};${CLANG_TIDY_OPTIONS}")
+# endif()
 
 # Set clang-format format
 find_program(CLANG_FORMAT_EXE NAMES clang-format)
@@ -43,6 +43,12 @@ if (CLANG_FORMAT_EXE)
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-format on source files"
     )
+endif()
+
+# Find Ragel
+find_program(RAGEL_EXE NAMES ragel)
+if (NOT RAGEL_EXE)
+  message(FATAL_ERROR "Ragel executable not found")
 endif()
 
 # Enable ctest
@@ -63,9 +69,29 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 add_subdirectory(tests)
 
+# Generate ragel file
+function(ragelmaker src_rl outputlist outputdir)
+  #Create a custom build step that will call ragel on the provided src_rl file.
+  #The output .cpp file will be appended to the variable name passed in outputlist.
+
+  get_filename_component(src_file ${src_rl} NAME_WE)
+  set(rl_out ${outputdir}/${src_file}.cpp)
+  set(${outputlist} ${${outputlist}} ${rl_out} PARENT_SCOPE)
+
+  add_custom_command(
+    OUTPUT ${rl_out}
+    COMMAND cd ${outputdir}
+    COMMAND ragel ${CMAKE_CURRENT_SOURCE_DIR}/${src_rl} -o ${rl_out} -L -l -C -F1 -G2
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${src_rl}
+    )
+  set_source_files_properties(${rl_out} PROPERTIES GENERATED TRUE)
+endfunction(ragelmaker)
+
 # Set library source files
-# file(GLOB LIB_SRC lib/*/*.cpp)
 file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
+
+ragelmaker(lynx/http/http_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/http)
+
 add_library(lynx STATIC ${LIB_SRC})
 target_link_libraries(lynx PUBLIC pthread pq nlohmann_json::nlohmann_json)
 

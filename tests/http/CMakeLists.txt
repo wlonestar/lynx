@@ -12,3 +12,6 @@ add_executable(http_server_test
   favicon.cpp
   )
 target_link_libraries(http_server_test lynx)
+
+add_executable(http_parser_test http_parser_test.cpp)
+target_link_libraries(http_parser_test lynx)

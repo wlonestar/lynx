@@ -5,9 +5,9 @@
 - base
 - logger
 - net
-- http (support more http protocol)
+- http
 - db
-- orm (adjust to support table primary key set)
+- orm
 - json support
 
 ---

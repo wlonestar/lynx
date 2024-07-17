@@ -49,23 +49,24 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn, Buffer *buf,
                            Timestamp receiveTime) {
   std::unique_ptr<HttpContext> context(new HttpContext);
 
-  if (!context->parseRequest(buf, receiveTime)) {
+  std::string msg(buf->retrieveAllAsString());
+
+  if (!context->parseRequest(msg.data(), msg.size())) {
     conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");
     conn->shutdown();
   }
 
-  if (context->gotAll()) {
+  if (context->isFinished()) {
     onRequest(conn, context->request());
-    context->reset();
+    context.reset();
   }
 }
 
 void HttpServer::onRequest(const TcpConnectionPtr &conn,
                            const HttpRequest &req) {
   const std::string &connection = req.getHeader("Connection");
-  bool close =
-      connection == "close" ||
-      (req.getVersion() == HttpRequest::HTTP10 && connection != "Keep-Alive");
+  bool close = connection == "close" ||
+               (req.version() == 0x10 && connection != "Keep-Alive");
   HttpResponse response(close);
   http_callback_(req, &response);
   Buffer buf;
