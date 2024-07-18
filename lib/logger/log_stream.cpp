@@ -124,10 +124,12 @@ LogStream &LogStream::operator<<(float v) {
 }
 
 LogStream &LogStream::operator<<(double v) {
-  if (buffer_.avail() >= K_MAX_NUMERIC_SIZE) {
-    int len = snprintf(buffer_.current(), K_MAX_NUMERIC_SIZE, "%.12g", v);
-    buffer_.add(len);
-  }
+  // if (buffer_.avail() >= K_MAX_NUMERIC_SIZE) {
+  //   int len = snprintf(buffer_.current(), K_MAX_NUMERIC_SIZE, "%.12g", v);
+  //   buffer_.add(len);
+  // }
+  int len = detail::fpconvDtoa(v, buffer_.current());
+  buffer_.add(len);
   return *this;
 }
 

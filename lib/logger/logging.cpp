@@ -28,7 +28,11 @@ Logger::LogLevel initLogLevel() {
 Logger::LogLevel g_log_level = initLogLevel();
 
 const static char *log_level_name[Logger::LogLevel::NUM_LOG_LEVELS] = {
-    "TRACE ", "DEBUG ", "INFO  ", "WARN  ", "ERROR ", "FATAL ",
+    "TRACE ", "DEBUG ", " INFO ", " WARN ", "ERROR ", "FATAL ",
+};
+
+const static char *log_level_color[Logger::LogLevel::NUM_LOG_LEVELS] = {
+    "\033[36m", "\033[34m", "\033[32m", "\033[33m", "\033[31m", "\033[1;31m",
 };
 
 inline LogStream &operator<<(LogStream &s, const Logger::SourceFile &v) {
@@ -50,6 +54,7 @@ Logger::Impl::Impl(LogLevel level, int oldErrno, const SourceFile &file,
                    int line)
     : time_(Timestamp::now()), stream_(), level_(level), line_(line),
       basename_(file) {
+  stream_ << log_level_color[level];
   formatTime();
   current_thread::tid();
   stream_ << current_thread::tidString();
@@ -71,7 +76,8 @@ void Logger::Impl::formatTime() {
     t_last_second = seconds;
 
     std::tm tm;
-    gmtime_r(&seconds, &tm);
+    /// Use localtime to get current time zone time
+    localtime_r(&seconds, &tm); // gmtime_r(&seconds, &tm);
     snprintf(t_time, sizeof(t_time), "%4d%02d%02d %02d:%02d:%02d",
              tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
              tm.tm_min, tm.tm_sec);
@@ -83,7 +89,7 @@ void Logger::Impl::formatTime() {
 }
 
 void Logger::Impl::finish() {
-  stream_ << " - " << basename_ << ':' << line_ << '\n';
+  stream_ << " - " << basename_ << ':' << line_ << "\033[0m" << '\n';
 }
 
 Logger::Logger(SourceFile file, int line) : impl_(INFO, 0, file, line) {}

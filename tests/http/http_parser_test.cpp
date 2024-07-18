@@ -6,6 +6,7 @@
 
 void testParseRequestAllInOne() {
   lynx::HttpContext context;
+  context.start();
 
   std::string msg("POST /index.html HTTP/1.1\r\n"
                   "Host: www.lynx.com\r\n"

@@ -13,6 +13,8 @@ class HttpContext {
 public:
   HttpContext();
 
+  void start();
+
   bool parseRequest(char *data, size_t len);
 
   bool isFinished();

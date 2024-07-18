@@ -30,6 +30,7 @@ ThreadNameInitializer init;
 
 struct ThreadData {
   using ThreadFunc = lynx::Thread::ThreadFunc;
+
   ThreadFunc func_;
   std::string name_;
   pid_t *tid_;
@@ -48,6 +49,7 @@ struct ThreadData {
     lynx::current_thread::t_thread_name =
         name_.empty() ? "lynxThread" : name_.c_str();
     ::prctl(PR_SET_NAME, lynx::current_thread::t_thread_name);
+
     try {
       func_();
       current_thread::t_thread_name = "finished";
@@ -59,7 +61,7 @@ struct ThreadData {
     } catch (...) {
       current_thread::t_thread_name = "crashed";
       fprintf(stderr, "unknown exception caught in Thread %s\n", name_.c_str());
-      throw; // rethrow
+      throw;
     }
   }
 };

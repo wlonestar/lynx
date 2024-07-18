@@ -50,6 +50,10 @@ private:
   char *cur_;
 };
 
+/// Fast and accurate double to string conversion based on Florian Loitsch's
+/// Grisu3 algorithm.
+int fpconvDtoa(double d, char dest[24]);
+
 } // namespace detail
 
 class LogStream : Noncopyable {

@@ -4,7 +4,6 @@
 #include "lynx/base/noncopyable.h"
 
 #include <string>
-#include <sys/types.h>
 
 namespace lynx::fs {
 

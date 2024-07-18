@@ -62,7 +62,9 @@ void onRequestHttpField(void *data, const char *field, size_t flen,
                                std::string(value, vlen));
 }
 
-HttpContext::HttpContext() : request_(), parser_(), error_(0) {
+HttpContext::HttpContext() : request_(), parser_(), error_(0) {}
+
+void HttpContext::start() {
   parser_.request_method_ = onRequestMethod;
   parser_.request_uri_ = onRequestUri;
   parser_.fragment_ = onRequestFragment;

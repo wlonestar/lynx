@@ -48,6 +48,7 @@ void HttpServer::onConnection(const TcpConnectionPtr &conn) {
 void HttpServer::onMessage(const TcpConnectionPtr &conn, Buffer *buf,
                            Timestamp receiveTime) {
   std::unique_ptr<HttpContext> context(new HttpContext);
+  context->start();
 
   std::string msg(buf->retrieveAllAsString());
 

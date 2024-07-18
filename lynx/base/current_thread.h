@@ -12,6 +12,7 @@ extern thread_local const char *t_thread_name;
 extern thread_local char t_errnobuf[512];
 
 void cachedTid();
+const char *strError(int savedErrno);
 
 inline int tid() {
   if (__builtin_expect(static_cast<long>(t_cached_tid == 0), 0) != 0) {
@@ -23,8 +24,6 @@ inline int tid() {
 inline const char *tidString() { return t_tid_string; }
 inline int tidStringLength() { return t_tid_string_length; }
 inline const char *name() { return t_thread_name; }
-
-const char *strError(int savedErrno);
 
 } // namespace lynx::current_thread
 

@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 void initDB(lynx::PgConnectionPool &pool) {
   /// Connect database
   lynx::PgConnection conn("PgConnection");
-  conn.connect("127.0.0.1", "5432", "postgres", "123456", "demo");
+  conn.connect("localhost", "5432", "postgres", "123456", "demo");
 
   /// Create table (drop if table already exists)
   conn.execute("drop table student; drop sequence student_id_seq;");

@@ -1,7 +1,6 @@
 #ifndef LYNX_BASE_TIMESTAMP_H
 #define LYNX_BASE_TIMESTAMP_H
 
-#include <cinttypes>
 #include <cstdio>
 #include <ctime>
 #include <string>
@@ -61,6 +60,8 @@ public:
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     int64_t seconds = tv.tv_sec;
+    // struct tm *tm_time = localtime(&seconds);
+    // seconds += tm_time->tm_gmtoff;
     return Timestamp(seconds * K_MICRO_SECONDS_PER_SECOND + tv.tv_usec);
   }
 

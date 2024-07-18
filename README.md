@@ -28,3 +28,15 @@
 #8 Web 框架
 
 ---
+
+# References
+
+[1] https://github.com/chenshuo/muduo
+
+[2] https://github.com/hanson-young/orm-cpp
+
+[3] https://github.com/mongrel2/mongrel2
+
+[4] https://github.com/Shangyizhou/A-Tiny-Network-Library
+
+...
