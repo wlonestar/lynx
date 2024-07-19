@@ -32,7 +32,7 @@ public:
     char buf[32] = {0};
     int64_t seconds = micro_seconds_since_epoch_ / K_MICRO_SECONDS_PER_SECOND;
     std::tm tm_time;
-    gmtime_r(&seconds, &tm_time);
+    localtime_r(&seconds, &tm_time);
 
     if (showMicroseconds) {
       auto microseconds = static_cast<int>(micro_seconds_since_epoch_ %
@@ -60,8 +60,6 @@ public:
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     int64_t seconds = tv.tv_sec;
-    // struct tm *tm_time = localtime(&seconds);
-    // seconds += tm_time->tm_gmtoff;
     return Timestamp(seconds * K_MICRO_SECONDS_PER_SECOND + tv.tv_usec);
   }
 

@@ -21,6 +21,15 @@ Logger::LogLevel initLogLevel() {
     if (strncmp(log_level, "DEBUG", 5) == 0) {
       return Logger::LogLevel::DEBUG;
     }
+    if (strncmp(log_level, "INFO", 4) == 0) {
+      return Logger::LogLevel::INFO;
+    }
+    if (strncmp(log_level, "WARN", 4) == 0) {
+      return Logger::LogLevel::WARN;
+    }
+    if (strncmp(log_level, "ERROR", 5) == 0) {
+      return Logger::LogLevel::ERROR;
+    }
   }
   return Logger::LogLevel::INFO;
 }
@@ -76,8 +85,7 @@ void Logger::Impl::formatTime() {
     t_last_second = seconds;
 
     std::tm tm;
-    /// Use localtime to get current time zone time
-    localtime_r(&seconds, &tm); // gmtime_r(&seconds, &tm);
+    localtime_r(&seconds, &tm);
     snprintf(t_time, sizeof(t_time), "%4d%02d%02d %02d:%02d:%02d",
              tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
              tm.tm_min, tm.tm_sec);

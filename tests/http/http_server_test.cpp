@@ -1,3 +1,5 @@
+#include "lynx/logger/async_logging.h"
+#include "lynx/logger/logging.h"
 #include "student.h"
 
 #include "lynx/db/pg_connection_pool.h"
@@ -6,6 +8,7 @@
 #include "lynx/http/http_server.h"
 #include "lynx/net/event_loop.h"
 
+#include <cstring>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -16,6 +19,11 @@
 extern unsigned char favicon_jpg[];
 extern unsigned int favicon_jpg_len;
 
+off_t roll_size = 500 * 1000 * 1000;
+lynx::AsyncLogging *g_async_log = nullptr;
+
+void asyncOutput(const char *msg, int len) { g_async_log->append(msg, len); }
+
 void handleIndex(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 void handleNotFound(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
@@ -25,11 +33,22 @@ void initDB(lynx::PgConnectionPool &pool);
 void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 
 int main(int argc, char *argv[]) {
+  char name[256] = {'\0'};
+  strncpy(name, argv[0], sizeof(name) - 1);
+  lynx::AsyncLogging log(::basename(name), roll_size);
+  lynx::Logger::setOutput(asyncOutput);
+  log.start();
+  g_async_log = &log;
+
   int num_threads = 5;
+  if (argc > 1) {
+    num_threads = atoi(argv[1]);
+  }
   lynx::EventLoop loop;
   lynx::HttpServer server(&loop, lynx::InetAddress(8000), "dummy");
   server.setHttpCallback(onRequest);
   server.setThreadNum(num_threads);
+  LOG_INFO << "start HTTP server with " << num_threads << " threads";
 
   lynx::PgConnectionPool pool("127.0.0.1", "5432", "postgres", "123456",
                               "demo");
@@ -123,9 +142,11 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
 
   const std::map<std::string, std::string, lynx::CaseInsensitiveLess> &headers =
       req.headers();
+  std::stringstream ss;
   for (const auto &header : headers) {
-    std::cout << header.first << ": " << header.second << std::endl;
+    ss << header.first << ": " << header.second << "|";
   }
+  LOG_INFO << ss.str();
 
   auto method = req.method();
   auto &path = req.path();
