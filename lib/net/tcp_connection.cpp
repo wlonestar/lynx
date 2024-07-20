@@ -19,10 +19,10 @@ void defaultMessageCallback(const TcpConnectionPtr & /*unused*/, Buffer *buf,
   buf->retrieveAll();
 }
 
-TcpConnection::TcpConnection(EventLoop *loop, const std::string &nameArg,
+TcpConnection::TcpConnection(EventLoop *loop, const std::string &name,
                              int sockfd, const InetAddress &localAddr,
                              const InetAddress &peerAddr)
-    : loop_(CHECK_NOTNULL(loop)), name_(nameArg), state_(kConnecting),
+    : loop_(CHECK_NOTNULL(loop)), name_(name), state_(kConnecting),
       reading_(true), socket_(new Socket(sockfd)),
       channel_(new Channel(loop, sockfd)), local_addr_(localAddr),
       peer_addr_(peerAddr), high_water_mark_(64 * 1024 * 1024) {

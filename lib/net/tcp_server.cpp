@@ -11,9 +11,8 @@
 namespace lynx {
 
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &listenAddr,
-                     const std::string &nameArg, Option option)
-    : loop_(CHECK_NOTNULL(loop)), ip_port_(listenAddr.toIpPort()),
-      name_(nameArg),
+                     const std::string &name, Option option)
+    : loop_(CHECK_NOTNULL(loop)), ip_port_(listenAddr.toIpPort()), name_(name),
       acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
       thread_pool_(new EventLoopThreadPool(loop, name_)),
       connection_callback_(defaultConnectionCallback),

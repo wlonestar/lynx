@@ -27,7 +27,7 @@ public:
   };
 
   TcpServer(EventLoop *loop, const InetAddress &listenAddr,
-            const std::string &nameArg, Option option = kNoReusePort);
+            const std::string &name, Option option = kNoReusePort);
   ~TcpServer();
 
   const std::string &ipPort() const { return ip_port_; }

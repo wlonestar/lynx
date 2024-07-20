@@ -17,9 +17,9 @@ void removeConnector(const ConnectorPtr &connector) {}
 } // namespace detail
 
 TcpClient::TcpClient(EventLoop *loop, const InetAddress &serverAddr,
-                     const std::string &nameArg)
+                     const std::string &name)
     : loop_(CHECK_NOTNULL(loop)), connector_(new Connector(loop, serverAddr)),
-      name_(nameArg), connection_callback_(defaultConnectionCallback),
+      name_(name), connection_callback_(defaultConnectionCallback),
       message_callback_(defaultMessageCallback), retry_(false), connect_(true),
       next_conn_id_(1) {
   connector_->setNewConnectionCallback(

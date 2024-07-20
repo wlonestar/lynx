@@ -5,8 +5,8 @@
 namespace lynx {
 
 EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseLoop,
-                                         const std::string &nameArg)
-    : base_loop_(baseLoop), name_(nameArg), started_(false), num_threads_(0),
+                                         const std::string &name)
+    : base_loop_(baseLoop), name_(name), started_(false), num_threads_(0),
       next_(0) {}
 
 EventLoopThreadPool::~EventLoopThreadPool() = default;

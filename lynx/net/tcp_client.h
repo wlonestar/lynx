@@ -13,7 +13,7 @@ using ConnectorPtr = std::shared_ptr<Connector>;
 class TcpClient : Noncopyable {
 public:
   TcpClient(EventLoop *loop, const InetAddress &serverAddr,
-            const std::string &nameArg);
+            const std::string &name);
   ~TcpClient();
 
   void connect();

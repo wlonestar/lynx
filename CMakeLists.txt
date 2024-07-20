@@ -61,6 +61,7 @@ include_directories(${nlohmann_json_INCLUDE_DIRS})
 
 include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(tests)
+add_subdirectory(examples)
 
 # Set library source files
 file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
