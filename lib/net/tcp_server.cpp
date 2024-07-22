@@ -13,7 +13,7 @@ namespace lynx {
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &listenAddr,
                      const std::string &name, Option option)
     : loop_(CHECK_NOTNULL(loop)), ip_port_(listenAddr.toIpPort()), name_(name),
-      acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
+      acceptor_(new Acceptor(loop, listenAddr, option == REUSE_PORT)),
       thread_pool_(new EventLoopThreadPool(loop, name_)),
       connection_callback_(defaultConnectionCallback),
       message_callback_(defaultMessageCallback), next_conn_id_(1) {

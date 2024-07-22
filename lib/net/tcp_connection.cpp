@@ -73,7 +73,8 @@ void TcpConnection::send(Buffer *buf) {
       sendInLoop(buf->peek(), buf->readableBytes());
       buf->retrieveAll();
     } else {
-      loop_->runInLoop([&buf] { buf->retrieveAllAsString(); });
+      loop_->runInLoop(
+          [this, &buf] { sendInLoop(buf->retrieveAllAsString()); });
     }
   }
 }

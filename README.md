@@ -4,8 +4,9 @@
 - logger
 - net
 - http
-- orm
-- db
+- orm (rewrite query method and result)
+- db (use epoll to implement non-blocking query)
+- web (wrap a server with thread pool, db connection pool and http connection pool)
 
 ---
 
@@ -37,6 +38,8 @@
 
 [3] https://github.com/mongrel2/mongrel2
 
-[4] https://github.com/Shangyizhou/A-Tiny-Network-Library
+[4] https://github.com/qicosmos/ormpp
+
+[5] https://github.com/Shangyizhou/A-Tiny-Network-Library
 
 ...

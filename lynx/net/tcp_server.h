@@ -22,12 +22,12 @@ public:
   using ThreadInitCallback = std::function<void(EventLoop *)>;
 
   enum Option {
-    kNoReusePort,
-    kReusePort,
+    NO_REUSE_PORT,
+    REUSE_PORT,
   };
 
   TcpServer(EventLoop *loop, const InetAddress &listenAddr,
-            const std::string &name, Option option = kNoReusePort);
+            const std::string &name, Option option = NO_REUSE_PORT);
   ~TcpServer();
 
   const std::string &ipPort() const { return ip_port_; }

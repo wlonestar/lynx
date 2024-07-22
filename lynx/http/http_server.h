@@ -19,7 +19,7 @@ public:
 
   HttpServer(EventLoop *loop, const InetAddress &listenAddr,
              const std::string &name,
-             TcpServer::Option option = TcpServer::kNoReusePort);
+             TcpServer::Option option = TcpServer::NO_REUSE_PORT);
 
   EventLoop *getLoop() const { return server_.getLoop(); }
 
