@@ -1,11 +1,11 @@
-#include "lynx/logger/async_logging.h"
-#include "lynx/logger/logging.h"
 #include "student.h"
 
 #include "lynx/db/pg_connection_pool.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
 #include "lynx/http/http_server.h"
+#include "lynx/logger/async_logging.h"
+#include "lynx/logger/logging.h"
 #include "lynx/net/event_loop.h"
 
 #include <cstring>
@@ -29,7 +29,7 @@ void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 void handleNotFound(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 void setupRoutes();
 
-void initDB(lynx::PgConnectionPool &pool);
+void initDb(lynx::PgConnectionPool &pool);
 void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 
 int main(int argc, char *argv[]) {
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
                               "demo");
   pool.start();
 
-  initDB(pool);
+  initDb(pool);
   setupRoutes();
 
   StudentRepository repository(pool);
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
   loop.loop();
 }
 
-void initDB(lynx::PgConnectionPool &pool) {
+void initDb(lynx::PgConnectionPool &pool) {
   /// Connect database
   lynx::PgConnection conn("PgConnection");
   conn.connect("localhost", "5432", "postgres", "123456", "demo");

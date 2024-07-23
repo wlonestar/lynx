@@ -62,7 +62,7 @@ template <typename T> constexpr auto getTypeNames() {
 
 template <typename T>
 constexpr void setParamValue(std::vector<std::vector<char>> &paramValues,
-                              T &&value) {
+                             T &&value) {
   using U = std::remove_const_t<std::remove_reference_t<T>>;
   if constexpr (std::is_same_v<U, int64_t> ||
                 std::is_same_v<U, uint64_t>) { /// 64 bit integer type

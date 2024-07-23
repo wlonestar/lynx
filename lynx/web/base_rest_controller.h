@@ -3,6 +3,7 @@
 
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
+#include "lynx/web/web_server.h"
 
 #include <memory>
 
@@ -12,5 +13,14 @@ void setRespOk(lynx::HttpResponse *resp) {
   resp->setContentType("application/json");
   resp->addHeader("Server", "lynx");
 }
+
+namespace lynx {
+
+template <typename Derived> class BaseController {
+public:
+  virtual void registr(WebServer &server, Derived &d) { d.assign(server, d); }
+};
+
+} // namespace lynx
 
 #endif
