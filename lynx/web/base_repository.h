@@ -16,14 +16,14 @@ public:
 
   virtual std::vector<T> selectTop100() {
     auto conn = pool_.acquire();
-    auto ret = conn->query<T>().limit(100).toVector();
+    auto ret = conn->query<T, ID>().limit(100).toVector();
     pool_.release(conn);
     return ret;
   }
 
   virtual std::optional<T> selectById(ID id) {
     auto conn = pool_.acquire();
-    auto ret = conn->query<T>().template where<T, ID>(id).toVector();
+    auto ret = conn->query<T, ID>().where(id).toVector();
     pool_.release(conn);
     if (ret.empty()) {
       return std::nullopt;
@@ -45,9 +45,16 @@ public:
     return ret;
   }
 
+  virtual bool updateById(ID id, T &&t) {
+    auto conn = pool_.acquire();
+    auto ret = conn->update<T, ID>().set(std::move(t)).where(id).execute();
+    pool_.release(conn);
+    return ret;
+  }
+
   virtual bool delById(ID id) {
     auto conn = pool_.acquire();
-    auto ret = conn->del<T>().template where<T, ID>(id).execute();
+    auto ret = conn->del<T, ID>().where(id).execute();
     pool_.release(conn);
     return ret;
   }

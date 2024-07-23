@@ -45,7 +45,7 @@ void createTable(lynx::PgConnectionPool &db_pool) {
 
 void selectFromDB(lynx::PgConnectionPool &db_pool) {
   auto conn = db_pool.acquire();
-  auto pn1 = conn->query<Person>()
+  auto pn1 = conn->query<Person,uint64_t>()
                  .where(VALUE(Person::age) > 27 && VALUE(Person::id) < 3)
                  .limit(2)
                  .toVector();

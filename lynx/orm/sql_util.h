@@ -61,7 +61,7 @@ template <typename T> constexpr auto getTypeNames() {
 }
 
 template <typename T>
-constexpr void setParamValues(std::vector<std::vector<char>> &paramValues,
+constexpr void setParamValue(std::vector<std::vector<char>> &paramValues,
                               T &&value) {
   using U = std::remove_const_t<std::remove_reference_t<T>>;
   if constexpr (std::is_same_v<U, int64_t> ||

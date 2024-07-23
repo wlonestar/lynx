@@ -19,9 +19,15 @@ namespace lynx {
 
 class PgConnection {
 public:
-  template <typename T>
-  using transaction_type =
-      typename std::enable_if<is_reflection<T>::value, QueryObject<T>>::type;
+  template <typename T, typename ID>
+  using QueryResult = typename std::enable_if<is_reflection<T>::value,
+                                              QueryWrapper<T, ID>>::type;
+  template <typename T, typename ID>
+  using UpdateResult = typename std::enable_if<is_reflection<T>::value,
+                                               UpdateWrapper<T, ID>>::type;
+  template <typename T, typename ID>
+  using DeleteResult = typename std::enable_if<is_reflection<T>::value,
+                                               DeleteWrapper<T, ID>>::type;
 
   explicit PgConnection(const std::string &name = std::string());
   ~PgConnection();
@@ -40,14 +46,14 @@ public:
   template <typename T> int insert(T &&t);
   template <typename T> int insert(std::vector<T> &t);
 
-  template <typename T> constexpr transaction_type<T> query() {
-    return QueryObject<T>(conn_, getName<T>());
+  template <typename T, typename ID> constexpr QueryResult<T, ID> query() {
+    return QueryWrapper<T, ID>(conn_, getName<T>());
   }
-  template <typename T> constexpr transaction_type<T> update() {
-    return QueryObject<T>(conn_, getName<T>(), "", "update");
+  template <typename T, typename ID> constexpr UpdateResult<T, ID> update() {
+    return UpdateWrapper<T, ID>(conn_, getName<T>());
   }
-  template <typename T> constexpr transaction_type<T> del() {
-    return QueryObject<T>(conn_, getName<T>(), "delete", "");
+  template <typename T, typename ID> constexpr DeleteResult<T, ID> del() {
+    return DeleteWrapper<T, ID>(conn_, getName<T>());
   }
 
 private:
@@ -118,7 +124,7 @@ template <typename T> bool PgConnection::insertImpl(std::string &sql, T &&t) {
   std::vector<std::vector<char>> param_values;
   forEach(t, [&](auto &item, auto field, auto j) {
     if (!isAutoKey<T>(getName<T>(j).data())) {
-      setParamValues(param_values, t.*item);
+      setParamValue(param_values, t.*item);
     }
   });
   if (param_values.empty()) {

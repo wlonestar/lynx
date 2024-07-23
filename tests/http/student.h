@@ -59,25 +59,25 @@ public:
 
   std::vector<Student> selectAll() {
     auto conn = pool_.acquire();
-    auto students = conn->query<Student>().toVector();
+    auto students = conn->query<Student, uint64_t>().toVector();
     pool_.release(conn);
     return students;
   }
 
-  bool updateById(uint64_t id, Student student) {
-    auto conn = pool_.acquire();
-    auto ret = conn->update<Student>()
-                   .set((VALUE(Student::id) = student.id) |
-                        (VALUE(Student::name) = student.name) |
-                        (VALUE(Student::gender) = student.gender) |
-                        (VALUE(Student::entry_year) = student.entry_year) |
-                        (VALUE(Student::major) = student.major) |
-                        (VALUE(Student::gpa) = student.gpa))
-                   .where(VALUE(Student::id) == id)
-                   .execute();
-    pool_.release(conn);
-    return ret;
-  }
+  // bool updateById(uint64_t id, Student &student) override {
+  //   auto conn = pool_.acquire();
+  //   auto ret = conn->update<Student, uint64_t>()
+  //                  .set((VALUE(Student::id) = student.id) |
+  //                       (VALUE(Student::name) = student.name) |
+  //                       (VALUE(Student::gender) = student.gender) |
+  //                       (VALUE(Student::entry_year) = student.entry_year) |
+  //                       (VALUE(Student::major) = student.major) |
+  //                       (VALUE(Student::gpa) = student.gpa))
+  //                  .where(VALUE(Student::id) == id)
+  //                  .execute();
+  //   pool_.release(conn);
+  //   return ret;
+  // }
 };
 
 class StudentService {
@@ -96,8 +96,8 @@ public:
     return repository_.insert(students);
   }
 
-  bool updateById(uint64_t id, Student student) {
-    return repository_.updateById(id, student);
+  bool updateById(uint64_t id, Student &&student) {
+    return repository_.updateById(id, std::move(student));
   }
 
   bool deleteById(uint64_t id) { return repository_.delById(id); }
@@ -176,8 +176,8 @@ public:
 
   /// @Method: PUT
   /// @Path: /student/<id>
-  json updateById(uint64_t id, Student student) {
-    if (service_.updateById(id, student)) {
+  json updateById(uint64_t id, Student &&student) {
+    if (service_.updateById(id, std::move(student))) {
       Result<std::string> result{200, "update success", "success"};
       json j = result;
       return j;
@@ -237,7 +237,7 @@ public:
     uint64_t id = atoll(path.substr(path.find_last_of('/') + 1).c_str());
 
     setRespOk(resp);
-    resp->setBody(updateById(id, student).dump());
+    resp->setBody(updateById(id, std::move(student)).dump());
   }
 
   void handleDeleteById(const lynx::HttpRequest &req,
