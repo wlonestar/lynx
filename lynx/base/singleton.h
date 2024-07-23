@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <pthread.h>
+#include <thread>
 
 namespace lynx {
 
@@ -25,6 +26,7 @@ public:
   ~Singleton() = delete;
 
   static T &instance() {
+    std::thread t;
     pthread_once(&ponce, &Singleton::init);
     assert(value != nullptr);
     return *value;

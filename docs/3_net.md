@@ -18,6 +18,20 @@ lynx 采用基于对象（object-based）而非面向对象（object-oriented）
 
 TcpConnection 的生命期依靠 shared_ptr 管理（用户和库共同控制）， Buffer 的生命期由 TcpConnection 控制。其余类的生命期由用户控制。
 
+### EventLoop
+
+one loop per thread 意味着每个线程只能有一个 EventLoop 对象，因此构造函数会检查当前线程是否已经创建了其他 EventLoop 对象。创建了 EventLoop 对象的线程是 IO 线程，主要功能是运行事件循环 `EventLoop::loop()`。
+
+### Channel
+
+每个 Channel 对象自始至终只属于一个 EventLoop，因此每个 Channel 对象只属于某一个 IO 线程，自始至终只负责一个文件描述符（fd）的 IO 事件分发。Channel 把不同的 IO 事件分发为不同的回调，回调基于 `std::function` 表示。
+
+### Epoller
+
+Epoller 是 IO 多路复用的封装，支持 `epoll(4)` IO 多路复用机制。Epoller 是 EventLoop 的间接成员，只供其 owner EventLoop 在 IO 线程调用，因此无需加锁，其生命期与 EventLoop 相等。
+
+![](eventloop.png)
+
 ## 内部实现
 
 - Channel: selectable IO channel，负责注册与响应 IO 事件，不拥有 file descriptor。
