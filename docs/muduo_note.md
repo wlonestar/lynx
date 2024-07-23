@@ -49,4 +49,4 @@ pFoo->observe(s); // or s->register_(pFoo);
 - 读写锁不见得比普通 mutex 更高效
 - 信号量有自己的计数值，而通常我们的数据结构也有长度值，这造成了同样的信息存了两份，，需要时刻保持一致。
 
-### 3. 线程安全的 Singleton 实现：pthread_once
+### 3. 线程安全的 Singleton 实现：std::once_flag

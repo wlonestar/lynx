@@ -128,7 +128,7 @@ LogStream &LogStream::operator<<(double v) {
   //   int len = snprintf(buffer_.current(), K_MAX_NUMERIC_SIZE, "%.12g", v);
   //   buffer_.add(len);
   // }
-  int len = detail::fpconvDtoa(v, buffer_.current());
+  int len = detail::fpToString(v, buffer_.current());
   buffer_.add(len);
   return *this;
 }

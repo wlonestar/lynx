@@ -142,7 +142,8 @@ BOOST_AUTO_TEST_CASE(testLogStreamFloats) {
   os.resetBuffer();
 
   os << a + b;
-  BOOST_CHECK_EQUAL(buf.toString(), std::string("0.15"));
+  // grisu3 algorithm
+  BOOST_CHECK_EQUAL(buf.toString(), std::string("0.15000000000000002"));
   os.resetBuffer();
 
   BOOST_CHECK(a + b != c);

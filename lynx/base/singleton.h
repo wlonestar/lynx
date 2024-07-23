@@ -5,7 +5,7 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <pthread.h>
+#include <mutex>
 #include <thread>
 
 namespace lynx {
@@ -26,8 +26,7 @@ public:
   ~Singleton() = delete;
 
   static T &instance() {
-    std::thread t;
-    pthread_once(&ponce, &Singleton::init);
+    std::call_once(once, &Singleton::init);
     assert(value != nullptr);
     return *value;
   }
@@ -49,11 +48,11 @@ private:
     value = nullptr;
   }
 
-  static pthread_once_t ponce;
+  static std::once_flag once;
   static T *value;
 };
 
-template <typename T> pthread_once_t Singleton<T>::ponce = PTHREAD_ONCE_INIT;
+template <typename T> std::once_flag Singleton<T>::once;
 template <typename T> T *Singleton<T>::value = nullptr;
 
 } // namespace lynx

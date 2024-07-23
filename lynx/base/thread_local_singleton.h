@@ -4,7 +4,7 @@
 #include "lynx/base/noncopyable.h"
 
 #include <cassert>
-#include <pthread.h>
+#include <thread>
 
 namespace lynx {
 
@@ -35,15 +35,17 @@ private:
 
   class Deleter {
   public:
-    Deleter() { pthread_key_create(&pkey_, &ThreadLocalSingleton::destructor); }
-    ~Deleter() { pthread_key_delete(pkey_); }
-
-    void set(T *newObj) {
-      assert(pthread_getspecific(pkey_) == nullptr);
-      pthread_setspecific(pkey_, newObj);
+    Deleter() = default;
+    ~Deleter() {
+      if (t_value) {
+        destructor(t_value);
+      }
     }
 
-    pthread_key_t pkey_;
+    void set(T *newObj) {
+      assert(t_value == nullptr);
+      t_value = newObj;
+    }
   };
 
   static thread_local T *t_value;

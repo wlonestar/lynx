@@ -69,7 +69,7 @@ file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
 ragelmaker(lynx/http/http_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/http)
 # Set build library
 add_library(lynx STATIC ${LIB_SRC})
-target_link_libraries(lynx PUBLIC pthread pq nlohmann_json::nlohmann_json)
+target_link_libraries(lynx PUBLIC pq nlohmann_json::nlohmann_json)
 
 # Install 
 

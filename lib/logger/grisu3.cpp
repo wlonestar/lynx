@@ -356,7 +356,7 @@ static int filterSpecial(double fp, char *dest) {
   return 3;
 }
 
-int fpconvDtoa(double d, char dest[24]) {
+int fpToString(double d, char dest[24]) {
   char digits[18];
   int str_len = 0;
   bool neg = false;

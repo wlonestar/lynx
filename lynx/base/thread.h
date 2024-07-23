@@ -7,7 +7,7 @@
 #include <functional>
 #include <latch>
 #include <memory>
-#include <pthread.h>
+#include <thread>
 
 namespace lynx {
 
@@ -19,7 +19,7 @@ public:
   ~Thread();
 
   void start();
-  int join();
+  void join();
 
   bool started() const { return started_; }
   pid_t tid() const { return tid_; }
@@ -32,7 +32,7 @@ private:
 
   bool started_;
   bool joined_;
-  pthread_t pthread_id_;
+  std::shared_ptr<std::thread> thread_;
   pid_t tid_;
   ThreadFunc func_;
   std::string name_;
