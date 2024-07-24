@@ -4,7 +4,7 @@
 #include "lynx/logger/logging.h"
 #include "lynx/reflection.h"
 #include "lynx/web/base_repository.h"
-#include "lynx/web/base_rest_controller.h"
+#include "lynx/web/base_controller.h"
 
 #include <optional>
 #include <vector>

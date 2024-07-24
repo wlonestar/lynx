@@ -1,5 +1,5 @@
-#ifndef LYNX_WEB_BASE_REST_CONTROLLER_H
-#define LYNX_WEB_BASE_REST_CONTROLLER_H
+#ifndef LYNX_WEB_BASE_CONTROLLER_H
+#define LYNX_WEB_BASE_CONTROLLER_H
 
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
