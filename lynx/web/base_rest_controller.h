@@ -5,9 +5,11 @@
 #include "lynx/http/http_response.h"
 #include "lynx/web/web_server.h"
 
+#include <nlohmann/json.hpp>
+
 #include <map>
 #include <memory>
-#include <nlohmann/json.hpp>
+#include <utility>
 
 namespace lynx {
 
@@ -52,65 +54,73 @@ void from_json(const json &j, Result<T> &result) {
 
 using HttpHandler = std::function<void(const HttpRequest &, HttpResponse *)>;
 
-#define RequestMapping(Controller, _method_, _path_, func)                     \
-  void func##Handler(const lynx::HttpRequest &req, lynx::HttpResponse *resp) { \
-    setRespOk(resp);                                                           \
-    resp->setBody(func().dump());                                              \
+class BaseController {
+public:
+  template <typename Func>
+  void requestMapping(const std::string &method, const std::string &path,
+                      Func func) {
+    route_table_[std::make_pair(method, path)] =
+        [func](const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+          setRespOk(resp);
+          resp->setBody(func().dump());
+        };
   }
 
-#define RequestMappingWithPathVariable(Controller, _method_, _path_, func,     \
-                                       path_type)                              \
-  void func##Handler(const lynx::HttpRequest &req, lynx::HttpResponse *resp) { \
-    auto &p = req.path();                                                      \
-    path_type arg;                                                             \
-    if constexpr (std::is_same_v<path_type, int64_t> ||                        \
-                  std::is_same_v<path_type, uint64_t>) {                       \
-      arg = atoll(p.substr(p.find_last_of('/') + 1).c_str());                  \
-    }                                                                          \
-    setRespOk(resp);                                                           \
-    resp->setBody(func(arg).dump());                                           \
+  template <typename PathType, typename BodyType, typename Func>
+  void requestMapping(const std::string &method, const std::string &path,
+                      Func func) {
+    route_table_[std::make_pair(method, path)] =
+        [func](const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+          auto &path = req.path();
+          PathType arg1;
+          if constexpr (std::is_same_v<PathType, int64_t> ||
+                        std::is_same_v<PathType, uint64_t>) {
+            arg1 = atoll(path.substr(path.find_last_of('/') + 1).c_str());
+          }
+          json j = json::parse(req.body());
+          BodyType arg2 = j;
+          setRespOk(resp);
+          resp->setBody(func(arg1, arg2).dump());
+        };
   }
 
-#define RequestMappingWithBody(Controller, _method_, _path_, func, body_type)  \
-  void func##Handler(const lynx::HttpRequest &req, lynx::HttpResponse *resp) { \
-    auto &body = req.body();                                                   \
-    lynx::json j = lynx::json::parse(body);                                    \
-    body_type arg = j;                                                         \
-    setRespOk(resp);                                                           \
-    resp->setBody(func(arg).dump());                                           \
+  template <typename PathType, typename Func>
+  void requestMappingWithPath(const std::string &method,
+                              const std::string &path, Func func) {
+    route_table_[std::make_pair(method, path)] =
+        [func](const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+          auto &path = req.path();
+          PathType arg;
+          if constexpr (std::is_same_v<PathType, int64_t> ||
+                        std::is_same_v<PathType, uint64_t>) {
+            arg = atoll(path.substr(path.find_last_of('/') + 1).c_str());
+          }
+          setRespOk(resp);
+          resp->setBody(func(arg).dump());
+        };
   }
 
-#define RequestMappingWithPathVariableAndBody(Controller, _method_, _path_,    \
-                                              func, path_type, body_type)      \
-  void func##Handler(const lynx::HttpRequest &req, lynx::HttpResponse *resp) { \
-    auto &p = req.path();                                                      \
-    path_type arg1;                                                            \
-    if constexpr (std::is_same_v<path_type, int64_t> ||                        \
-                  std::is_same_v<path_type, uint64_t>) {                       \
-      arg1 = atoll(p.substr(p.find_last_of('/') + 1).c_str());                 \
-    }                                                                          \
-    auto &body = req.body();                                                   \
-    lynx::json j = lynx::json::parse(body);                                    \
-    body_type arg2 = j;                                                        \
-    setRespOk(resp);                                                           \
-    resp->setBody(func(arg1, arg2).dump());                                    \
+  template <typename BodyType, typename Func>
+  void requestMappingWithBody(const std::string &method,
+                              const std::string &path, Func func) {
+    route_table_[std::make_pair(method, path)] =
+        [func](const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+          json j = json::parse(req.body());
+          BodyType arg = j;
+          setRespOk(resp);
+          resp->setBody(func(arg).dump());
+        };
   }
 
-#define RestController(Controller)                                             \
-  inline std::map<std::pair<std::string, std::string>, lynx::HttpHandler>      \
-      Controller##RouteTable;                                                  \
-  void Controller##Register(lynx::WebServer &server) {                         \
-    for (auto &[pair, handler] : Controller##RouteTable) {                     \
-      server.addRoute(pair.first, pair.second, handler);                       \
-    }                                                                          \
+  void registerHandler(WebServer &server) {
+    for (auto &[pair, handler] : route_table_) {
+      server.addRoute(pair.first, pair.second, handler);
+    }
   }
 
-#define RegisterHandler(Controller, _method_, _path_, func)                    \
-  Controller##RouteTable[std::make_pair(_method_, _path_)] =                   \
-      [this](auto &&PH1, auto &&PH2) {                                         \
-        func##Handler(std::forward<decltype(PH1)>(PH1),                        \
-                      std::forward<decltype(PH2)>(PH2));                       \
-      };
+private:
+  std::map<std::pair<std::string, std::string>, HttpHandler> route_table_;
+};
 
 } // namespace lynx
 

@@ -41,9 +41,10 @@ int main(int argc, char *argv[]) {
   pool.start();
   initDb(pool);
 
-  /// Controller
-  StudentController controller((StudentService(StudentRepository(pool))));
-  StudentControllerRegister(server);
+  /// Register handler
+  StudentController::init(pool);
+  StudentController controller;
+  controller.registerHandler(server);
 
   server.printRoutes();
   loop.loop();
