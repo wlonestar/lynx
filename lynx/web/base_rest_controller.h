@@ -5,6 +5,7 @@
 #include "lynx/http/http_response.h"
 #include "lynx/web/web_server.h"
 
+#include <map>
 #include <memory>
 
 void setRespOk(lynx::HttpResponse *resp) {
@@ -16,10 +17,7 @@ void setRespOk(lynx::HttpResponse *resp) {
 
 namespace lynx {
 
-template <typename Derived> class BaseController {
-public:
-  virtual void registr(WebServer &server, Derived &d) { d.assign(server, d); }
-};
+using HttpHandler = std::function<void(const HttpRequest &, HttpResponse *)>;
 
 } // namespace lynx
 

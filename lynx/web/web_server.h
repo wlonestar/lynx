@@ -51,8 +51,8 @@ public:
   using HttpHandler = std::function<void(const HttpRequest &, HttpResponse *)>;
 
   explicit WebServer(EventLoop *loop, const InetAddress &listenAddr,
-                     const std::string &name, PgConnectionPool *pool)
-      : server_(loop, listenAddr, name), pool_(pool) {
+                     const std::string &name)
+      : server_(loop, listenAddr, name) {
     server_.setHttpCallback([this](auto &&PH1, auto &&PH2) {
       onRequest(std::forward<decltype(PH1)>(PH1),
                 std::forward<decltype(PH2)>(PH2));
@@ -61,10 +61,7 @@ public:
     addRoute("GET", "/favicon.ico", detail::handleFavicon);
   }
 
-  void start() {
-    pool_->start();
-    server_.start();
-  }
+  void start() { server_.start(); }
 
   void setThreadNum(int numThreads) { server_.setThreadNum(numThreads); }
 
@@ -74,7 +71,11 @@ public:
     return 0;
   }
 
-  void addHandler() {}
+  void printRoutes() {
+    for (auto &[pair, handler] : route_table_) {
+      std::cout << methodToString(pair.first) << " " << pair.second << "\n";
+    }
+  }
 
 private:
   void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
@@ -90,7 +91,6 @@ private:
 
     auto method = req.method();
     auto &path = req.path();
-
     bool flag = false;
     for (auto &[pair, handler] : route_table_) {
       if (method == pair.first) {
@@ -109,7 +109,6 @@ private:
   }
 
   HttpServer server_;
-  PgConnectionPool *pool_;
   std::map<std::pair<HttpMethod, std::string>, HttpHandler> route_table_;
 };
 

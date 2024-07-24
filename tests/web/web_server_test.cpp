@@ -8,14 +8,6 @@
 #include "lynx/net/event_loop.h"
 #include "lynx/web/web_server.h"
 
-#include <cstring>
-#include <iostream>
-#include <map>
-#include <memory>
-#include <regex>
-#include <sstream>
-#include <utility>
-
 off_t roll_size = 500 * 1000 * 1000;
 lynx::AsyncLogging *g_async_log = nullptr;
 
@@ -40,20 +32,20 @@ int main(int argc, char *argv[]) {
   lynx::PgConnectionPool pool("127.0.0.1", "5432", "postgres", "123456",
                               "demo");
   lynx::EventLoop loop;
-  lynx::WebServer server(&loop, lynx::InetAddress(8000), "WebServer", &pool);
+  lynx::WebServer server(&loop, lynx::InetAddress(8000), "WebServer");
   server.setThreadNum(num_threads);
   LOG_INFO << "start HTTP server with " << num_threads << " threads";
 
   /// Setup server and pool
   server.start();
+  pool.start();
   initDb(pool);
 
-  /// Register handlers
-  StudentRepository repository(pool);
-  StudentService service(repository);
-  StudentController student_controller(service);
-  student_controller.registr(server, student_controller);
+  /// Controller
+  StudentController controller((StudentService(StudentRepository(pool))));
+  StudentControllerRegister(server);
 
+  server.printRoutes();
   loop.loop();
 }
 
