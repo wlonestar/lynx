@@ -71,7 +71,31 @@ ragelmaker(lynx/http/http_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/http
 add_library(lynx STATIC ${LIB_SRC})
 target_link_libraries(lynx PUBLIC pq nlohmann_json::nlohmann_json)
 
-# Install 
+# Install
+
+FILE(GLOB BASE_HEADERS lynx/base/*)
+FILE(GLOB DB_HEADERS lynx/db/*)
+FILE(GLOB HTTP_HEADERS lynx/http/*)
+FILE(GLOB LOGGER_HEADERS lynx/logger/*)
+set(NET_HEADERS
+  lynx/net/buffer.h
+  lynx/net/callbacks.h
+  lynx/net/channel.h
+  lynx/net/event_loop.h
+  lynx/net/event_loop_thread.h
+  lynx/net/event_loop_thread_pool.h
+  lynx/net/inet_address.h
+  lynx/net/tcp_client.h
+  lynx/net/tcp_connection.h
+  lynx/net/tcp_server.h
+  lynx/net/timer_id.h
+  )
+FILE(GLOB ORM_HEADERS lynx/orm/*)
+FILE(GLOB WEB_HEADERS lynx/web/*)
+set(TOP_HEADERS 
+  lynx/json.h
+  lynx/reflection.h
+  )
 
 # Set header files searching paths
 # Distinguish between build-time and install-time header file paths
@@ -85,6 +109,14 @@ install(
   LIBRARY DESTINATION lib
   )
 # Install header files
-install(DIRECTORY lynx/ DESTINATION include/lynx FILES_MATCHING PATTERN "*.h")
+# install(DIRECTORY lynx/ DESTINATION include/lynx FILES_MATCHING PATTERN "*.h")
+install(FILES ${BASE_HEADERS}   DESTINATION include/lynx/base)
+install(FILES ${DB_HEADERS}     DESTINATION include/lynx/db)
+install(FILES ${HTTP_HEADERS}   DESTINATION include/lynx/http)
+install(FILES ${LOGGER_HEADERS} DESTINATION include/lynx/logger)
+install(FILES ${NET_HEADERS}    DESTINATION include/lynx/net)
+install(FILES ${ORM_HEADERS}    DESTINATION include/lynx/orm)
+install(FILES ${WEB_HEADERS}    DESTINATION include/lynx/web)
+install(FILES ${TOP_HEADERS}    DESTINATION include/lynx)
 # Install exported config file
 install(EXPORT lynxConfig DESTINATION share/lynx/cmake)
