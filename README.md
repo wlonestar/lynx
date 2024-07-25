@@ -4,9 +4,9 @@
 - logger
 - net
 - http
-- orm (rewrite query method and result)
-- db (use epoll to implement non-blocking query)
-- web (wrap a server with thread pool, db connection pool and http connection pool)
+- orm
+- db
+- web
 
 ---
 

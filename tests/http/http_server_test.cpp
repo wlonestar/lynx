@@ -1,5 +1,3 @@
-#include "student.h"
-
 #include "lynx/db/pg_connection_pool.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
@@ -29,8 +27,19 @@ void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 void handleNotFound(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 void setupRoutes();
 
-void initDb(lynx::PgConnectionPool &pool);
 void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
+
+using HttpHandler = lynx::HttpServer::HttpCallback;
+
+inline std::map<std::pair<lynx::HttpMethod, std::string>, HttpHandler>
+    g_route_table;
+
+inline int addRoute(const std::string &method, const std::string &path,
+                    HttpHandler handler) {
+  g_route_table[std::make_pair(lynx::stringToHttpMethod(method), path)] =
+      handler;
+  return 0;
+}
 
 int main(int argc, char *argv[]) {
   char name[256] = {'\0'};
@@ -50,66 +59,15 @@ int main(int argc, char *argv[]) {
   server.setThreadNum(num_threads);
   LOG_INFO << "start HTTP server with " << num_threads << " threads";
 
-  lynx::PgConnectionPool pool("127.0.0.1", "5432", "postgres", "123456",
-                              "demo");
-  pool.start();
-
-  initDb(pool);
   setupRoutes();
-
-  StudentRepository repository(pool);
-  StudentService service(repository);
-  g_student_controller = std::make_shared<StudentController>(service);
 
   server.start();
   loop.loop();
 }
 
-void initDb(lynx::PgConnectionPool &pool) {
-  /// Connect database
-  lynx::PgConnection conn("PgConnection");
-  conn.connect("localhost", "5432", "postgres", "123456", "demo");
-
-  /// Create table (drop if table already exists)
-  conn.execute("drop table student; drop sequence student_id_seq;");
-  lynx::AutoKeyMap key_map{"id"};
-  lynx::NotNullMap not_null_map;
-  not_null_map.fields = {"id", "name", "gender", "entry_year"};
-  bool flag = conn.createTable<Student>(key_map, not_null_map);
-  if (!flag) {
-    abort();
-  }
-
-  /// Insert 1: insert one
-  Student s1{2024033001, "Li Ming 1", Gender::Male, 2024, "SE", 3.8};
-  Student s2{2024033002, "Li Ming 2", Gender::Male, 2024, "SE", 3.82};
-  Student s3{2024033003, "Li Ming 3", Gender::Female, 2024, "CS", 3.78};
-  Student s4{2023033024, "Liu Hua 1", Gender::Male, 2023, "SE", 3.98};
-  Student s5{2024033035, "Liu Hua 2", Gender::Female, 2023, "CS", 3.89};
-  conn.insert(s1);
-  conn.insert(s2);
-  conn.insert(s3);
-  conn.insert(s4);
-  conn.insert(s5);
-
-  /// Insert 2: insert many
-  std::vector<Student> students;
-  for (int i = 0; i < 10; i++) {
-    Student s;
-    s.id = 2023033001 + i;
-    s.name = "Che hen " + std::to_string(i);
-    s.gender = rand() % 2 == 0 ? Gender::Female : Gender::Male;
-    s.entry_year = 2023;
-    s.major = rand() % 2 == 0 ? "CS" : "SE";
-    s.gpa = 3.5 + (rand() % 10) * 0.05;
-    students.push_back(s);
-  }
-  conn.insert(students);
-}
-
 void setupRoutes() {
-  lynx::addRoute("GET", "/", handleIndex);
-  lynx::addRoute("GET", "/favicon.ico", handleFavicon);
+  addRoute("GET", "/", handleIndex);
+  addRoute("GET", "/favicon.ico", handleFavicon);
 }
 
 void handleIndex(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
@@ -152,7 +110,7 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
   auto &path = req.path();
 
   bool flag = false;
-  for (auto &[pair, handler] : lynx::g_route_table) {
+  for (auto &[pair, handler] : g_route_table) {
     if (method == pair.first) {
       std::regex path_regex(pair.second);
       bool match = std::regex_match(path, path_regex);
