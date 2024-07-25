@@ -1,10 +1,10 @@
 #include "lynx/db/pg_connection_pool.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
+#include "lynx/json.h"
 #include "lynx/logger/logging.h"
-#include "lynx/reflection.h"
-#include "lynx/web/base_repository.h"
 #include "lynx/web/base_controller.h"
+#include "lynx/web/base_repository.h"
 
 #include <optional>
 #include <vector>
@@ -23,29 +23,10 @@ struct Student {
   double gpa;        // NOLINT
 } __attribute__((packed));
 
-// NOLINTNEXTLINE
-void to_json(lynx::json &j, const Student &s) {
-  j["id"] = s.id;
-  j["name"] = s.name;
-  j["gender"] = s.gender;
-  j["entry_year"] = s.entry_year;
-  j["major"] = s.major;
-  j["gpa"] = s.gpa;
-}
-
-// NOLINTNEXTLINE
-void from_json(const lynx::json &j, Student &s) {
-  j.at("id").get_to(s.id);
-  j.at("name").get_to(s.name);
-  j.at("gender").get_to(s.gender);
-  j.at("entry_year").get_to(s.entry_year);
-  j.at("major").get_to(s.major);
-  j.at("gpa").get_to(s.gpa);
-}
-
 REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
-                              major, gpa)
-REGISTER_AUTO_KEY(Student, id)
+                              major, gpa);
+REGISTER_AUTO_KEY(Student, id);
+JSON_SERIALIZE(Student);
 
 class StudentRepository : public lynx::BaseRepository<Student, uint64_t> {
 public:
