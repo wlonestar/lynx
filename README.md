@@ -1,34 +1,107 @@
-# Lynx
+# Lynx: A Multi-Thread Linux Server Framework
 
-- base
-- logger
-- net
-- http
-- orm
-- db
-- web
+A flexible and scalable server framework for Linux written in C++ with support for multi-threading.
 
----
+## Features
 
-#0 总体设计
+1. **Network Library**: Implement a network library leveraging the Reactor pattern for non-blocking I/O operations and event-driven programming, drawing inspiration from the [muduo](https://github.com/chenshuo/muduo) network library.
+2. **HTTP Server**: Develops an HTTP server that incorporates Ragel, a powerful finite state machine compiler, for parsing HTTP requests.
+3. **Advanced C++ Techniques**: Leverage advanced C++ techniques such as macros and template metaprogramming to implement compile-time reflection, which is used to encapsulate a ORM framework.
 
-#1 线程库
+## Requirements
 
-#2 日志库
+- Clang
+- CMake
+- Ninja
+- Ragel
+- Boost
+- PostgreSQL
+- nlohmann/json
 
-#3 网络库
+Ubuntu/Debian:
 
-#4 HTTP 协议
+```bash
+sudo apt install clang cmake ninja-build ragal libboost-test-dev libpq-dev nlohmann-json3-dev
+```
 
-#5 编译期反射
+## Installation
 
-#6 ORM 框架
+1. Clone the repository:
 
-#7 数据库连接池
+```bash
+git clone https://github.com/wlonestar/lynx.git && cd lynx
+```
 
-#8 Web 框架
+2. Configure and build the project using CMake:
 
----
+```bash
+cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+ninja -C build
+```
+
+maybe you need to set the compiler to clang
+
+3. The static library `liblynx.a` will be created in `build/lib` directory.
+
+## Usage
+
+To integrate lynx into your CMake project, use `find_package` to include header files and link the library.
+
+1. Set the proper install prefix:
+
+```bash
+cmake -G Ninja -B build -DCMAKE_INSTALL_PREFIX=<installation_path> -DCMAKE_BUILD_TYPE=Release
+ninja -C build
+ninja -C build install
+```
+
+2. Use `find_package` in your CMake project, such as:
+
+```cmake
+set(CMAKE_PREFIX_PATH <installation_path>)
+find_package(lynx CONFIG REQUIRED)
+include_directories(${lynx_INCLUDE_DIRS})
+```
+
+3. Link the third party libraries that lynx uses:
+
+```cmake
+add_executable(app main.cpp)
+target_link_libraries(app lynx pq nlohmann_json::nlohmann_json)
+```
+
+Refer to `examples/application/CMakeLists.txt` for more details.
+
+## API Document
+
+(TODO)
+
+## Examples
+
+The `examples/application` directory contains a simple application server that demonstrates how to use the framework.
+
+To run the application server:
+
+1. Install the library to `examples/application` directory.
+2. Build and run the examples:
+
+```bash
+make install
+cd examples/application && make
+./app
+```
+
+## Contributing
+
+Contributions to the framework are welcome! Please follow these guidelines:
+
+- Fork the repository and create a new branch for your changes.
+- Write tests for your changes.
+- Submit a pull request with a clear description of your changes.
+
+## License
+
+Lynx is licensed under the [MIT License](https://github.com/wlonestar/lynx/blob/master/LICENSE).
 
 # References
 
@@ -41,5 +114,3 @@
 [4] https://github.com/qicosmos/ormpp
 
 [5] https://github.com/Shangyizhou/A-Tiny-Network-Library
-
-...

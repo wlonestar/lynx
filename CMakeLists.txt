@@ -39,16 +39,17 @@ if (CLANG_FORMAT_EXE)
     )
 endif()
 
-# Enable ctest
-enable_testing()
-
-# Find packages
-
 # Find Ragel
 find_program(RAGEL_EXE NAMES ragel)
 if (NOT RAGEL_EXE)
   message(FATAL_ERROR "Ragel executable not found")
 endif()
+
+# Enable ctest
+enable_testing()
+
+# Find packages
+
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -88,10 +89,10 @@ install(
 
 # Install header files
 # install(DIRECTORY lynx/ DESTINATION include/lynx FILES_MATCHING PATTERN "*.h")
-FILE(GLOB BASE_HEADERS lynx/base/*)
-FILE(GLOB DB_HEADERS lynx/db/*)
-FILE(GLOB HTTP_HEADERS lynx/http/*)
-FILE(GLOB LOGGER_HEADERS lynx/logger/*)
+FILE(GLOB BASE_HEADERS lynx/base/*.h)
+FILE(GLOB DB_HEADERS lynx/db/*.h)
+FILE(GLOB HTTP_HEADERS lynx/http/*.h)
+FILE(GLOB LOGGER_HEADERS lynx/logger/*.h)
 set(NET_HEADERS
   lynx/net/buffer.h
   lynx/net/callbacks.h
@@ -105,8 +106,8 @@ set(NET_HEADERS
   lynx/net/tcp_server.h
   lynx/net/timer_id.h
   )
-FILE(GLOB ORM_HEADERS lynx/orm/*)
-FILE(GLOB WEB_HEADERS lynx/web/*)
+FILE(GLOB ORM_HEADERS lynx/orm/*.h)
+FILE(GLOB WEB_HEADERS lynx/web/*.h)
 
 install(FILES ${BASE_HEADERS}   DESTINATION include/lynx/base)
 install(FILES ${DB_HEADERS}     DESTINATION include/lynx/db)

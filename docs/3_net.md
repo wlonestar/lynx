@@ -16,7 +16,7 @@ lynx 采用基于对象（object-based）而非面向对象（object-oriented）
 - TcpClient: 用于编写网络客户端，能发起连接，有重试功能。
 - TcpServer: 用于编写网络服务器，接受客户的连接。
 
-TcpConnection 的生命期依靠 shared_ptr 管理（用户和库共同控制）， Buffer 的生命期由 TcpConnection 控制。其余类的生命期由用户控制。
+TcpConnection 的生命期依靠 `shared_ptr` 管理（用户和库共同控制）， Buffer 的生命期由 TcpConnection 控制。其余类的生命期由用户控制。
 
 ### EventLoop
 
@@ -28,7 +28,7 @@ one loop per thread 意味着每个线程只能有一个 EventLoop 对象，因�
 
 ### Epoller
 
-Epoller 是 IO 多路复用的封装，支持 `epoll(4)` IO 多路复用机制。Epoller 是 EventLoop 的间接成员，只供其 owner EventLoop 在 IO 线程调用，因此无需加锁，其生命期与 EventLoop 相等。
+Epoller 是 IO 多路复用的封装，支持 `epoll` IO 多路复用机制。Epoller 是 EventLoop 的间接成员，只供其 owner EventLoop 在 IO 线程调用，因此无需加锁，其生命期与 EventLoop 相等。
 
 ![](eventloop.png)
 
@@ -40,7 +40,7 @@ Epoller 是 IO 多路复用的封装，支持 `epoll(4)` IO 多路复用机制�
 - Epoller: 封装 epoll IO 多路复用后端。
 - Connector: 用于发起 TCP 连接。
 - Acceptor：用于接受 TCP 连接。
-- TimerQueue: 用 timerfd 实现定时。
+- TimerQueue: 用 `timerfd` 实现定时。
 - EventLoopThreadPool: 用于创建 IO 线程池，把 TcpConnection 分派到某个 EventLoop 线程上。
 
 ## 线程模型
