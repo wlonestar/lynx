@@ -6,7 +6,6 @@
 #include "lynx/orm/pg_query_object.h"
 #include "lynx/orm/sql_util.h"
 #include "lynx/orm/traits_util.h"
-#include "lynx/reflection.h"
 
 #include <atomic>
 #include <cstdio>

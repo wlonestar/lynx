@@ -1,8 +1,8 @@
 #include "lynx/db/pg_connection_pool.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
-#include "lynx/json.h"
 #include "lynx/logger/logging.h"
+#include "lynx/orm/reflection.h"
 #include "lynx/web/base_controller.h"
 #include "lynx/web/base_repository.h"
 
@@ -26,7 +26,6 @@ struct Student {
 REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
                               major, gpa);
 REGISTER_AUTO_KEY(Student, id);
-JSON_SERIALIZE(Student);
 
 class StudentRepository : public lynx::BaseRepository<Student, uint64_t> {
 public:
@@ -48,6 +47,10 @@ public:
 
   std::vector<Student> selectTop100() { return repository_.selectTop100(); }
   std::vector<Student> selectAll() { return repository_.selectAll(); }
+
+  std::vector<Student> selectByPage(size_t page, size_t size) {
+    return repository_.selectByPage(page, size);
+  }
 
   std::optional<Student> selectById(uint64_t id) {
     return repository_.selectById(id);
@@ -78,10 +81,17 @@ public:
   explicit StudentController() {
     requestMapping("GET", "/student100", selectTop100);
     requestMapping("GET", "/student", selectAll);
-    requestMappingWithPath<uint64_t>("GET", "/student/([0-9]+)", selectById);
-    requestMappingWithBody<Student>("POST", "/student", insert);
-    requestMapping<uint64_t, Student>("PUT", "/student/([0-9]+)", updateById);
-    requestMappingWithPath<uint64_t>("DELETE", "/student/([0-9]+)", deleteById);
+    requestMapping("GET", R"(/student\?page=(\d+)&size=(\d+))", selectByPage,
+                   lynx::RequestParam<size_t>("page"),
+                   lynx::RequestParam<size_t>("size"));
+    requestMapping("GET", R"(/student/(\d+))", selectById,
+                   lynx::PathVariable<uint64_t>());
+    requestMapping("POST", "/student", insert, lynx::RequestBody<Student>());
+    requestMapping("PUT", R"(/student/(\d+))", updateById,
+                   lynx::PathVariable<uint64_t>(),
+                   lynx::RequestBody<Student>());
+    requestMapping("DELETE", R"(/student/(\d+))", deleteById,
+                   lynx::PathVariable<uint64_t>());
   }
 
   /// "GET" "/student100"
@@ -94,7 +104,13 @@ public:
     return lynx::makeOkResult("query success", service->selectAll());
   }
 
-  /// "GET" "/student/([0-9]+)"
+  /// "GET" "/student?page=(\d+)&size=(\d+)"
+  static lynx::json selectByPage(size_t page, size_t size) {
+    return lynx::makeOkResult("query success",
+                              service->selectByPage(page, size));
+  }
+
+  /// "GET" "/student/(\d+)"
   static lynx::json selectById(uint64_t id) {
     if (auto data = service->selectById(id)) {
       return lynx::makeOkResult("query success", *data);
@@ -110,7 +126,7 @@ public:
     return lynx::makeErrorResult("insert fail", "id not exists");
   }
 
-  /// "PUT" "/student/([0-9]+)"
+  /// "PUT" "/student/(\d+)"
   static lynx::json updateById(uint64_t id, Student &student) {
     if (service->updateById(id, std::move(student))) {
       return lynx::makeOkResult<std::string>("update success", "success");
@@ -118,7 +134,7 @@ public:
     return lynx::makeErrorResult("update fail", "id not exists");
   }
 
-  /// "DELETE" "/student/([0-9]+)"
+  /// "DELETE" "/student/(\d+)"
   static lynx::json deleteById(uint64_t id) {
     if (service->deleteById(id)) {
       return lynx::makeOkResult<std::string>("delete success", "success");

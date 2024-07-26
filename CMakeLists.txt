@@ -73,6 +73,21 @@ target_link_libraries(lynx PUBLIC pq nlohmann_json::nlohmann_json)
 
 # Install
 
+# Set header files searching paths
+# Distinguish between build-time and install-time header file paths
+target_include_directories(lynx PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include>
+  )
+
+# Install library and export config file
+install(
+  TARGETS lynx EXPORT lynxConfig
+  LIBRARY DESTINATION lib
+  )
+
+# Install header files
+# install(DIRECTORY lynx/ DESTINATION include/lynx FILES_MATCHING PATTERN "*.h")
 FILE(GLOB BASE_HEADERS lynx/base/*)
 FILE(GLOB DB_HEADERS lynx/db/*)
 FILE(GLOB HTTP_HEADERS lynx/http/*)
@@ -92,24 +107,7 @@ set(NET_HEADERS
   )
 FILE(GLOB ORM_HEADERS lynx/orm/*)
 FILE(GLOB WEB_HEADERS lynx/web/*)
-set(TOP_HEADERS 
-  lynx/json.h
-  lynx/reflection.h
-  )
 
-# Set header files searching paths
-# Distinguish between build-time and install-time header file paths
-target_include_directories(lynx PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:include>
-  )
-# Install library and export config file
-install(
-  TARGETS lynx EXPORT lynxConfig
-  LIBRARY DESTINATION lib
-  )
-# Install header files
-# install(DIRECTORY lynx/ DESTINATION include/lynx FILES_MATCHING PATTERN "*.h")
 install(FILES ${BASE_HEADERS}   DESTINATION include/lynx/base)
 install(FILES ${DB_HEADERS}     DESTINATION include/lynx/db)
 install(FILES ${HTTP_HEADERS}   DESTINATION include/lynx/http)
@@ -117,6 +115,6 @@ install(FILES ${LOGGER_HEADERS} DESTINATION include/lynx/logger)
 install(FILES ${NET_HEADERS}    DESTINATION include/lynx/net)
 install(FILES ${ORM_HEADERS}    DESTINATION include/lynx/orm)
 install(FILES ${WEB_HEADERS}    DESTINATION include/lynx/web)
-install(FILES ${TOP_HEADERS}    DESTINATION include/lynx)
+
 # Install exported config file
 install(EXPORT lynxConfig DESTINATION share/lynx/cmake)

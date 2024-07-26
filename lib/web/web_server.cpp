@@ -1,5 +1,6 @@
 #include "lynx/web/web_server.h"
 #include "lynx/http/http_server.h"
+#include "lynx/logger/logging.h"
 
 namespace lynx {
 
@@ -50,26 +51,25 @@ int WebServer::addRoute(const std::string &method, const std::string &path,
 }
 
 void WebServer::printRoutes() {
+  std::cout << "Route Table:\n";
   for (auto &[pair, handler] : route_table_) {
-    std::cout << methodToString(pair.first) << " " << pair.second << "\n";
+    printf("%6s - %s\n", methodToString(pair.first), pair.second.c_str());
   }
 }
 
 void WebServer::onRequest(const lynx::HttpRequest &req,
                           lynx::HttpResponse *resp) {
-  LOG_INFO << methodToString(req.method()) << " " << req.path();
+  std::cout << req.toString() << "\n";
 
-  const std::map<std::string, std::string, CaseInsensitiveLess> &headers =
-      req.headers();
-  std::stringstream ss;
-  for (const auto &header : headers) {
-    ss << header.first << ": " << header.second << "|";
+  /// Searching for path with query
+  std::string path = std::string(req.path());
+  if (!req.query().empty()) {
+    path += "?" + std::string(req.query());
   }
-  LOG_INFO << ss.str();
+  LOG_DEBUG << "search for '" << path << "'";
 
-  auto method = req.method();
-  auto &path = req.path();
   bool flag = false;
+  auto method = req.method();
   for (auto &[pair, handler] : route_table_) {
     if (method == pair.first) {
       std::regex path_regex(pair.second);
@@ -82,6 +82,7 @@ void WebServer::onRequest(const lynx::HttpRequest &req,
     }
   }
   if (!flag) {
+    LOG_DEBUG << "not found";
     detail::handleNotFound(req, resp);
   }
 }

@@ -75,37 +75,44 @@ int main() {
     std::cout << lynx::serialize(res) << "\n";
   }
 
-  /// Query 2: query with condition
-  auto result2 = conn.query<Student, uint64_t>()
+  /// Query 2: query by page
+  auto result2 = conn.query<Student, uint64_t>().limit(5).offset(0).toVector();
+  LOG_INFO << "query by page";
+  for (auto &res : result2) {
+    std::cout << lynx::serialize(res) << "\n";
+  }
+
+  /// Query 3: query with condition
+  auto result3 = conn.query<Student, uint64_t>()
                      .where(VALUE(Student::entry_year) == 2024 &&
                             VALUE(Student::major) == "CS")
                      .orderBy(VALUE(Student::gpa))
                      .toVector();
   LOG_INFO << "query with condition";
-  for (auto &res : result2) {
+  for (auto &res : result3) {
     std::cout << lynx::serialize(res) << "\n";
   }
 
-  /// Query 3: query some column
-  auto result3 =
+  /// Query 4: query some column
+  auto result4 =
       conn.query<Student, uint64_t>()
           .select(FIELD(Student::id), FIELD(Student::name), FIELD(Student::gpa))
           .where(VALUE(Student::major) == "SE")
           .orderByDesc(VALUE(Student::gpa))
           .toVector();
   LOG_INFO << "query some column";
-  for (auto it : result3) {
+  for (auto it : result4) {
     std::apply([](auto &&...args) { ((std::cout << args << " "), ...); }, it);
     std::cout << "\n";
   }
 
-  /// Query 4: query use group by
-  auto result4 = conn.query<Student, uint64_t>()
+  /// Query 5: query use group by
+  auto result5 = conn.query<Student, uint64_t>()
                      .select(FIELD(Student::major), ORM_AVG(Student::gpa))
                      .groupBy(VALUE(Student::major))
                      .toVector();
   LOG_INFO << "query use group by";
-  for (auto it : result4) {
+  for (auto it : result5) {
     std::apply([](auto &&...args) { ((std::cout << args << " "), ...); }, it);
     std::cout << "\n";
   }
@@ -119,11 +126,11 @@ int main() {
   LOG_INFO << "update " << (flag1 ? "success" : "fail");
 
   /// Query after update
-  auto result5 = conn.query<Student, uint64_t>()
+  auto result6 = conn.query<Student, uint64_t>()
                      .orderByDesc(VALUE(Student::gpa))
                      .toVector();
   LOG_INFO << "query all after update";
-  for (auto &res : result5) {
+  for (auto &res : result6) {
     std::cout << lynx::serialize(res) << "\n";
   }
 
@@ -133,11 +140,11 @@ int main() {
   LOG_INFO << "delete " << (flag2 ? "success" : "fail");
 
   /// Query after delete
-  auto result6 = conn.query<Student, uint64_t>()
+  auto result7 = conn.query<Student, uint64_t>()
                      .orderByDesc(VALUE(Student::gpa))
                      .toVector();
   LOG_INFO << "query all after delete";
-  for (auto &res : result6) {
+  for (auto &res : result7) {
     std::cout << lynx::serialize(res) << "\n";
   }
 }

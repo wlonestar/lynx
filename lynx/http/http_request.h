@@ -164,7 +164,8 @@ public:
 
   std::string toString() const;
 
-  void init();
+  // void init();
+  /// TODO: confusing four method
   void initParam();
   void initQueryParam();
   void initBodyParam();

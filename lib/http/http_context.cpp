@@ -82,6 +82,8 @@ bool HttpContext::parseRequest(char *data, size_t len) {
   /// Set body
   parser_.content_len_ = getContentLength();
   request_.setBody(std::string(data + parser_.body_start_, getContentLength()));
+  /// Set other params
+  request_.initParam();
   return parser_.isFinished() && !parser_.hasError();
 }
 

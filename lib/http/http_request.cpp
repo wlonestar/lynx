@@ -121,15 +121,12 @@ std::string HttpRequest::getHeader(const std::string &key,
 
 std::string HttpRequest::getParam(const std::string &key,
                                   const std::string &def) {
-  initQueryParam();
-  initBodyParam();
   auto it = params_.find(key);
   return it == params_.end() ? def : it->second;
 }
 
 std::string HttpRequest::getCookie(const std::string &key,
                                    const std::string &def) {
-  initCookies();
   auto it = cookies_.find(key);
   return it == cookies_.end() ? def : it->second;
 }
@@ -164,8 +161,6 @@ bool HttpRequest::hasHeader(const std::string &key, std::string *val) {
 }
 
 bool HttpRequest::hasParam(const std::string &key, std::string *val) {
-  initQueryParam();
-  initBodyParam();
   auto it = params_.find(key);
   if (it == params_.end()) {
     return false;
@@ -177,7 +172,6 @@ bool HttpRequest::hasParam(const std::string &key, std::string *val) {
 }
 
 bool HttpRequest::hasCookie(const std::string &key, std::string *val) {
-  initCookies();
   auto it = cookies_.find(key);
   if (it == cookies_.end()) {
     return false;
@@ -217,27 +211,22 @@ std::string HttpRequest::toString() const {
   return ss.str();
 }
 
-void HttpRequest::init() {
-  std::string conn = getHeader("connection");
-  if (!conn.empty()) {
-    if (strcasecmp(conn.c_str(), "keep-alive") == 0) {
-      close_ = false;
-    } else {
-      close_ = true;
-    }
-  }
-}
+// void HttpRequest::init() {
+//   std::string conn = getHeader("connection");
+//   if (!conn.empty()) {
+//     if (strcasecmp(conn.c_str(), "keep-alive") == 0) {
+//       close_ = false;
+//     } else {
+//       close_ = true;
+//     }
+//   }
+// }
 
 void HttpRequest::initParam() {
   initQueryParam();
   initBodyParam();
   initCookies();
 }
-
-void HttpRequest::initQueryParam() {
-  if (parser_param_flag_ & 0x1) {
-    return;
-  }
 
 #define PARSE_PARAM(str, m, flag, trim)                                        \
   size_t pos = 0;                                                              \
@@ -258,6 +247,10 @@ void HttpRequest::initQueryParam() {
     ++pos;                                                                     \
   } while (true);
 
+void HttpRequest::initQueryParam() {
+  if (parser_param_flag_ & 0x1) {
+    return;
+  }
   PARSE_PARAM(query_, params_, '&', );
   parser_param_flag_ |= 0x1;
 }

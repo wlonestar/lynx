@@ -10,8 +10,12 @@ void testParseRequestAllInOne() {
 
   std::string msg("POST /index.html HTTP/1.1\r\n"
                   "Host: www.lynx.com\r\n"
-                  "Content-Length: 10\r\n\r\n"
-                  "1234567890");
+                  "Content-Length: 123\r\n"
+                  "Content-Type: application/json\r\n"
+                  "\r\n"
+                  "{\r\n    \"id\": 123,\r\n    \"name\": \"Li Ming\",\r\n    "
+                  "\"gender\": 1,\r\n    \"entry_year\": 2020,\r\n    "
+                  "\"major\": \"CS\",\r\n    \"gpa\": 3.5\r\n}");
 
   LOG_INFO << msg;
   LOG_INFO << context.parseRequest(msg.data(), msg.size());

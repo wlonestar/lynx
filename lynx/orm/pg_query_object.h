@@ -5,7 +5,6 @@
 #include "lynx/orm/key_util.h"
 #include "lynx/orm/sql_util.h"
 #include "lynx/orm/traits_util.h"
-#include "lynx/reflection.h"
 
 #include <libpq-fe.h>
 

@@ -2,8 +2,8 @@
 #define LYNX_ORM_SQL_UTIL_H
 
 #include "lynx/orm/key_util.h"
+#include "lynx/orm/reflection.h"
 #include "lynx/orm/traits_util.h"
-#include "lynx/reflection.h"
 
 namespace lynx {
 

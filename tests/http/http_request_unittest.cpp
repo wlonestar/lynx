@@ -1,6 +1,7 @@
 #include "lynx/http/http_context.h"
 #include "lynx/http/http_request.h"
 #include "lynx/net/buffer.h"
+
 #include <memory>
 
 //#define BOOST_TEST_MODULE BufferTest
@@ -23,6 +24,25 @@ BOOST_AUTO_TEST_CASE(testParseRequestAllInOne) {
   BOOST_CHECK_EQUAL(request.version(), 0x11);
   BOOST_CHECK_EQUAL(request.getHeader("Host"), std::string("www.lynx.com"));
   BOOST_CHECK_EQUAL(request.getHeader("User-Agent"), std::string(""));
+}
+
+BOOST_AUTO_TEST_CASE(testParseRequestParams) {
+  lynx::HttpContext context;
+  context.start();
+  std::string msg("GET /index.html?page=1&size=123 HTTP/1.1\r\n"
+                  "Host: www.lynx.com\r\n"
+                  "\r\n");
+
+  BOOST_CHECK(context.parseRequest(msg.data(), msg.size()));
+  BOOST_CHECK(context.isFinished());
+  lynx::HttpRequest &request = context.request();
+  BOOST_CHECK(request.method() == lynx::HttpMethod::GET);
+  BOOST_CHECK_EQUAL(request.path(), std::string("/index.html"));
+  BOOST_CHECK_EQUAL(request.version(), 0x11);
+  BOOST_CHECK_EQUAL(request.getHeader("Host"), std::string("www.lynx.com"));
+  BOOST_CHECK_EQUAL(request.getHeader("User-Agent"), std::string(""));
+  BOOST_CHECK_EQUAL(request.getParam("page"), "1");
+  BOOST_CHECK_EQUAL(request.getParam("size"), "123");
 }
 
 BOOST_AUTO_TEST_CASE(testParseRequestInTwoPieces) {

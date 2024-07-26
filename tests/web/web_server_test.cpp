@@ -1,14 +1,9 @@
 #include "student.h"
 
 #include "lynx/db/pg_connection_pool.h"
-#include "lynx/logger/async_logging.h"
 #include "lynx/logger/logging.h"
 #include "lynx/net/event_loop.h"
 #include "lynx/web/web_server.h"
-
-lynx::AsyncLogging *g_async_log = nullptr;
-
-void asyncOutput(const char *msg, int len) { g_async_log->append(msg, len); }
 
 void initDb(lynx::PgConnectionPool &pool) {
   auto conn = pool.acquire();
@@ -53,13 +48,6 @@ void initDb(lynx::PgConnectionPool &pool) {
 }
 
 int main(int argc, char *argv[]) {
-  /// Init async logging
-  off_t roll_size = 500 * 1000 * 1000;
-  lynx::AsyncLogging log(::basename(argv[0]), roll_size);
-  lynx::Logger::setOutput(asyncOutput);
-  log.start();
-  g_async_log = &log;
-
   /// Init Web Server
   int num_threads = 5;
   if (argc > 1) {

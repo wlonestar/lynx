@@ -1,5 +1,7 @@
-#ifndef LYNX_REFLECTION_H
-#define LYNX_REFLECTION_H
+#ifndef LYNX_ORM_REFLECTION_H
+#define LYNX_ORM_REFLECTION_H
+
+#include "lynx/orm/json.h"
 
 #include <algorithm>
 #include <array>
@@ -343,13 +345,33 @@ namespace lynx {
   MAKE_REFLECT_MEMBERS(class_name,                                             \
                        MAKE_ARG_LIST(N, &class_name::FD, __VA_ARGS__))
 
+#define TO_JSON(T)                                                             \
+  void to_json(lynx::json &j, const T &t) {                                    \
+    lynx::forEach(                                                             \
+        t, [&t, &j](auto item, auto field, auto i) { j[field] = t.*item; });   \
+  }
+
+#define FROM_JSON(T)                                                           \
+  /* NOLINTNEXTLINE */                                                         \
+  void from_json(const lynx::json &j, T &t) {                                  \
+    lynx::forEach(t, [&t, &j](auto item, auto field, auto i) {                 \
+      j.at(field).get_to(t.*item);                                             \
+    });                                                                        \
+  }
+
+#define JSON_SERIALIZE(T)                                                      \
+  TO_JSON(T);                                                                  \
+  FROM_JSON(T);
+
 #define REFLECTION_TEMPLATE(class_name, ...)                                   \
   MAKE_META_DATA(class_name, #class_name, MACRO_ARGS_SIZE(__VA_ARGS__),        \
-                 __VA_ARGS__)
+                 __VA_ARGS__)                                                  \
+  JSON_SERIALIZE(class_name)
 
 #define REFLECTION_TEMPLATE_WITH_NAME(class_name, table_name, ...)             \
   MAKE_META_DATA(class_name, table_name, MACRO_ARGS_SIZE(__VA_ARGS__),         \
-                 __VA_ARGS__)
+                 __VA_ARGS__)                                                  \
+  JSON_SERIALIZE(class_name)
 
 template <typename T>
 using reflect_members = decltype(reflectMembersFunc(std::declval<T>()));

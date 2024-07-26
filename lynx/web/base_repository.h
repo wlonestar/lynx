@@ -2,9 +2,6 @@
 #define LYNX_WEB_BASE_REPOSITORY_H
 
 #include "lynx/db/pg_connection_pool.h"
-#include "lynx/orm/key_util.h"
-#include "lynx/orm/pg_query_object.h"
-#include "lynx/reflection.h"
 
 #include <optional>
 
@@ -17,6 +14,14 @@ public:
   virtual std::vector<T> selectTop100() {
     auto conn = pool_.acquire();
     auto ret = conn->query<T, ID>().limit(100).toVector();
+    pool_.release(conn);
+    return ret;
+  }
+
+  virtual std::vector<T> selectByPage(size_t page, size_t size) {
+    auto conn = pool_.acquire();
+    auto ret =
+        conn->query<T, ID>().limit(size).offset((page - 1) * size).toVector();
     pool_.release(conn);
     return ret;
   }
