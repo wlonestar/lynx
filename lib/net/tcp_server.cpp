@@ -44,8 +44,7 @@ void TcpServer::start() {
     thread_pool_->start(thread_init_callback_);
 
     assert(!acceptor_->listening());
-    loop_->runInLoop(
-        [capture0 = getPointer(acceptor_)] { capture0->listen(); });
+    loop_->runInLoop([capture0 = acceptor_.get()] { capture0->listen(); });
   }
 }
 

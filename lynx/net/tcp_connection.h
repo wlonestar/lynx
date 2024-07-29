@@ -4,7 +4,6 @@
 #include "lynx/base/noncopyable.h"
 #include "lynx/base/timestamp.h"
 #include "lynx/net/buffer.h"
-#include "lynx/net/callbacks.h"
 #include "lynx/net/inet_address.h"
 
 #include <functional>
@@ -17,6 +16,17 @@ namespace lynx {
 class Channel;
 class EventLoop;
 class Socket;
+
+class TcpConnection;
+using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
+
+using ConnectionCallback = std::function<void(const TcpConnectionPtr &)>;
+using CloseCallback = std::function<void(const TcpConnectionPtr &)>;
+using WriteCompleteCallback = std::function<void(const TcpConnectionPtr &)>;
+using HighWaterMarkCallback =
+    std::function<void(const TcpConnectionPtr &, size_t)>;
+using MessageCallback =
+    std::function<void(const TcpConnectionPtr &, Buffer *, Timestamp)>;
 
 class TcpConnection : Noncopyable,
                       public std::enable_shared_from_this<TcpConnection> {
@@ -109,7 +119,9 @@ private:
   Buffer output_buffer_;
 };
 
-using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
+void defaultConnectionCallback(const TcpConnectionPtr &conn);
+void defaultMessageCallback(const TcpConnectionPtr &conn, Buffer *buffer,
+                            Timestamp receiveTime);
 
 } // namespace lynx
 

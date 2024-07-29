@@ -25,12 +25,12 @@ TcpClient::TcpClient(EventLoop *loop, const InetAddress &serverAddr,
   connector_->setNewConnectionCallback(
       [this](auto &&PH1) { newConnection(std::forward<decltype(PH1)>(PH1)); });
   LOG_INFO << "TcpClient::TcpClient[" << name_ << "] - connector "
-           << getPointer(connector_);
+           << connector_.get();
 }
 
 TcpClient::~TcpClient() {
   LOG_INFO << "TcpClient::~TcpClient[" << name_ << "] - connector "
-           << getPointer(connector_);
+           << connector_.get();
   TcpConnectionPtr conn;
   bool unique = false;
   {

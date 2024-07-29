@@ -5,8 +5,9 @@
 
 namespace lynx {
 
-using element_cb = void (*)(void *, const char *, size_t);
-using field_cb = void (*)(void *, const char *, size_t, const char *, size_t);
+using ElementCallback = void (*)(void *, const char *, size_t);
+using FieldCallback = void (*)(void *, const char *, size_t, const char *,
+                               size_t);
 
 struct HttpParser {
   int cs_;
@@ -23,14 +24,14 @@ struct HttpParser {
   void *data_;
 
   int uri_relaxed_;
-  field_cb http_field_;
-  element_cb request_method_;
-  element_cb request_uri_;
-  element_cb fragment_;
-  element_cb request_path_;
-  element_cb query_string_;
-  element_cb http_version_;
-  element_cb header_done_;
+  FieldCallback http_field_;
+  ElementCallback request_method_;
+  ElementCallback request_uri_;
+  ElementCallback fragment_;
+  ElementCallback request_path_;
+  ElementCallback query_string_;
+  ElementCallback http_version_;
+  ElementCallback header_done_;
 
   HttpParser() { init(); }
   ~HttpParser() = default;
@@ -41,8 +42,6 @@ struct HttpParser {
   int hasError();
   bool isFinished();
 };
-
-#define http_parser_nread(parser) (parser)->nread_
 
 } // namespace lynx
 

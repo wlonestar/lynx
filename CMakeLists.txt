@@ -95,7 +95,6 @@ FILE(GLOB HTTP_HEADERS lynx/http/*.h)
 FILE(GLOB LOGGER_HEADERS lynx/logger/*.h)
 set(NET_HEADERS
   lynx/net/buffer.h
-  lynx/net/callbacks.h
   lynx/net/channel.h
   lynx/net/event_loop.h
   lynx/net/event_loop_thread.h

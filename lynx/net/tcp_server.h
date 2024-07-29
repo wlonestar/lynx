@@ -2,7 +2,6 @@
 #define LYNX_NET_TCP_SERVER_H
 
 #include "lynx/base/noncopyable.h"
-#include "lynx/net/callbacks.h"
 #include "lynx/net/inet_address.h"
 #include "lynx/net/tcp_connection.h"
 

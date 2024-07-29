@@ -2,10 +2,13 @@
 #define LYNX_TIMER_TIMER_ID_H
 
 #include <cstdint>
+#include <functional>
 
 namespace lynx {
 
 class Timer;
+
+using TimerCallback = std::function<void()>;
 
 class TimerId {
 public:
