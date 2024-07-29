@@ -1,6 +1,5 @@
 #include "lynx/base/thread.h"
 #include "lynx/base/current_thread.h"
-#include "lynx/logger/logging.h"
 
 #include <cassert>
 #include <sys/prctl.h>
@@ -31,6 +30,7 @@ void Thread::start() {
       latch_.count_down();
       lynx::current_thread::t_thread_name =
           name_.empty() ? "lynxThread" : name_.c_str();
+      // set process name
       ::prctl(PR_SET_NAME, lynx::current_thread::t_thread_name);
 
       func_();

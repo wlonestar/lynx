@@ -2,11 +2,6 @@
 #include "lynx/base/thread_pool.h"
 #include "lynx/logger/logging.h"
 
-#include <chrono>
-#include <cstdio>
-#include <thread>
-#include <unistd.h>
-
 void print() { printf("tid=%d\n", lynx::current_thread::tid()); }
 
 void printString(const std::string &str) {

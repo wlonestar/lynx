@@ -1,14 +1,8 @@
 #include "lynx/base/current_thread.h"
-#include "lynx/base/timestamp.h"
 
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
-#include <ctime>
-#include <cxxabi.h>
-#include <execinfo.h>
+#include <string>
 #include <sys/syscall.h>
-#include <type_traits>
 #include <unistd.h>
 
 namespace lynx::current_thread {
@@ -29,8 +23,8 @@ void cachedTid() {
   }
 }
 
-const char *strError(int savedErrno) {
-  return strerror_r(savedErrno, t_errnobuf, sizeof(t_errnobuf));
+const char *strError(int errnum) {
+  return strerror_r(errnum, t_errnobuf, sizeof(t_errnobuf));
 }
 
 } // namespace lynx::current_thread

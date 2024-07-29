@@ -21,15 +21,15 @@ int createTimerfd() {
 
 struct timespec howMuchTimeFromNow(Timestamp when) {
   int64_t microseconds =
-      when.microSecondsSinceEpoch() - Timestamp::now().microSecondsSinceEpoch();
+      when.microsecsSinceEpoch() - Timestamp::now().microsecsSinceEpoch();
   if (microseconds < 100) {
     microseconds = 100;
   }
   struct timespec ts;
   ts.tv_sec =
-      static_cast<time_t>(microseconds / Timestamp::K_MICRO_SECONDS_PER_SECOND);
+      static_cast<time_t>(microseconds / Timestamp::K_MICRO_SECS_PER_SEC);
   ts.tv_nsec = static_cast<long>(
-      (microseconds % Timestamp::K_MICRO_SECONDS_PER_SECOND) * 1000);
+      (microseconds % Timestamp::K_MICRO_SECS_PER_SEC) * 1000);
   return ts;
 }
 

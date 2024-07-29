@@ -1,17 +1,10 @@
 #ifndef LYNX_LOGGER_ASYNC_LOGGING_H
 #define LYNX_LOGGER_ASYNC_LOGGING_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/base/thread.h"
 #include "lynx/logger/log_stream.h"
 
-#include <atomic>
 #include <condition_variable>
-#include <cstdio>
-#include <latch>
-#include <memory>
-#include <mutex>
-#include <vector>
 
 namespace lynx {
 

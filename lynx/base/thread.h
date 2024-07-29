@@ -15,7 +15,7 @@ class Thread : Noncopyable {
 public:
   using ThreadFunc = std::function<void()>;
 
-  explicit Thread(ThreadFunc, const std::string &name = std::string());
+  explicit Thread(ThreadFunc func, const std::string &name = std::string());
   ~Thread();
 
   void start();

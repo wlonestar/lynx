@@ -1,7 +1,6 @@
 #include "lynx/base/timestamp.h"
 #include "lynx/logger/log_stream.h"
 
-#include <cstdio>
 #include <ios>
 #include <sstream>
 
@@ -16,7 +15,7 @@ template <typename T> void benchPrintf(const char *fmt) {
     snprintf(buf, sizeof(buf), fmt, (T)(i));
   }
   lynx::Timestamp end(lynx::Timestamp::now());
-  printf("benchPrintf %f\n", lynx::timeDifference(end, start));
+  printf("benchPrintf %f\n", lynx::timeDiff(end, start));
 }
 
 template <typename T> void benchStringStream() {
@@ -27,7 +26,7 @@ template <typename T> void benchStringStream() {
     os.seekp(0, std::ios_base::beg);
   }
   lynx::Timestamp end(lynx::Timestamp::now());
-  printf("benchStringStream %f\n", lynx::timeDifference(end, start));
+  printf("benchStringStream %f\n", lynx::timeDiff(end, start));
 }
 
 template <typename T> void benchLogStream() {
@@ -38,7 +37,7 @@ template <typename T> void benchLogStream() {
     os.resetBuffer();
   }
   lynx::Timestamp end(lynx::Timestamp::now());
-  printf("benchLogStream %f\n", lynx::timeDifference(end, start));
+  printf("benchLogStream %f\n", lynx::timeDiff(end, start));
 }
 
 int main() {

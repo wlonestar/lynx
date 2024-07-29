@@ -13,7 +13,7 @@ void print(const char *msg) {
   lynx::Timestamp &last = lasts[msg];
   lynx::Timestamp curr = lynx::Timestamp::now();
   printf("%s tid %d %s delay %f\n", curr.toString().c_str(),
-         lynx::current_thread::tid(), msg, timeDifference(curr, last));
+         lynx::current_thread::tid(), msg, timeDiff(curr, last));
   last = curr;
 }
 

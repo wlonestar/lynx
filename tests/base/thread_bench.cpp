@@ -1,16 +1,63 @@
-#include "lynx/base/blocking_queue.h"
 #include "lynx/base/current_thread.h"
 #include "lynx/base/thread.h"
 #include "lynx/base/timestamp.h"
 
-#include <atomic>
-#include <cstdio>
+#include <cassert>
+#include <condition_variable>
+#include <deque>
 #include <map>
 #include <mutex>
-#include <string>
 #include <sys/wait.h>
-#include <unistd.h>
-#include <vector>
+
+template <typename T> class BlockingQueue : lynx::Noncopyable {
+public:
+  using queue_type = std::deque<T>;
+
+  BlockingQueue() = default;
+
+  void put(const T &x) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    queue_.push_back(x);
+    not_empty_.notify_one();
+  }
+
+  void put(T &&x) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    queue_.push_back(std::move(x));
+    not_empty_.notify_one();
+  }
+
+  T take() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    while (queue_.empty()) {
+      not_empty_.wait(lock);
+    }
+    assert(!queue_.empty());
+    T front(std::move(queue_.front()));
+    queue_.pop_front();
+    return front;
+  }
+
+  queue_type drain() {
+    std::deque<T> queue;
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      queue = std::move(queue_);
+      assert(queue_.empty());
+    }
+    return queue;
+  }
+
+  size_t size() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return queue_.size();
+  }
+
+private:
+  mutable std::mutex mutex_;
+  std::condition_variable not_empty_;
+  queue_type queue_;
+};
 
 bool g_verbose = false;
 std::mutex g_mutex;
@@ -24,7 +71,7 @@ void threadFunc() {
 
 void threadFunc2(lynx::Timestamp start) {
   lynx::Timestamp cur(lynx::Timestamp::now());
-  int delay = static_cast<int>(timeDifference(cur, start) * 1000000);
+  int delay = static_cast<int>(timeDiff(cur, start) * 1000000);
   std::lock_guard<std::mutex> lock(g_mutex);
   ++g_delays[delay];
 }
@@ -44,7 +91,7 @@ void forkBench() {
     }
   }
 
-  double time_used = timeDifference(lynx::Timestamp::now(), start);
+  double time_used = timeDiff(lynx::Timestamp::now(), start);
   printf("time elapsed %.3f seconds, process creation time used %.3f us\n",
          time_used, time_used * 1e6 / k_processes);
   printf("number of created processes %d\n", k_processes);
@@ -71,7 +118,7 @@ public:
       thr->start();
     }
     start_latch_.wait();
-    double time_used = timeDifference(lynx::Timestamp::now(), start);
+    double time_used = timeDiff(lynx::Timestamp::now(), start);
     printf("all %d threads started, %.3fms total, %.3fus per thread\n",
            num_threads, 1e3 * time_used, 1e6 * time_used / num_threads);
 
@@ -80,7 +127,7 @@ public:
       // for (const auto& [tid, ts] : queue)
       for (const auto &e : queue) {
         printf("thread %d, %.0f us\n", e.first,
-               timeDifference(e.second, start) * 1e6);
+               timeDiff(e.second, start) * 1e6);
       }
     }
   }
@@ -94,13 +141,12 @@ public:
 
     lynx::Timestamp t2 = lynx::Timestamp::now();
     printf("all %zd threads joined, %.3fms\n", threads_.size(),
-           1e3 * timeDifference(t2, stop));
+           1e3 * timeDiff(t2, stop));
     TimestampQueue::queue_type queue = done_.drain();
     if (g_verbose) {
       // for (const auto& [tid, ts] : queue)
       for (const auto &e : queue) {
-        printf("thread %d, %.0f us\n", e.first,
-               timeDifference(e.second, stop) * 1e6);
+        printf("thread %d, %.0f us\n", e.first, timeDiff(e.second, stop) * 1e6);
       }
     }
   }
@@ -114,7 +160,7 @@ private:
     done_.put(std::make_pair(tid, lynx::Timestamp::now()));
   }
 
-  using TimestampQueue = lynx::BlockingQueue<std::pair<int, lynx::Timestamp>>;
+  using TimestampQueue = BlockingQueue<std::pair<int, lynx::Timestamp>>;
   TimestampQueue start_, run_, done_;
   std::latch start_latch_, stop_latch_;
   std::vector<std::unique_ptr<lynx::Thread>> threads_;
@@ -136,7 +182,7 @@ int main(int argc, char *argv[]) {
     t1.join();
   }
 
-  double time_used = timeDifference(lynx::Timestamp::now(), start);
+  double time_used = timeDiff(lynx::Timestamp::now(), start);
   printf("elapsed %.3f seconds, thread creation time %.3f us\n", time_used,
          time_used * 1e6 / k_threads);
   int count = g_count;

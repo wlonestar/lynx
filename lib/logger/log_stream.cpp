@@ -1,7 +1,6 @@
 #include "lynx/logger/log_stream.h"
 
 #include <algorithm>
-#include <cinttypes>
 #include <numeric>
 
 namespace lynx {

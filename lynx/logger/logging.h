@@ -4,8 +4,6 @@
 #include "lynx/base/timestamp.h"
 #include "lynx/logger/log_stream.h"
 
-#include <cstring>
-
 namespace lynx {
 
 class Logger {

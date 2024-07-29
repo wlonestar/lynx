@@ -25,7 +25,7 @@ void bench(bool longLog) {
       cnt++;
     }
     lynx::Timestamp end = lynx::Timestamp::now();
-    printf("%f\n", lynx::timeDifference(end, start) * 1000000 / batch);
+    printf("%f\n", lynx::timeDiff(end, start) * 1000000 / batch);
     struct timespec ts = {0, 500 * 1000 * 1000};
     nanosleep(&ts, nullptr);
   }

@@ -4,11 +4,6 @@
 #include "lynx/logger/log_file.h"
 
 #include <cassert>
-#include <chrono>
-#include <cstdio>
-#include <latch>
-#include <memory>
-#include <mutex>
 
 namespace lynx {
 

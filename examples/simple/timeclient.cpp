@@ -36,7 +36,7 @@ private:
       buf->retrieve(sizeof(int32_t));
       time_t time = be32toh(be32);
       lynx::Timestamp ts(static_cast<uint64_t>(time) *
-                         lynx::Timestamp::K_MICRO_SECONDS_PER_SECOND);
+                         lynx::Timestamp::K_MICRO_SECS_PER_SEC);
       LOG_INFO << "Server time = " << time << ", " << ts.toFormattedString();
     } else {
       LOG_INFO << conn->name() << " no enough data " << buf->readableBytes()

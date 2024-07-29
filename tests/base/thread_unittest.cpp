@@ -1,10 +1,6 @@
 #include "lynx/base/current_thread.h"
 #include "lynx/base/thread.h"
 
-#include <cstdio>
-#include <string>
-#include <unistd.h>
-
 void mysleep(int seconds) {
   timespec t = {seconds, 0};
   nanosleep(&t, nullptr);
@@ -58,7 +54,7 @@ int main() {
   t3.start();
   t3.join();
 
-  lynx::Thread t4([&foo] { foo.memberFunc2(std::string("Shuo Chen")); });
+  lynx::Thread t4([&foo] { foo.memberFunc2(std::string("wjl")); });
   t4.start();
   t4.join();
 

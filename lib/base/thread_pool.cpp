@@ -2,7 +2,6 @@
 #include "lynx/base/thread.h"
 
 #include <cassert>
-#include <mutex>
 
 namespace lynx {
 

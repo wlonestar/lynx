@@ -1,16 +1,11 @@
 #ifndef LYNX_LOGGER_LOG_FILE_H
 #define LYNX_LOGGER_LOG_FILE_H
 
-#include "lynx/base/noncopyable.h"
+#include "lynx/logger/file_util.h"
 
 #include <memory>
-#include <string>
 
 namespace lynx {
-
-namespace fs {
-class AppendFile;
-}
 
 class LogFile : Noncopyable {
 public:
@@ -37,7 +32,7 @@ private:
   time_t start_of_period_;
   time_t last_roll_;
   time_t last_flush_;
-  std::unique_ptr<fs::AppendFile> file_;
+  std::unique_ptr<util::AppendFile> file_;
 
   const static int K_ROLL_PER_SECONDS = 60 * 60 * 24;
 };

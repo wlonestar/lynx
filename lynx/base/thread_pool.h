@@ -1,14 +1,10 @@
 #ifndef LYNX_BASE_THREAD_POOL_H
 #define LYNX_BASE_THREAD_POOL_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/base/thread.h"
 
 #include <condition_variable>
 #include <deque>
-#include <functional>
-#include <memory>
-#include <mutex>
 
 namespace lynx {
 
@@ -19,12 +15,11 @@ public:
   explicit ThreadPool(const std::string &name = std::string("ThreadPool"));
   ~ThreadPool();
 
-  void setMaxQueueSize(int maxSize) { max_queue_size_ = maxSize; }
-  void setThreadInitCallback(const Task &cb) { thread_init_callback_ = cb; }
-
   void start(int numThreads);
   void stop();
 
+  void setMaxQueueSize(int maxSize) { max_queue_size_ = maxSize; }
+  void setThreadInitCallback(const Task &cb) { thread_init_callback_ = cb; }
   const std::string &name() const { return name_; }
 
   size_t queueSize() const;

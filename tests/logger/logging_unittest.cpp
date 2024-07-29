@@ -3,10 +3,6 @@
 #include "lynx/logger/log_file.h"
 #include "lynx/logger/logging.h"
 
-#include <cstdio>
-#include <memory>
-#include <unistd.h>
-
 int g_total;
 FILE *g_file;
 std::unique_ptr<lynx::LogFile> g_log_file;
@@ -37,7 +33,7 @@ void bench(const char *type) {
              << (114.514 + i) << i;
   }
   lynx::Timestamp end(lynx::Timestamp::now());
-  double seconds = lynx::timeDifference(end, start);
+  double seconds = lynx::timeDiff(end, start);
   printf("%12s: %f seconds, %d bytes, %10.2f msg/s, %.2f MiB/s\n", type,
          seconds, g_total, n / seconds, g_total / seconds / (1024 * 1024));
 }

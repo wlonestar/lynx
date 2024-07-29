@@ -49,7 +49,6 @@ public:
   void send(Buffer *buf);
   void shutdown();
   void forceClose();
-  void forceCloseWithDelay(double seconds);
   void setTcpNoDelay(bool on);
   void startRead();
   void stopRead();

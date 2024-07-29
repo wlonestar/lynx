@@ -2,11 +2,6 @@
 #include "lynx/base/current_thread.h"
 #include "lynx/base/timestamp.h"
 
-#include <cassert>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-
 namespace lynx {
 
 thread_local char t_time[64];
@@ -75,11 +70,11 @@ Logger::Impl::Impl(LogLevel level, int oldErrno, const SourceFile &file,
 }
 
 void Logger::Impl::formatTime() {
-  int64_t micro_seconds_since_epoch = time_.microSecondsSinceEpoch();
+  int64_t micro_seconds_since_epoch = time_.microsecsSinceEpoch();
   auto seconds = static_cast<time_t>(micro_seconds_since_epoch /
-                                     Timestamp::K_MICRO_SECONDS_PER_SECOND);
+                                     Timestamp::K_MICRO_SECS_PER_SEC);
   auto micro_seconds = static_cast<int>(micro_seconds_since_epoch %
-                                        Timestamp ::K_MICRO_SECONDS_PER_SECOND);
+                                        Timestamp ::K_MICRO_SECS_PER_SEC);
 
   if (seconds != t_last_second) {
     t_last_second = seconds;

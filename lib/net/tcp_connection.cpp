@@ -1,5 +1,4 @@
 #include "lynx/net/tcp_connection.h"
-#include "lynx/base/weak_callback.h"
 #include "lynx/logger/logging.h"
 #include "lynx/net/channel.h"
 #include "lynx/net/event_loop.h"
@@ -146,14 +145,6 @@ void TcpConnection::forceClose() {
     setState(kDisconnecting);
     loop_->queueInLoop(
         [capture0 = shared_from_this()] { capture0->forceCloseInLoop(); });
-  }
-}
-
-void TcpConnection::forceCloseWithDelay(double seconds) {
-  if (state_ == kConnected || state_ == kDisconnecting) {
-    setState(kDisconnecting);
-    loop_->runAfter(seconds, makeWeakCallback(shared_from_this(),
-                                              &TcpConnection::forceClose));
   }
 }
 

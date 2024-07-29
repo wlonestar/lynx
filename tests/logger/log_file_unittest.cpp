@@ -2,10 +2,6 @@
 #include "lynx/logger/log_file.h"
 #include "lynx/logger/logging.h"
 
-#include <cstring>
-#include <memory>
-#include <unistd.h>
-
 std::unique_ptr<lynx::LogFile> g_log_file;
 
 void outputFunc(const char *msg, int len) { g_log_file->append(msg, len); }

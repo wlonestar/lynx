@@ -62,7 +62,7 @@ private:
 
   void printThroughput() {
     lynx::Timestamp end_time = lynx::Timestamp::now();
-    double time = lynx::timeDifference(end_time, start_time_);
+    double time = lynx::timeDiff(end_time, start_time_);
     printf("%4.3f MiB/s\n",
            static_cast<double>(transferred_) / time / 1024 / 1024);
     transferred_ = 0;

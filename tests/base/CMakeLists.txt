@@ -12,6 +12,3 @@ target_link_libraries(thread_bench lynx)
 
 add_executable(thread_pool_bench thread_pool_bench.cpp)
 target_link_libraries(thread_pool_bench lynx)
-
-add_executable(blocking_queue_bench blocking_queue_bench.cpp)
-target_link_libraries(blocking_queue_bench lynx)

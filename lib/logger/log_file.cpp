@@ -1,8 +1,6 @@
 #include "lynx/logger/log_file.h"
-#include "lynx/base/file_util.h"
 
 #include <cassert>
-#include <memory>
 #include <mutex>
 
 namespace lynx {
@@ -46,7 +44,7 @@ bool LogFile::rollFile() {
     last_roll_ = now;
     last_flush_ = now;
     start_of_period_ = start;
-    file_ = std::make_unique<fs::AppendFile>(filename);
+    file_ = std::make_unique<util::AppendFile>(filename);
     return true;
   }
   return false;
