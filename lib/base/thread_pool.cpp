@@ -17,13 +17,15 @@ ThreadPool::~ThreadPool() {
 void ThreadPool::start(int numThreads) {
   assert(threads_.empty());
   running_ = true;
+
   threads_.reserve(numThreads);
   for (int i = 0; i < numThreads; ++i) {
     char id[32];
     snprintf(id, sizeof(id), "%d", i + 1);
-    threads_.emplace_back(new Thread([this] { runInThread(); }, name_ + id));
+    threads_.emplace_back(new Thread([&] { runInThread(); }, name_ + id));
     threads_[i]->start();
   }
+
   if (numThreads == 0 && thread_init_callback_) {
     thread_init_callback_();
   }

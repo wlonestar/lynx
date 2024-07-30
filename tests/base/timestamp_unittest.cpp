@@ -1,6 +1,5 @@
 #include "lynx/base/timestamp.h"
 
-#include <cstdio>
 #include <vector>
 
 void passByConstReference(const lynx::Timestamp &x) {

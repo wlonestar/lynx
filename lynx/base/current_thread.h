@@ -3,7 +3,7 @@
 
 namespace lynx::current_thread {
 
-/* variables which are stored in every thread */
+/// Thread-local variables for thread id and error handling.
 extern thread_local int t_cached_tid;          // cached thread id
 extern thread_local char t_tid_string[32];     // tid in string
 extern thread_local int t_tid_string_length;   // tid string length
@@ -23,7 +23,7 @@ inline int tid() {
   return t_cached_tid;
 }
 
-/* wrap thread local variable into function */
+/// wrap thread local variable into function
 inline const char *tidString() { return t_tid_string; }
 inline int tidStringLength() { return t_tid_string_length; }
 inline const char *name() { return t_thread_name; }

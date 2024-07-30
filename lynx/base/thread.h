@@ -11,10 +11,15 @@
 
 namespace lynx {
 
+/// \brief Thread class represents a thread of execution.
 class Thread : Noncopyable {
 public:
   using ThreadFunc = std::function<void()>;
 
+  /// Constructs a new Thread object but does not start the thread yet.
+  ///
+  /// @param func The function to run in the new thread.
+  /// @param name An optional name for the thread.
   explicit Thread(ThreadFunc func, const std::string &name = std::string());
   ~Thread();
 

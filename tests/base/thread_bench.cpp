@@ -124,10 +124,8 @@ public:
 
     TimestampQueue::queue_type queue = start_.drain();
     if (g_verbose) {
-      // for (const auto& [tid, ts] : queue)
-      for (const auto &e : queue) {
-        printf("thread %d, %.0f us\n", e.first,
-               timeDiff(e.second, start) * 1e6);
+      for (const auto &[tid, ts] : queue) {
+        printf("thread %d, %.0f us\n", tid, timeDiff(ts, start) * 1e6);
       }
     }
   }
@@ -144,9 +142,8 @@ public:
            1e3 * timeDiff(t2, stop));
     TimestampQueue::queue_type queue = done_.drain();
     if (g_verbose) {
-      // for (const auto& [tid, ts] : queue)
-      for (const auto &e : queue) {
-        printf("thread %d, %.0f us\n", e.first, timeDiff(e.second, stop) * 1e6);
+      for (const auto &[tid, ts] : queue) {
+        printf("thread %d, %.0f us\n", tid, timeDiff(ts, stop) * 1e6);
       }
     }
   }

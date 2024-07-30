@@ -1,12 +1,14 @@
 # 线程库
 
-## 线程同步原语
+## 要点
+
+### 线程同步原语
 
 借助 C++20 提供的 `std::mutex`, `std::conditional_variable`, `std::latch`, `std::lock_guard`, `std::unique_lock` 来替换 muduo 中的 `MutexLock`, `MutexLockGuard`, `Condition`, `CountDownLatch`
 
 条件变量配合互斥锁可以完全替代信号量的功能，而且更不易用错。信号量有自己的计数值，而通常我们的数据结构也有长度值，这造成了同样的信息存了两份，需要时刻保持一致。
 
-## Linux 上的线程标识符
+### Linux 上的线程标识符
 
 使用 `gettid` 系统调用的返回值作为线程 id。
 
@@ -18,18 +20,27 @@
 
 通过 `thread_local` 变量缓存的 `gettid` 的返回值，只在本线程第一次调用的时候才进行系统调用，以后都是从 `thread_local` 缓存的线程 id 拿到结果。
 
-## 线程的创建与销毁
-
-原则：
+### 线程的创建与销毁原则
 
 - 程序库不应该在未提前告知的情况下创建自己的“背景线程”。
 - 尽量用相同的方式创建线程，如 `lynx::Thread`。
 - 在进入 `main()` 函数之前不应该启动线程。
 - 程序中线程的创建最好能在初始化阶段全部完成。
 
-## 多线程与 signal
+### 多线程与 signal
 
 在多线程程序中，使用 signal 的第一原则是不要使用 signal
+
+```cpp
+class IgnoreSigPipe {
+public:
+  IgnoreSigPipe() { ::signal(SIGPIPE, SIG_IGN); }
+};
+
+IgnoreSigPipe init_obj;
+```
+
+## 线程安全的单例模式：std::once_flag
 
 ```cpp
 namespace detail {
@@ -42,7 +53,7 @@ template <typename T> struct HasNoDestroy {
 
 } // namespace detail
 
-template <typename T> class Singleton : Noncopyable {
+template <typename T> class Singleton : lynx::Noncopyable {
 public:
   Singleton() = delete;
   ~Singleton() = delete;
@@ -76,5 +87,4 @@ private:
 
 template <typename T> std::once_flag Singleton<T>::once;
 template <typename T> T *Singleton<T>::value = nullptr;
-
 ```

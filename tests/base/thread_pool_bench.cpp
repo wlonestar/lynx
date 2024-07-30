@@ -31,19 +31,6 @@ void test(int maxSize) {
   pool.stop();
 }
 
-/*
- * Wish we could do this in the future.
-void testMove()
-{
-  lynx::ThreadPool pool;
-  pool.start(2);
-
-  std::unique_ptr<int> x(new int(42));
-  pool.run([y = std::move(x)]{ printf("%d: %d\n", lynx::CurrentThread::tid(),
-*y); }); pool.stop();
-}
-*/
-
 void longTask(int num) {
   LOG_INFO << "longTask " << num;
   std::this_thread::sleep_for(std::chrono::microseconds(3000000));

@@ -3,6 +3,10 @@
 
 namespace lynx {
 
+/// \brief Base class that disables copying and assignment.
+///
+/// This class is designed to be inherited by other classes that should not be
+/// copied or assigned.
 class Noncopyable {
 public:
   Noncopyable(const Noncopyable &) = delete;
