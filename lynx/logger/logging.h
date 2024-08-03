@@ -4,10 +4,24 @@
 #include "lynx/base/timestamp.h"
 #include "lynx/logger/log_stream.h"
 
+#include <functional>
+
 namespace lynx {
 
+/// @class Logger
+/// @brief A class that provides a flexible logging mechanism for applications.
+///
+/// It allows for different levels of logging, supports automatic filename and
+/// line number capture, and allows customization of output and flushing
+/// behavior.
 class Logger {
 public:
+  /// @enum LogLevel
+  /// @brief Defines the different levels of logging messages.
+  ///
+  /// Each level represents a different severity or purpose for the log message.
+  /// NUM_LOG_LEVELS is a sentinel value used for iteration over log levels but
+  /// should not be used for actual logging.
   enum LogLevel {
     TRACE,
     DEBUG,
@@ -15,13 +29,21 @@ public:
     WARN,
     ERROR,
     FATAL,
-    NUM_LOG_LEVELS,
+    NUM_LOG_LEVELS, /// Used for iteration
   };
 
   using LogLevel = Logger::LogLevel;
 
+  /// @class SourceFile
+  /// @brief A nested class encapsulates information about the source file where
+  /// a log message originates.
+  ///
+  /// It strips the path prefix from the filename if present, making it easier
+  /// to read in log output.
   class SourceFile {
   public:
+    /// Constructor that takes a C-style string array (for automatic size
+    /// deduction).
     template <int N>
     SourceFile(const char (&arr)[N]) : data_(arr), size_(N - 1) {
       const char *slash = strrchr(data_, '/');
@@ -31,6 +53,7 @@ public:
       }
     }
 
+    /// Constructor that takes a raw C-style string pointer.
     explicit SourceFile(const char *filename) : data_(filename) {
       const char *slash = strrchr(filename, '/');
       if (slash != nullptr) {
@@ -54,12 +77,19 @@ public:
   static LogLevel logLevel();
   static void setLogLevel(LogLevel level);
 
-  using OutputFunc = void (*)(const char *, int);
-  using FlushFunc = void (*)();
+  using OutputFunc = std::function<void(const char *, int)>;
+  using FlushFunc = std::function<void()>;
+
   static void setOutput(OutputFunc);
   static void setFlush(FlushFunc);
 
 private:
+  /// @class Impl
+  /// @brief A private nested class that handles the actual logging logic.
+  ///
+  /// It stores the timestamp, log stream, log level, line number, and source
+  /// file basename of the log message. It provides methods for formatting the
+  /// timestamp and finishing the log message.
   class Impl {
   public:
     Impl(LogLevel level, int oldErrno, const SourceFile &file, int line);
@@ -95,9 +125,6 @@ inline Logger::LogLevel Logger::logLevel() { return g_log_level; }
 #define LOG_SYSERR lynx::Logger(__FILE__, __LINE__, false).stream()
 #define LOG_SYSFATAL lynx::Logger(__FILE__, __LINE__, true).stream()
 
-#define CHECK_NOTNULL(val)                                                     \
-  lynx::checkNotNull(__FILE__, __LINE__, "'" #val "' Must be non null", (val))
-
 template <typename T>
 T *checkNotNull(Logger::SourceFile file, int line, const char *names, T *ptr) {
   if (ptr == NULL) {
@@ -105,6 +132,9 @@ T *checkNotNull(Logger::SourceFile file, int line, const char *names, T *ptr) {
   }
   return ptr;
 }
+
+#define CHECK_NOTNULL(val)                                                     \
+  lynx::checkNotNull(__FILE__, __LINE__, "'" #val "' Must be non null", (val))
 
 } // namespace lynx
 

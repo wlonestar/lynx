@@ -1,5 +1,4 @@
 #include "lynx/logger/async_logging.h"
-#include "lynx/base/thread.h"
 #include "lynx/base/timestamp.h"
 #include "lynx/logger/log_file.h"
 
@@ -25,10 +24,11 @@ AsyncLogging::~AsyncLogging() {
 
 void AsyncLogging::append(const char *logline, size_t len) {
   std::lock_guard<std::mutex> lock(mutex_);
-
   if (current_buffer_->avail() > static_cast<int>(len)) {
+    /// Current buffer has space, append log line.
     current_buffer_->append(logline, len);
   } else {
+    /// Current buffer filled, move current buffer to filled buffers.
     buffers_.push_back(std::move(current_buffer_));
 
     if (next_buffer_) {
@@ -36,7 +36,6 @@ void AsyncLogging::append(const char *logline, size_t len) {
     } else {
       current_buffer_ = std::make_unique<Buffer>();
     }
-
     current_buffer_->append(logline, len);
     cond_.notify_one();
   }
@@ -69,6 +68,7 @@ void AsyncLogging::threadFunc() {
   while (running_) {
     assert(buffers_to_write.empty());
 
+    /// Swap out what need to be written.
     {
       std::unique_lock<std::mutex> lock(mutex_);
       if (buffers_.empty()) {

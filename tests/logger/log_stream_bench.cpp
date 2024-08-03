@@ -1,7 +1,6 @@
 #include "lynx/base/timestamp.h"
 #include "lynx/logger/log_stream.h"
 
-#include <ios>
 #include <sstream>
 
 const size_t N = 1000000;
