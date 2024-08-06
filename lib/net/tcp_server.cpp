@@ -5,9 +5,6 @@
 #include "lynx/net/event_loop_thread_pool.h"
 #include "lynx/net/sockets_ops.h"
 
-#include <atomic>
-#include <cstdio>
-
 namespace lynx {
 
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &listenAddr,

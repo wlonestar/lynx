@@ -1,13 +1,10 @@
 #ifndef LYNX_NET_EPOLLER_H
 #define LYNX_NET_EPOLLER_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/net/event_loop.h"
 
 #include <map>
-#include <vector>
-
-struct epoll_event;
+#include <sys/epoll.h>
 
 namespace lynx {
 

@@ -17,7 +17,6 @@ set(CXX_FLAGS
   -g -gdwarf-4 -std=c++20 -march=native
   -Wall -Wextra -Werror -Wno-unused-parameter -Wold-style-cast -Wshadow
   -Wno-null-dereference -Wno-sign-conversion -Wno-unused-local-typedef -Wthread-safety
-  -fsanitize=address,undefined -fno-omit-frame-pointer
   )
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
@@ -103,9 +102,9 @@ set(NET_HEADERS
   lynx/net/tcp_client.h
   lynx/net/tcp_connection.h
   lynx/net/tcp_server.h
-  lynx/net/timer_id.h
   )
 FILE(GLOB ORM_HEADERS lynx/orm/*.h)
+set(TIMER_HEADERS lynx/timer/timer_id.h)
 FILE(GLOB WEB_HEADERS lynx/web/*.h)
 
 install(FILES ${BASE_HEADERS}   DESTINATION include/lynx/base)
@@ -114,6 +113,7 @@ install(FILES ${HTTP_HEADERS}   DESTINATION include/lynx/http)
 install(FILES ${LOGGER_HEADERS} DESTINATION include/lynx/logger)
 install(FILES ${NET_HEADERS}    DESTINATION include/lynx/net)
 install(FILES ${ORM_HEADERS}    DESTINATION include/lynx/orm)
+install(FILES ${TIMER_HEADERS}  DESTINATION include/lynx/timer)
 install(FILES ${WEB_HEADERS}    DESTINATION include/lynx/web)
 
 # Install exported config file

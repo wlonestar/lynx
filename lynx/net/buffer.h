@@ -4,12 +4,21 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <endian.h>
 #include <string>
 #include <vector>
 
 namespace lynx {
 
+/// @class Buffer
+/// @brief A buffer class modeled after org.jboss.netty.buffer.ChannelBuffer
+///
+/// +-------------------+------------------+------------------+
+/// | prependable bytes |  readable bytes  |  writable bytes  |
+/// |                   |     (Content)    |                  |
+/// +-------------------+------------------+------------------+
+/// |                   |                  |                  |
+/// 0      <=      readerIndex   <=   writerIndex    <=     size
+/// +-------------------+------------------+------------------+
 class Buffer {
 public:
   static const size_t K_CHEAP_PREPEND = 8;
@@ -96,12 +105,12 @@ public:
   std::string toString() const { return {peek(), readableBytes()}; }
 
   void append(const std::string &str) { append(str.data(), str.size()); }
-  void append(const char * /*restrict*/ data, size_t len) {
+  void append(const char *data, size_t len) {
     ensureWritableBytes(len);
     std::copy(data, data + len, beginWrite());
     hasWritten(len);
   }
-  void append(const void * /*restrict*/ data, size_t len) {
+  void append(const void *data, size_t len) {
     append(static_cast<const char *>(data), len);
   }
 
@@ -198,7 +207,7 @@ public:
   }
   void prependInt8(int8_t x) { prepend(&x, sizeof(x)); }
 
-  void prepend(const void * /*restrict*/ data, size_t len) {
+  void prepend(const void *data, size_t len) {
     assert(len <= prependableBytes());
     reader_index_ -= len;
     const char *d = static_cast<const char *>(data);

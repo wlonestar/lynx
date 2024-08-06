@@ -1,14 +1,8 @@
 #ifndef LYNX_NET_ACCEPTOR_H
 #define LYNX_NET_ACCEPTOR_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/net/channel.h"
 #include "lynx/net/socket.h"
-
-#include <cerrno>
-#include <fcntl.h>
-#include <functional>
-#include <unistd.h>
 
 namespace lynx {
 

@@ -3,7 +3,7 @@
 
 #include "lynx/base/noncopyable.h"
 
-struct tcp_info;
+#include <netinet/tcp.h>
 
 namespace lynx {
 

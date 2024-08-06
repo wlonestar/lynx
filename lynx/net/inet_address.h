@@ -8,7 +8,7 @@ namespace lynx {
 
 namespace sockets {
 const struct sockaddr *sockaddrCast(const struct sockaddr_in6 *addr);
-}
+} // namespace sockets
 
 class InetAddress {
 public:

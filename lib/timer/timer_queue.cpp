@@ -1,11 +1,10 @@
-#include "lynx/net/timer_queue.h"
+#include "lynx/timer/timer_queue.h"
 #include "lynx/logger/logging.h"
 #include "lynx/net/event_loop.h"
-#include "lynx/net/timer.h"
-#include "lynx/net/timer_id.h"
+#include "lynx/timer/timer.h"
 
+#include <cassert>
 #include <sys/timerfd.h>
-#include <unistd.h>
 
 namespace lynx {
 

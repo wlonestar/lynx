@@ -3,13 +3,11 @@
 #include "lynx/net/channel.h"
 #include "lynx/net/epoller.h"
 #include "lynx/net/sockets_ops.h"
-#include "lynx/net/timer_queue.h"
+#include "lynx/timer/timer_queue.h"
 
-#include <algorithm>
 #include <cassert>
 #include <csignal>
 #include <sys/eventfd.h>
-#include <unistd.h>
 
 namespace lynx {
 

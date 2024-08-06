@@ -1,6 +1,8 @@
 #include "lynx/net/event_loop_thread.h"
 #include "lynx/net/event_loop.h"
 
+#include <cassert>
+
 namespace lynx {
 
 EventLoopThread::EventLoopThread(const ThreadInitCallback &cb,

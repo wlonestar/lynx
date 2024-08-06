@@ -2,8 +2,6 @@
 #include "lynx/net/event_loop.h"
 
 #include <cassert>
-#include <cstdio>
-#include <unistd.h>
 
 lynx::EventLoop *g_loop;
 

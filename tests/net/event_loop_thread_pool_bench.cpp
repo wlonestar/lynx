@@ -2,8 +2,7 @@
 #include "lynx/net/event_loop.h"
 #include "lynx/net/event_loop_thread_pool.h"
 
-#include <cstdio>
-#include <unistd.h>
+#include <cassert>
 
 void print(lynx::EventLoop *p = nullptr) {
   printf("main(): pid = %d, tid = %d, loop = %p\n", getpid(),

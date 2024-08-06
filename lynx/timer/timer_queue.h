@@ -1,13 +1,11 @@
 #ifndef LYNX_TIMER_TIMER_QUEUE_H
 #define LYNX_TIMER_TIMER_QUEUE_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/base/timestamp.h"
 #include "lynx/net/channel.h"
-#include "lynx/net/timer_id.h"
+#include "lynx/timer/timer_id.h"
 
 #include <set>
-#include <vector>
 
 namespace lynx {
 

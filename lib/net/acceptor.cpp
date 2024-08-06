@@ -4,9 +4,8 @@
 #include "lynx/net/inet_address.h"
 #include "lynx/net/sockets_ops.h"
 
-#include <cerrno>
+#include <cassert>
 #include <fcntl.h>
-#include <unistd.h>
 
 namespace lynx {
 

@@ -1,13 +1,11 @@
 #include "lynx/net/buffer.h"
 #include "lynx/net/sockets_ops.h"
 
-#include <cerrno>
 #include <sys/uio.h>
 
 namespace lynx {
 
 const char Buffer::K_CRLF[] = "\r\n";
-
 const size_t Buffer::K_CHEAP_PREPEND;
 const size_t Buffer::K_INITIAL_SIZE;
 

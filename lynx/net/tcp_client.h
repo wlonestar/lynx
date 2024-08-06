@@ -3,8 +3,6 @@
 
 #include "lynx/net/tcp_connection.h"
 
-#include <mutex>
-
 namespace lynx {
 
 class Connector;

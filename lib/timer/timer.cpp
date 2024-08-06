@@ -1,5 +1,4 @@
-#include "lynx/net/timer.h"
-#include "lynx/base/timestamp.h"
+#include "lynx/timer/timer.h"
 
 namespace lynx {
 

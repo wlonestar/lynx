@@ -2,11 +2,8 @@
 #include "lynx/net/channel.h"
 #include "lynx/net/event_loop.h"
 
-#include <cstdio>
-#include <functional>
 #include <map>
 #include <sys/timerfd.h>
-#include <unistd.h>
 
 void print(const char *msg) {
   static std::map<const char *, lynx::Timestamp> lasts;

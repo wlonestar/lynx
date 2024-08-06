@@ -8,8 +8,7 @@
 
 #include <functional>
 #include <memory>
-
-struct tcp_info;
+#include <netinet/tcp.h>
 
 namespace lynx {
 
@@ -39,8 +38,8 @@ public:
   const std::string &name() const { return name_; }
   const InetAddress &localAddress() const { return local_addr_; }
   const InetAddress &peerAddress() const { return peer_addr_; }
-  bool connected() const { return state_ == kConnected; }
-  bool disconnected() const { return state_ == kDisconnected; }
+  bool connected() const { return state_ == CONNECTED; }
+  bool disconnected() const { return state_ == DISCONNECTED; }
   bool getTcpInfo(struct tcp_info *) const;
   std::string getTcpInfoString() const;
 
@@ -77,10 +76,10 @@ public:
 
 private:
   enum StateE {
-    kDisconnected,
-    kConnecting,
-    kConnected,
-    kDisconnecting,
+    DISCONNECTED,
+    CONNECTING,
+    CONNECTED,
+    DISCONNECTING,
   };
 
   void handleRead(Timestamp receiveTime);

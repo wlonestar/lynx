@@ -2,6 +2,7 @@
 #include "lynx/logger/logging.h"
 #include "lynx/net/event_loop.h"
 
+#include <cassert>
 #include <poll.h>
 #include <sstream>
 

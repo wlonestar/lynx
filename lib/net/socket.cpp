@@ -3,11 +3,6 @@
 #include "lynx/net/inet_address.h"
 #include "lynx/net/sockets_ops.h"
 
-#include <cstdio>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <strings.h>
-
 namespace lynx {
 
 Socket::~Socket() { sockets::close(sockfd_); }

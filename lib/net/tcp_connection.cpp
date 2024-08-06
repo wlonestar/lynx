@@ -21,7 +21,7 @@ void defaultMessageCallback(const TcpConnectionPtr & /*unused*/, Buffer *buf,
 TcpConnection::TcpConnection(EventLoop *loop, const std::string &name,
                              int sockfd, const InetAddress &localAddr,
                              const InetAddress &peerAddr)
-    : loop_(CHECK_NOTNULL(loop)), name_(name), state_(kConnecting),
+    : loop_(CHECK_NOTNULL(loop)), name_(name), state_(CONNECTING),
       reading_(true), socket_(new Socket(sockfd)),
       channel_(new Channel(loop, sockfd)), local_addr_(localAddr),
       peer_addr_(peerAddr), high_water_mark_(64 * 1024 * 1024) {
@@ -38,7 +38,7 @@ TcpConnection::TcpConnection(EventLoop *loop, const std::string &name,
 TcpConnection::~TcpConnection() {
   LOG_DEBUG << "TcpConnection::dtor[" << name_ << "] at " << this
             << " fd=" << channel_->fd() << " state=" << stateToString();
-  assert(state_ == kDisconnected);
+  assert(state_ == DISCONNECTED);
 }
 
 bool TcpConnection::getTcpInfo(struct tcp_info *tcpi) const {
@@ -57,7 +57,7 @@ void TcpConnection::send(const void *data, int len) {
 }
 
 void TcpConnection::send(const std::string &message) {
-  if (state_ == kConnected) {
+  if (state_ == CONNECTED) {
     if (loop_->isInLoopThread()) {
       sendInLoop(message);
     } else {
@@ -67,7 +67,7 @@ void TcpConnection::send(const std::string &message) {
 }
 
 void TcpConnection::send(Buffer *buf) {
-  if (state_ == kConnected) {
+  if (state_ == CONNECTED) {
     if (loop_->isInLoopThread()) {
       sendInLoop(buf->peek(), buf->readableBytes());
       buf->retrieveAll();
@@ -87,7 +87,7 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
   ssize_t nwrote = 0;
   size_t remaining = len;
   bool fault_error = false;
-  if (state_ == kDisconnected) {
+  if (state_ == DISCONNECTED) {
     LOG_WARN << "disconnected, give up writing";
     return;
   }
@@ -127,8 +127,8 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
 }
 
 void TcpConnection::shutdown() {
-  if (state_ == kConnected) {
-    setState(kDisconnecting);
+  if (state_ == CONNECTED) {
+    setState(DISCONNECTING);
     loop_->runInLoop([this] { shutdownInLoop(); });
   }
 }
@@ -141,8 +141,8 @@ void TcpConnection::shutdownInLoop() {
 }
 
 void TcpConnection::forceClose() {
-  if (state_ == kConnected || state_ == kDisconnecting) {
-    setState(kDisconnecting);
+  if (state_ == CONNECTED || state_ == DISCONNECTING) {
+    setState(DISCONNECTING);
     loop_->queueInLoop(
         [capture0 = shared_from_this()] { capture0->forceCloseInLoop(); });
   }
@@ -150,21 +150,21 @@ void TcpConnection::forceClose() {
 
 void TcpConnection::forceCloseInLoop() {
   loop_->assertInLoopThread();
-  if (state_ == kConnected || state_ == kDisconnecting) {
+  if (state_ == CONNECTED || state_ == DISCONNECTING) {
     handleClose();
   }
 }
 
 const char *TcpConnection::stateToString() const {
   switch (state_) {
-  case kDisconnected:
-    return "kDisconnected";
-  case kConnecting:
-    return "kConnecting";
-  case kConnected:
-    return "kConnected";
-  case kDisconnecting:
-    return "kDisconnecting";
+  case DISCONNECTED:
+    return "DISCONNECTED";
+  case CONNECTING:
+    return "CONNECTING";
+  case CONNECTED:
+    return "CONNECTED";
+  case DISCONNECTING:
+    return "DISCONNECTING";
   default:
     return "unknown state";
   }
@@ -198,8 +198,8 @@ void TcpConnection::stopReadInLoop() {
 
 void TcpConnection::connectEstablished() {
   loop_->assertInLoopThread();
-  assert(state_ == kConnecting);
-  setState(kConnected);
+  assert(state_ == CONNECTING);
+  setState(CONNECTED);
   channel_->tie(shared_from_this());
   channel_->enableReading();
 
@@ -208,8 +208,8 @@ void TcpConnection::connectEstablished() {
 
 void TcpConnection::connectDestroyed() {
   loop_->assertInLoopThread();
-  if (state_ == kConnected) {
-    setState(kDisconnected);
+  if (state_ == CONNECTED) {
+    setState(DISCONNECTED);
     channel_->disableAll();
 
     connection_callback_(shared_from_this());
@@ -245,7 +245,7 @@ void TcpConnection::handleWrite() {
           loop_->queueInLoop(
               [this] { write_complete_callback_(shared_from_this()); });
         }
-        if (state_ == kDisconnecting) {
+        if (state_ == DISCONNECTING) {
           shutdownInLoop();
         }
       }
@@ -261,8 +261,8 @@ void TcpConnection::handleWrite() {
 void TcpConnection::handleClose() {
   loop_->assertInLoopThread();
   LOG_TRACE << "fd = " << channel_->fd() << " state = " << stateToString();
-  assert(state_ == kConnected || state_ == kDisconnecting);
-  setState(kDisconnected);
+  assert(state_ == CONNECTED || state_ == DISCONNECTING);
+  setState(DISCONNECTED);
   channel_->disableAll();
 
   TcpConnectionPtr guard_this(shared_from_this());

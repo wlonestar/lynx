@@ -1,14 +1,11 @@
 #ifndef LYNX_NET_TCP_SERVER_H
 #define LYNX_NET_TCP_SERVER_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/net/inet_address.h"
 #include "lynx/net/tcp_connection.h"
 
 #include <atomic>
-#include <functional>
 #include <map>
-#include <memory>
 
 namespace lynx {
 

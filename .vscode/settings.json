@@ -7,5 +7,6 @@
   "C_Cpp.codeAnalysis.clangTidy.enabled": true,
   "C_Cpp.intelliSenseEngine": "disabled",
   "clangd.arguments": ["--clang-tidy", "--enable-config"],
-  "clangd.onConfigChanged": "restart"
+  "clangd.onConfigChanged": "restart",
+  "python.languageServer": "Pylance"
 }

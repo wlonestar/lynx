@@ -1,7 +1,6 @@
 #ifndef LYNX_TIMER_TIMER_ID_H
 #define LYNX_TIMER_TIMER_ID_H
 
-#include <cstdint>
 #include <functional>
 
 namespace lynx {

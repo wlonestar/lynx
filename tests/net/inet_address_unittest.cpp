@@ -1,7 +1,6 @@
 #include "lynx/logger/logging.h"
 #include "lynx/net/inet_address.h"
 
-//#define BOOST_TEST_MODULE InetAddressTest
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>

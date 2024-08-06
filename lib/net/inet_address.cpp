@@ -4,10 +4,7 @@
 
 #include <cassert>
 #include <cstddef>
-#include <cstring>
-#include <endian.h>
 #include <netdb.h>
-#include <netinet/in.h>
 
 namespace lynx {
 

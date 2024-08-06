@@ -1,5 +1,6 @@
 add_subdirectory(base)
 add_subdirectory(logger)
+add_subdirectory(timer)
 add_subdirectory(net)
 add_subdirectory(http)
 add_subdirectory(db)

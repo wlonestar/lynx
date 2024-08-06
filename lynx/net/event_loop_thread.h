@@ -1,12 +1,9 @@
 #ifndef LYNX_NET_EVENT_LOOP_THREAD_H
 #define LYNX_NET_EVENT_LOOP_THREAD_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/base/thread.h"
 
 #include <condition_variable>
-#include <functional>
-#include <mutex>
 
 namespace lynx {
 

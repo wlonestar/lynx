@@ -3,10 +3,7 @@
 #include "lynx/net/channel.h"
 
 #include <cassert>
-#include <cerrno>
 #include <poll.h>
-#include <sys/epoll.h>
-#include <unistd.h>
 
 namespace lynx {
 
@@ -25,7 +22,7 @@ Epoller::Epoller(EventLoop *loop)
     : owner_loop_(loop), epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
       events_(K_INIT_EVENT_LIST_SIZE) {
   if (epollfd_ < 0) {
-    LOG_SYSFATAL << "EPollPoller::EPollPoller";
+    LOG_SYSFATAL << "Epoller::Epoller";
   }
 }
 
@@ -48,7 +45,7 @@ Timestamp Epoller::poll(int timeoutMs, ChannelList *activeChannels) {
   } else {
     if (saved_errno != EINTR) {
       errno = saved_errno;
-      LOG_SYSERR << "EPollPoller::poll()";
+      LOG_SYSERR << "Epoller::poll()";
     }
   }
   return now;

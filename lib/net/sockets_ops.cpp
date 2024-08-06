@@ -2,12 +2,6 @@
 #include "lynx/logger/logging.h"
 
 #include <cassert>
-#include <cerrno>
-#include <cstdio>
-#include <endian.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <sys/uio.h>
 #include <unistd.h>
 
 namespace lynx::sockets {
@@ -37,20 +31,11 @@ const struct sockaddr_in6 *sockaddrIn6Cast(const struct sockaddr *addr) {
 }
 
 int createNonblockingOrDie(sa_family_t family) {
-#if VALGRIND
-  int sockfd = ::socket(family, SOCK_STREAM, IPPROTO_TCP);
-  if (sockfd < 0) {
-    LOG_SYSFATAL << "createNonblockingOrDie";
-  }
-
-  setNonBlockAndCloseOnExec(sockfd);
-#else
   int sockfd =
       ::socket(family, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
   if (sockfd < 0) {
     LOG_SYSFATAL << "createNonblockingOrDie";
   }
-#endif
   return sockfd;
 }
 
@@ -71,13 +56,8 @@ void listenOrDie(int sockfd) {
 
 int accept(int sockfd, struct sockaddr_in6 *addr) {
   auto addrlen = static_cast<socklen_t>(sizeof(*addr));
-#if VALGRIND || defined(NO_ACCEPT4)
-  int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
-  setNonBlockAndCloseOnExec(connfd);
-#else
   int connfd = ::accept4(sockfd, sockaddrCast(addr), &addrlen,
                          SOCK_NONBLOCK | SOCK_CLOEXEC);
-#endif
   if (connfd < 0) {
     int saved_errno = errno;
     LOG_SYSERR << "Socket::accept";

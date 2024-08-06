@@ -4,10 +4,6 @@
 #include "lynx/net/inet_address.h"
 #include "lynx/net/tcp_server.h"
 
-#include <cstdio>
-#include <unistd.h>
-#include <utility>
-
 int num_threads = 0;
 
 class EchoServer {

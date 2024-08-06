@@ -1,0 +1,2 @@
+add_executable(timer_queue_bench timer_queue_bench.cpp)
+target_link_libraries(timer_queue_bench lynx)

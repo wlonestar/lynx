@@ -4,7 +4,7 @@
 #include "lynx/net/event_loop.h"
 #include "lynx/net/sockets_ops.h"
 
-#include <memory>
+#include <cassert>
 
 namespace lynx {
 
@@ -12,7 +12,7 @@ const int Connector::K_MAX_RETRY_DELAY_MS;
 
 Connector::Connector(EventLoop *loop, const InetAddress &serverAddr)
     : loop_(loop), server_addr_(serverAddr), connect_(false),
-      state_(kDisconnected), retry_delay_ms_(K_INIT_RETRY_DELAY_MS) {
+      state_(DISCONNECTED), retry_delay_ms_(K_INIT_RETRY_DELAY_MS) {
   LOG_DEBUG << "ctor[" << this << "]";
 }
 
@@ -28,7 +28,7 @@ void Connector::start() {
 
 void Connector::startInLoop() {
   loop_->assertInLoopThread();
-  assert(state_ == kDisconnected);
+  assert(state_ == DISCONNECTED);
   if (connect_) {
     connect();
   } else {
@@ -43,8 +43,8 @@ void Connector::stop() {
 
 void Connector::stopInLoop() {
   loop_->assertInLoopThread();
-  if (state_ == kConnecting) {
-    setState(kDisconnected);
+  if (state_ == CONNECTING) {
+    setState(DISCONNECTED);
     int sockfd = removeAndResetChannel();
     retry(sockfd);
   }
@@ -87,14 +87,14 @@ void Connector::connect() {
 
 void Connector::restart() {
   loop_->assertInLoopThread();
-  setState(kDisconnected);
+  setState(DISCONNECTED);
   retry_delay_ms_ = K_INIT_RETRY_DELAY_MS;
   connect_ = true;
   startInLoop();
 }
 
 void Connector::connecting(int sockfd) {
-  setState(kConnecting);
+  setState(CONNECTING);
   assert(!channel_);
   channel_ = std::make_unique<Channel>(loop_, sockfd);
   channel_->setWriteCallback([this] { handleWrite(); });
@@ -115,7 +115,7 @@ void Connector::resetChannel() { channel_.reset(); }
 void Connector::handleWrite() {
   LOG_TRACE << "Connector::handleWrite " << state_;
 
-  if (state_ == kConnecting) {
+  if (state_ == CONNECTING) {
     int sockfd = removeAndResetChannel();
     int err = sockets::getSocketError(sockfd);
     if (err != 0) {
@@ -126,7 +126,7 @@ void Connector::handleWrite() {
       LOG_WARN << "Connector::handleWrite - Self connect";
       retry(sockfd);
     } else {
-      setState(kConnected);
+      setState(CONNECTED);
       if (connect_) {
         new_connection_callback_(sockfd);
       } else {
@@ -134,13 +134,13 @@ void Connector::handleWrite() {
       }
     }
   } else {
-    assert(state_ == kDisconnected);
+    assert(state_ == DISCONNECTED);
   }
 }
 
 void Connector::handleError() {
   LOG_ERROR << "Connector::handleError state=" << state_;
-  if (state_ == kConnecting) {
+  if (state_ == CONNECTING) {
     int sockfd = removeAndResetChannel();
     int err = sockets::getSocketError(sockfd);
     LOG_TRACE << "SO_ERROR = " << err << " " << current_thread::strError(err);
@@ -150,7 +150,7 @@ void Connector::handleError() {
 
 void Connector::retry(int sockfd) {
   sockets::close(sockfd);
-  setState(kDisconnected);
+  setState(DISCONNECTED);
   if (connect_) {
     LOG_INFO << "Connector::retry - Retry connecting to "
              << server_addr_.toIpPort() << " in " << retry_delay_ms_
