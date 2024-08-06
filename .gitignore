@@ -2,6 +2,7 @@
 /build
 /demo
 /venv
+/scripts
 
 *.log
 compile_commands.json
