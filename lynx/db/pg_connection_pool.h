@@ -17,8 +17,7 @@ public:
   explicit PgConnectionPool(
       const std::string &host, const std::string &port, const std::string &user,
       const std::string &password, const std::string &dbname,
-      const std::string &timeout = std::string("10"), size_t minSize = 5,
-      size_t maxSize = 10,
+      size_t timeout = 10, size_t minSize = 5, size_t maxSize = 10,
       const std::string &name = std::string("PgConnectionPool"));
   ~PgConnectionPool();
 
@@ -36,8 +35,7 @@ private:
   std::string user_;
   std::string password_;
   std::string dbname_;
-  std::string timeout_;
-
+  size_t timeout_;
   size_t min_size_;
   size_t max_size_;
   std::string name_;

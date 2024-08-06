@@ -7,7 +7,7 @@ PgConnectionPool::PgConnectionPool(const std::string &host,
                                    const std::string &user,
                                    const std::string &password,
                                    const std::string &dbname,
-                                   const std::string &timeout, size_t minSize,
+                                  size_t timeout, size_t minSize,
                                    size_t maxSize, const std::string &name)
     : host_(host), port_(port), user_(user), password_(password),
       dbname_(dbname), timeout_(timeout), min_size_(minSize),

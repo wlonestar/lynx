@@ -58,10 +58,19 @@ include_directories(${PostgreSQL_INCLUDE_DIRS})
 # Find nlohmann::json
 find_package(nlohmann_json 3.11.3 REQUIRED)
 include_directories(${nlohmann_json_INCLUDE_DIRS})
+# Find yaml-cpp
+find_package(yaml-cpp REQUIRED)
+include_directories(${YAML_CPP_INCLUDE_DIRS})
 
 include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(tests)
 add_subdirectory(examples)
+
+# Copy config file
+file(
+  COPY ${CMAKE_CURRENT_SOURCE_DIR}/bin/conf/config.yml
+  DESTINATION ${CMAKE_BINARY_DIR}/bin/conf
+  )
 
 # Set library source files
 file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
@@ -69,7 +78,11 @@ file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
 ragelmaker(lynx/http/http_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/http)
 # Set build library
 add_library(lynx STATIC ${LIB_SRC})
-target_link_libraries(lynx PUBLIC pq nlohmann_json::nlohmann_json)
+target_link_libraries(lynx PUBLIC
+  pq
+  nlohmann_json::nlohmann_json
+  yaml-cpp
+  )
 
 # Install
 

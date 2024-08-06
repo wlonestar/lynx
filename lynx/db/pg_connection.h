@@ -33,8 +33,7 @@ public:
 
   bool connect(const std::string &host, const std::string &port,
                const std::string &user, const std::string &password,
-               const std::string &dbname,
-               const std::string &connectTimeout = std::string("10"));
+               const std::string &dbname, size_t connectTimeout = 10);
 
   bool execute(const std::string &sql);
 

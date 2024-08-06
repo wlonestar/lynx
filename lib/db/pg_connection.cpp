@@ -18,8 +18,7 @@ PgConnection::~PgConnection() {
 
 bool PgConnection::connect(const std::string &host, const std::string &port,
                            const std::string &user, const std::string &password,
-                           const std::string &dbname,
-                           const std::string &connectTimeout) {
+                           const std::string &dbname, size_t connectTimeout) {
   auto fields = std::make_tuple("host", "port", "user", "password", "dbname",
                                 "connect_timeout");
   auto args_tp =

@@ -8,8 +8,7 @@
 #include "lynx/net/event_loop.h"
 #include "lynx/net/inet_address.h"
 
-#include <regex>
-
+/// For favicon
 extern unsigned char favicon_jpg[];
 extern unsigned int favicon_jpg_len;
 
@@ -19,21 +18,43 @@ using HttpHandler = HttpServer::HttpCallback;
 
 class WebServer {
 public:
-  explicit WebServer(EventLoop *loop, const InetAddress &listenAddr,
-                     const std::string &name);
+  explicit WebServer(EventLoop *loop,
+                     const std::string &filename = std::string("config.yml"));
 
-  void start() { server_.start(); }
-  void setThreadNum(int numThreads) { server_.setThreadNum(numThreads); }
+  void start();
 
-  int addRoute(const std::string &method, const std::string &path,
-               HttpHandler handler);
+  /// Check if `pool_` valid before
+  PgConnectionPool &pool() const;
+
+  void addRoute(const std::string &method, const std::string &path,
+                HttpHandler handler);
 
   void printRoutes();
 
 private:
+  /// load yaml file with format:
+  /// server:
+  ///   name: WebServer
+  ///   port: 8000
+  ///   threads: 5
+  /// db:
+  ///   name: PgConnPool
+  ///   host: 127.0.0.1
+  ///   port: 5432
+  ///   user: postgres
+  ///   password: 123456
+  ///   dbname: demo
+  ///   timeout: 10
+  ///   min_size: 5
+  ///   max_size: 10
+  void loadConfig(const std::string &filePath);
+
   void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 
-  HttpServer server_;
+  std::unique_ptr<HttpServer> server_;
+  std::unique_ptr<PgConnectionPool> pool_;
+
+  std::map<std::string, std::map<std::string, std::string>> config_map_;
   std::map<std::pair<HttpMethod, std::string>, HttpHandler> route_table_;
 };
 

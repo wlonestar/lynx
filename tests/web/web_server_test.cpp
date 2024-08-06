@@ -49,24 +49,17 @@ void initDb(lynx::PgConnectionPool &pool) {
 
 int main(int argc, char *argv[]) {
   /// Init Web Server
-  int num_threads = 5;
-  if (argc > 1) {
-    num_threads = atoi(argv[1]);
-  }
-  lynx::PgConnectionPool pool("127.0.0.1", "5432", "postgres", "123456",
-                              "demo");
   lynx::EventLoop loop;
-  lynx::WebServer server(&loop, lynx::InetAddress(8000), "WebServer");
-  server.setThreadNum(num_threads);
-  LOG_INFO << "start HTTP server with " << num_threads << " threads";
+  lynx::WebServer server(&loop);
+
+  LOG_INFO << "start Web server";
 
   /// Setup server and pool
   server.start();
-  pool.start();
-  initDb(pool);
+  initDb(server.pool());
 
   /// Register handler
-  StudentController::init(pool);
+  StudentController::init(server.pool());
   StudentController controller;
   controller.registerHandler(server);
 

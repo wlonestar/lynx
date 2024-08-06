@@ -25,10 +25,19 @@ find_package(PostgreSQL REQUIRED)
 include_directories(${PostgreSQL_INCLUDE_DIRS})
 # Find nlohmann::json
 find_package(nlohmann_json 3.11.3 REQUIRED)
+# Find yaml-cpp
+find_package(yaml-cpp REQUIRED)
+include_directories(${YAML_CPP_INCLUDE_DIRS})
 # Find lynx
 set(CMAKE_PREFIX_PATH "./lynx-1.0.0")
 find_package(lynx CONFIG REQUIRED)
 include_directories(${lynx_INCLUDE_DIRS})
+
+# Copy config file
+file(
+  COPY ${CMAKE_CURRENT_SOURCE_DIR}/bin/conf/config.yml
+  DESTINATION ${CMAKE_BINARY_DIR}/bin/conf
+  )
 
 # Add the executable
 add_executable(app
@@ -39,4 +48,5 @@ target_link_libraries(app
   lynx
   pq
   nlohmann_json::nlohmann_json
+  yaml-cpp
   )
