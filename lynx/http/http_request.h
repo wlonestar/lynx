@@ -184,7 +184,6 @@ public:
     headers_.swap(other.headers_);
     params_.swap(other.params_);
     cookies_.swap(other.cookies_);
-    receive_time_.swap(other.receive_time_);
   }
 
 private:
@@ -202,8 +201,6 @@ private:
   MapType headers_;
   MapType params_;
   MapType cookies_;
-
-  Timestamp receive_time_;
 };
 
 } // namespace lynx
