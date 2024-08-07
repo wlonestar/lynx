@@ -1,7 +1,7 @@
 #ifndef LYNX_WEB_WEB_SERVER_H
 #define LYNX_WEB_WEB_SERVER_H
 
-#include "lynx/db/pg_connection_pool.h"
+#include "lynx/db/connection_pool.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
 #include "lynx/http/http_server.h"
@@ -24,7 +24,7 @@ public:
   void start();
 
   /// Check if `pool_` valid before
-  PgConnectionPool &pool() const;
+  ConnectionPool &pool() const;
 
   void addRoute(const std::string &method, const std::string &path,
                 HttpHandler handler);
@@ -44,15 +44,16 @@ private:
   ///   user: postgres
   ///   password: 123456
   ///   dbname: demo
-  ///   timeout: 10
   ///   min_size: 5
   ///   max_size: 10
+  ///   timeout: 10
+  ///   max_idle_time: 5000
   void loadConfig(const std::string &filePath);
 
   void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 
   std::unique_ptr<HttpServer> server_;
-  std::unique_ptr<PgConnectionPool> pool_;
+  std::unique_ptr<ConnectionPool> pool_;
 
   std::map<std::string, std::map<std::string, std::string>> config_map_;
   std::map<std::pair<HttpMethod, std::string>, HttpHandler> route_table_;

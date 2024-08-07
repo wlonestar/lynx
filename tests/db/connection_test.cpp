@@ -1,4 +1,4 @@
-#include "lynx/db/pg_connection.h"
+#include "lynx/db/connection.h"
 #include "lynx/logger/logging.h"
 #include "lynx/orm/key_util.h"
 
@@ -26,8 +26,8 @@ REGISTER_AUTO_KEY(Student, id)
 
 int main() {
   /// Connect database
-  lynx::PgConnection conn("PgConnection");
-  conn.connect("127.0.0.1", "5432", "postgres", "123456", "demo");
+  lynx::Connection conn("PgConnection");
+  conn.connect("127.0.0.1", 5432, "postgres", "123456", "demo");
 
   /// Create table (drop if table already exists)
   conn.execute("drop table student; drop sequence student_id_seq;");

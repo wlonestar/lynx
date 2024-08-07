@@ -1,4 +1,5 @@
 #include "lynx/web/web_server.h"
+#include "lynx/db/connection_pool.h"
 #include "lynx/http/http_server.h"
 #include "lynx/logger/logging.h"
 
@@ -79,12 +80,16 @@ WebServer::WebServer(EventLoop *loop, const std::string &filename) {
 
   /// Create Pg connection pool if find `db` key
   if (config_map_.find("db") != config_map_.end()) {
-    pool_ = std::make_unique<PgConnectionPool>(
-        config_map_["db"]["host"], config_map_["db"]["port"],
+    ConnectionPoolConfig config(
+        config_map_["db"]["host"], atoi(config_map_["db"]["port"].c_str()),
         config_map_["db"]["user"], config_map_["db"]["password"],
-        config_map_["db"]["dbname"], atoi(config_map_["db"]["timeout"].c_str()),
+        config_map_["db"]["dbname"],
         atoi(config_map_["db"]["min_size"].c_str()),
-        atoi(config_map_["db"]["max_size"].c_str()), config_map_["db"]["name"]);
+        atoi(config_map_["db"]["max_size"].c_str()),
+        atoi(config_map_["db"]["timeout"].c_str()),
+        atoi(config_map_["db"]["max_idle_time"].c_str()));
+    pool_ = std::make_unique<ConnectionPool>(loop, config,
+                                             config_map_["db"]["name"]);
   }
 }
 
@@ -95,7 +100,7 @@ void WebServer::start() {
   }
 }
 
-PgConnectionPool &WebServer::pool() const {
+ConnectionPool &WebServer::pool() const {
   assert(pool_ != nullptr);
   return *pool_;
 }
@@ -123,9 +128,10 @@ void WebServer::loadConfig(const std::string &filePath) {
       config_map_["server"]["threads"] = "5";
     } else if (section_name == "db") {
       config_map_["db"]["name"] = "PgConnectionPool";
-      config_map_["db"]["timeout"] = "10";
       config_map_["db"]["min_size"] = "5";
       config_map_["db"]["max_size"] = "10";
+      config_map_["db"]["timeout"] = "10";
+      config_map_["db"]["max_idle_time"] = "5000";
     }
 
     std::map<std::string, std::string> section_map;
