@@ -7,13 +7,6 @@
 
 namespace lynx {
 
-static_assert(EPOLLIN == POLLIN, "epoll uses same flag values as poll");
-static_assert(EPOLLPRI == POLLPRI, "epoll uses same flag values as poll");
-static_assert(EPOLLOUT == POLLOUT, "epoll uses same flag values as poll");
-static_assert(EPOLLRDHUP == POLLRDHUP, "epoll uses same flag values as poll");
-static_assert(EPOLLERR == POLLERR, "epoll uses same flag values as poll");
-static_assert(EPOLLHUP == POLLHUP, "epoll uses same flag values as poll");
-
 const int K_NEW = -1;
 const int K_ADDED = 1;
 const int K_DELETED = 2;

@@ -1,11 +1,17 @@
 #include "lynx/net/socket.h"
 #include "lynx/logger/logging.h"
 #include "lynx/net/inet_address.h"
-#include "lynx/net/sockets_ops.h"
+
+#include <netinet/in.h>
+#include <unistd.h>
 
 namespace lynx {
 
-Socket::~Socket() { sockets::close(sockfd_); }
+Socket::~Socket() {
+  if (::close(sockfd_) < 0) {
+    LOG_SYSERR << "close";
+  }
+}
 
 bool Socket::getTcpInfo(struct tcp_info *tcpi) const {
   socklen_t len = sizeof(*tcpi);
@@ -32,22 +38,64 @@ bool Socket::getTcpInfoString(char *buf, int len) const {
 }
 
 void Socket::bindAddress(const InetAddress &addr) {
-  sockets::bindOrDie(sockfd_, addr.getSockAddr());
+  if (::bind(sockfd_,
+             static_cast<const struct sockaddr *>(
+                 static_cast<const void *>(addr.getSockAddr())),
+             static_cast<socklen_t>(sizeof(struct sockaddr_in6))) < 0) {
+    LOG_SYSFATAL << "bindOrDie";
+  }
 }
 
-void Socket::listen() { sockets::listenOrDie(sockfd_); }
+void Socket::listen() {
+  if (::listen(sockfd_, SOMAXCONN) < 0) {
+    LOG_SYSFATAL << "listenOrDie";
+  }
+}
 
 int Socket::accept(InetAddress *peeraddr) {
-  struct sockaddr_in6 addr;
+  struct sockaddr_in addr;
+  socklen_t len = sizeof(addr);
   memset(&addr, 0, sizeof(addr));
-  int connfd = sockets::accept(sockfd_, &addr);
-  if (connfd >= 0) {
-    peeraddr->setSockAddrInet6(addr);
+  int connfd = ::accept4(
+      sockfd_, static_cast<struct sockaddr *>(static_cast<void *>(&addr)), &len,
+      SOCK_NONBLOCK | SOCK_CLOEXEC);
+  if (connfd < 0) {
+    int saved_errno = errno;
+    LOG_SYSERR << "Socket::accept";
+    switch (saved_errno) {
+    case EAGAIN:
+    case ECONNABORTED:
+    case EINTR:
+    case EPROTO:
+    case EPERM:
+    case EMFILE:
+      errno = saved_errno;
+      break;
+    case EBADF:
+    case EFAULT:
+    case EINVAL:
+    case ENFILE:
+    case ENOBUFS:
+    case ENOMEM:
+    case ENOTSOCK:
+    case EOPNOTSUPP:
+      LOG_FATAL << "unexpected error of ::accept " << saved_errno;
+      break;
+    default:
+      LOG_FATAL << "unknown error of ::accept " << saved_errno;
+      break;
+    }
+  } else {
+    peeraddr->setSockAddr(addr);
   }
   return connfd;
 }
 
-void Socket::shutdownWrite() { sockets::shutdownWrite(sockfd_); }
+void Socket::shutdownWrite() {
+  if (::shutdown(sockfd_, SHUT_WR) < 0) {
+    LOG_SYSERR << "shutdownWrite";
+  }
+}
 
 void Socket::setTcpNoDelay(bool on) {
   int optval = on ? 1 : 0;
@@ -62,18 +110,12 @@ void Socket::setReuseAddr(bool on) {
 }
 
 void Socket::setReusePort(bool on) {
-#ifdef SO_REUSEPORT
   int optval = on ? 1 : 0;
   int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT, &optval,
                          static_cast<socklen_t>(sizeof(optval)));
   if (ret < 0 && on) {
     LOG_SYSERR << "SO_REUSEPORT failed.";
   }
-#else
-  if (on) {
-    LOG_ERROR << "SO_REUSEPORT is not supported.";
-  }
-#endif
 }
 
 void Socket::setKeepAlive(bool on) {

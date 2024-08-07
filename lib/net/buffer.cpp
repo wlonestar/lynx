@@ -1,5 +1,4 @@
 #include "lynx/net/buffer.h"
-#include "lynx/net/sockets_ops.h"
 
 #include <sys/uio.h>
 

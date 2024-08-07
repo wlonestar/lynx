@@ -1,5 +1,0 @@
-add_executable(netty_discard_client discard_client.cpp)
-target_link_libraries(netty_discard_client lynx)
-
-add_executable(netty_discard_server discard_server.cpp)
-target_link_libraries(netty_discard_server lynx)

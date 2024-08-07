@@ -3,9 +3,25 @@
 #include "lynx/net/acceptor.h"
 #include "lynx/net/event_loop.h"
 #include "lynx/net/event_loop_thread_pool.h"
-#include "lynx/net/sockets_ops.h"
 
 namespace lynx {
+
+namespace detail {
+
+struct sockaddr_in getLocalAddr(int sockfd) {
+  struct sockaddr_in localaddr;
+  memset(&localaddr, 0, sizeof(localaddr));
+  auto addrlen = static_cast<socklen_t>(sizeof(localaddr));
+  if (::getsockname(
+          sockfd,
+          static_cast<struct sockaddr *>(static_cast<void *>(&localaddr)),
+          &addrlen) < 0) {
+    LOG_SYSERR << "getLocalAddr";
+  }
+  return localaddr;
+}
+
+} // namespace detail
 
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &listenAddr,
                      const std::string &name, Option option)
@@ -55,7 +71,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
 
   LOG_INFO << "TcpServer::newConnection [" << name_ << "] - new connection ["
            << conn_name << "] from " << peerAddr.toIpPort();
-  InetAddress local_addr(sockets::getLocalAddr(sockfd));
+  InetAddress local_addr(detail::getLocalAddr(sockfd));
   TcpConnectionPtr conn(
       new TcpConnection(io_loop, conn_name, sockfd, local_addr, peerAddr));
   connections_[conn_name] = conn;

@@ -15,9 +15,3 @@ target_link_libraries(event_loop_test lynx)
 
 add_executable(event_loop_thread_pool_bench event_loop_thread_pool_bench.cpp)
 target_link_libraries(event_loop_thread_pool_bench lynx)
-
-add_executable(echo_server_test echo_server_test.cpp)
-target_link_libraries(echo_server_test lynx)
-
-add_executable(echo_client_test echo_client_test.cpp)
-target_link_libraries(echo_client_test lynx)

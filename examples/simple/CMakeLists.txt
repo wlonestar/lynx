@@ -13,11 +13,5 @@ target_link_libraries(echo lynx)
 add_executable(chargen chargen.cpp)
 target_link_libraries(chargen lynx)
 
-add_executable(timeclient timeclient.cpp)
-target_link_libraries(timeclient lynx)
-
-add_executable(chargenclient chargenclient.cpp)
-target_link_libraries(chargenclient lynx)
-
 add_executable(allinone allinone.cpp)
 target_link_libraries(allinone lynx)

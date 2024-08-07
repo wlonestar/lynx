@@ -2,13 +2,10 @@
 
 namespace lynx {
 
-PgConnectionPool::PgConnectionPool(const std::string &host,
-                                   const std::string &port,
-                                   const std::string &user,
-                                   const std::string &password,
-                                   const std::string &dbname,
-                                  size_t timeout, size_t minSize,
-                                   size_t maxSize, const std::string &name)
+PgConnectionPool::PgConnectionPool(
+    const std::string &host, const std::string &port, const std::string &user,
+    const std::string &password, const std::string &dbname, size_t timeout,
+    size_t minSize, size_t maxSize, const std::string &name)
     : host_(host), port_(port), user_(user), password_(password),
       dbname_(dbname), timeout_(timeout), min_size_(minSize),
       max_size_(maxSize), name_(name) {}

@@ -1,96 +1,48 @@
 #include "lynx/net/inet_address.h"
 #include "lynx/logger/logging.h"
-#include "lynx/net/sockets_ops.h"
 
-#include <cassert>
+#include <arpa/inet.h>
 #include <cstddef>
-#include <netdb.h>
+#include <netinet/in.h>
 
 namespace lynx {
 
 static const in_addr_t K_INADDR_ANY = INADDR_ANY;
 static const in_addr_t K_INADDR_LOOPBACK = INADDR_LOOPBACK;
 
-static_assert(sizeof(InetAddress) == sizeof(struct sockaddr_in6),
-              "InetAddress is same size as sockaddr_in6");
-static_assert(offsetof(sockaddr_in, sin_family) == 0, "sin_family offset 0");
-static_assert(offsetof(sockaddr_in6, sin6_family) == 0, "sin6_family offset 0");
-static_assert(offsetof(sockaddr_in, sin_port) == 2, "sin_port offset 2");
-static_assert(offsetof(sockaddr_in6, sin6_port) == 2, "sin6_port offset 2");
-
-InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly, bool ipv6) {
-  static_assert(offsetof(InetAddress, addr6_) == 0, "addr6_ offset 0");
+InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly) {
   static_assert(offsetof(InetAddress, addr_) == 0, "addr_ offset 0");
-  if (ipv6) {
-    memset(&addr6_, 0, sizeof(addr6_));
-    addr6_.sin6_family = AF_INET6;
-    in6_addr ip = loopbackOnly ? in6addr_loopback : in6addr_any;
-    addr6_.sin6_addr = ip;
-    addr6_.sin6_port = htobe16(portArg);
-  } else {
-    memset(&addr_, 0, sizeof(addr_));
-    addr_.sin_family = AF_INET;
-    in_addr_t ip = loopbackOnly ? K_INADDR_LOOPBACK : K_INADDR_ANY;
-    addr_.sin_addr.s_addr = htobe32(ip);
-    addr_.sin_port = htobe16(portArg);
-  }
+  memset(&addr_, 0, sizeof(addr_));
+  addr_.sin_family = AF_INET;
+  in_addr_t ip = loopbackOnly ? K_INADDR_LOOPBACK : K_INADDR_ANY;
+  addr_.sin_addr.s_addr = htobe32(ip);
+  addr_.sin_port = htobe16(portArg);
 }
 
-InetAddress::InetAddress(std::string ip, uint16_t portArg, bool ipv6) {
-  if (ipv6 || (strchr(ip.c_str(), ':') != nullptr)) {
-    memset(&addr6_, 0, sizeof(addr6_));
-    sockets::fromIpPort(ip.c_str(), portArg, &addr6_);
-  } else {
-    memset(&addr_, 0, sizeof(addr_));
-    sockets::fromIpPort(ip.c_str(), portArg, &addr_);
+InetAddress::InetAddress(std::string ip, uint16_t port) {
+  memset(&addr_, 0, sizeof(addr_));
+  addr_.sin_family = AF_INET;
+  addr_.sin_port = htobe16(port);
+  if (::inet_pton(AF_INET, ip.c_str(), &addr_.sin_addr) <= 0) {
+    LOG_SYSERR << "fromIpPort";
   }
 }
 
 std::string InetAddress::toIpPort() const {
   char buf[64] = "";
-  sockets::toIpPort(buf, sizeof(buf), getSockAddr());
+  ::inet_ntop(AF_INET, &addr_.sin_addr, buf, sizeof(buf));
+  size_t end = ::strlen(buf);
+  uint16_t port = ::ntohs(addr_.sin_port);
+  snprintf(buf + end, sizeof(buf), ":%u", port);
   return buf;
 }
 
 std::string InetAddress::toIp() const {
   char buf[64] = "";
-  sockets::toIp(buf, sizeof(buf), getSockAddr());
+  ::inet_ntop(AF_INET, &addr_.sin_addr, buf, sizeof(buf));
   return buf;
 }
 
-uint32_t InetAddress::ipv4NetEndian() const {
-  assert(family() == AF_INET);
-  return addr_.sin_addr.s_addr;
-}
-
-uint16_t InetAddress::port() const { return be16toh(portNetEndian()); }
-
-static thread_local char t_resolve_buffer[64 * 1024];
-
-bool InetAddress::resolve(std::string hostname, InetAddress *out) {
-  assert(out != nullptr);
-  struct hostent hent;
-  struct hostent *he = nullptr;
-  int herrno = 0;
-  memset(&hent, 0, sizeof(hent));
-
-  int ret = gethostbyname_r(hostname.c_str(), &hent, t_resolve_buffer,
-                            sizeof(t_resolve_buffer), &he, &herrno);
-  if (ret == 0 && he != nullptr) {
-    assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
-    out->addr_.sin_addr = *reinterpret_cast<struct in_addr *>(he->h_addr);
-    return true;
-  }
-  if (ret != 0) {
-    LOG_SYSERR << "InetAddress::resolve";
-  }
-  return false;
-}
-
-void InetAddress::setScopeId(uint32_t scope_id) {
-  if (family() == AF_INET6) {
-    addr6_.sin6_scope_id = scope_id;
-  }
-}
+uint16_t InetAddress::port() const { return ::ntohs(addr_.sin_port); }
 
 } // namespace lynx

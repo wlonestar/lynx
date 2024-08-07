@@ -1,5 +1,3 @@
 add_subdirectory(simple)
 add_subdirectory(shorturl)
-add_subdirectory(pingpong)
 add_subdirectory(timer)
-add_subdirectory(netty)

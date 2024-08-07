@@ -2,7 +2,7 @@
 #include "lynx/logger/logging.h"
 #include "lynx/net/channel.h"
 #include "lynx/net/epoller.h"
-#include "lynx/net/sockets_ops.h"
+
 #include "lynx/timer/timer_queue.h"
 
 #include <cassert>

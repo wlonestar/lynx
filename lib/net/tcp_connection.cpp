@@ -3,7 +3,6 @@
 #include "lynx/net/channel.h"
 #include "lynx/net/event_loop.h"
 #include "lynx/net/socket.h"
-#include "lynx/net/sockets_ops.h"
 
 namespace lynx {
 
@@ -271,7 +270,15 @@ void TcpConnection::handleClose() {
 }
 
 void TcpConnection::handleError() {
-  int err = sockets::getSocketError(channel_->fd());
+  int optval;
+  auto optlen = static_cast<socklen_t>(sizeof(optval));
+  int err = 0;
+  if (::getsockopt(channel_->fd(), SOL_SOCKET, SO_ERROR, &optval, &optlen) <
+      0) {
+    err = errno;
+  } else {
+    err = optval;
+  }
   LOG_ERROR << "TcpConnection::handleError [" << name_
             << "] - SO_ERROR = " << err << " " << current_thread::strError(err);
 }
