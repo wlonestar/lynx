@@ -4,6 +4,7 @@
 #include "lynx/logger/logging.h"
 #include "lynx/net/event_loop.h"
 #include "lynx/orm/reflection.h"
+
 #include <chrono>
 #include <thread>
 
@@ -38,14 +39,11 @@ int main() {
   lynx::ConnectionPoolConfig config("127.0.0.1", 5432, "postgres", "123456",
                                     "demo", 2, 4, 10, 5000);
 
-  lynx::EventLoop loop;
-  lynx::ConnectionPool pool(&loop, config);
+  lynx::ConnectionPool pool(config);
   pool.start();
 
   for (int i = 0; i < 50; i++) {
     lynx::Thread t1([&] { query(pool); });
     t1.start();
   }
-
-  loop.loop();
 }

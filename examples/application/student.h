@@ -1,4 +1,4 @@
-#include "lynx/db/pg_connection_pool.h"
+#include "lynx/db/connection_pool.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
 #include "lynx/logger/logging.h"
@@ -29,13 +29,12 @@ REGISTER_AUTO_KEY(Student, id);
 
 class StudentRepository : public lynx::BaseRepository<Student, uint64_t> {
 public:
-  explicit StudentRepository(lynx::PgConnectionPool &pool)
+  explicit StudentRepository(lynx::ConnectionPool &pool)
       : lynx::BaseRepository<Student, uint64_t>(pool) {}
 
   std::vector<Student> selectAll() {
-    auto conn = pool_.acquire();
+    auto conn = pool_.getConnection();
     auto students = conn->query<Student, uint64_t>().toVector();
-    pool_.release(conn);
     return students;
   }
 };
@@ -74,7 +73,7 @@ private:
 
 class StudentController : public lynx::BaseController {
 public:
-  static void init(lynx::PgConnectionPool &pool) {
+  static void init(lynx::ConnectionPool &pool) {
     service = std::make_unique<StudentService>(StudentRepository(pool));
   }
 

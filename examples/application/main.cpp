@@ -1,12 +1,12 @@
 #include "student.h"
 
-#include "lynx/db/pg_connection_pool.h"
+#include "lynx/db/connection_pool.h"
 #include "lynx/logger/logging.h"
 #include "lynx/net/event_loop.h"
 #include "lynx/web/web_server.h"
 
-void initDb(lynx::PgConnectionPool &pool) {
-  auto conn = pool.acquire();
+void initDb(lynx::ConnectionPool &pool) {
+  auto conn = pool.getConnection();
 
   /// Create table (drop if table already exists)
   conn->execute("drop table student; drop sequence student_id_seq;");
@@ -43,12 +43,10 @@ void initDb(lynx::PgConnectionPool &pool) {
     students.push_back(s);
   }
   conn->insert(students);
-
-  pool.release(conn);
 }
 
 int main(int argc, char *argv[]) {
-    /// Init Web Server
+  /// Init Web Server
   lynx::EventLoop loop;
   lynx::WebServer server(&loop);
 
@@ -64,7 +62,7 @@ int main(int argc, char *argv[]) {
   controller.registerHandler(server);
 
   /// print route table
-  server.printRoutes();
+  server.printRouteTable();
 
   loop.loop();
 }

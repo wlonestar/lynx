@@ -112,7 +112,6 @@ set(NET_HEADERS
   lynx/net/event_loop_thread.h
   lynx/net/event_loop_thread_pool.h
   lynx/net/inet_address.h
-  lynx/net/tcp_client.h
   lynx/net/tcp_connection.h
   lynx/net/tcp_server.h
   )

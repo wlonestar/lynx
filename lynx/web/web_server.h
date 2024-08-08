@@ -19,17 +19,17 @@ using HttpHandler = HttpServer::HttpCallback;
 class WebServer {
 public:
   explicit WebServer(EventLoop *loop,
-                     const std::string &filename = std::string("config.yml"));
+                     const std::string &filename = "config.yml");
 
   void start();
 
   /// Check if `pool_` valid before
   ConnectionPool &pool() const;
 
-  void addRoute(const std::string &method, const std::string &path,
-                HttpHandler handler);
+  int addRoute(const std::string &method, const std::string &path,
+               HttpHandler handler);
 
-  void printRoutes();
+  void printRouteTable();
 
 private:
   /// load yaml file with format:

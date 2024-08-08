@@ -1,8 +1,5 @@
 #include "student.h"
 
-#include "lynx/db/connection_pool.h"
-#include "lynx/logger/logging.h"
-#include "lynx/net/event_loop.h"
 #include "lynx/web/web_server.h"
 
 void initDb(lynx::ConnectionPool &pool) {
@@ -62,7 +59,7 @@ int main(int argc, char *argv[]) {
   controller.registerHandler(server);
 
   /// print route table
-  server.printRoutes();
+  server.printRouteTable();
 
   loop.loop();
 }

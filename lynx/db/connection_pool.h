@@ -34,7 +34,7 @@ struct ConnectionPoolConfig {
 
 class ConnectionPool {
 public:
-  ConnectionPool(EventLoop *loop, ConnectionPoolConfig &config,
+  ConnectionPool(ConnectionPoolConfig &config,
                  const std::string &name = "ConnectionPool");
   ~ConnectionPool();
 
@@ -49,7 +49,6 @@ private:
 
   void addConnection();
 
-  EventLoop *loop_;
   ConnectionPoolConfig config_;
   std::string name_;
 
@@ -57,6 +56,9 @@ private:
   std::queue<Connection *> queue_;
   std::mutex mutex_;
   std::condition_variable cond_;
+
+  Thread produce_thread_;
+  Thread recycle_thread_;
 
   bool running_ = false;
 };

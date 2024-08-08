@@ -8,9 +8,11 @@
 
 namespace lynx {
 
-ConnectionPool::ConnectionPool(EventLoop *loop, ConnectionPoolConfig &config,
+ConnectionPool::ConnectionPool(ConnectionPoolConfig &config,
                                const std::string &name)
-    : loop_(loop), config_(config), name_(name) {}
+    : config_(config), name_(name),
+      produce_thread_([&] { produceConnection(); }),
+      recycle_thread_([&] { recycleConnection(); }) {}
 
 ConnectionPool::~ConnectionPool() {
   if (running_) {
@@ -23,11 +25,22 @@ void ConnectionPool::start() {
     addConnection();
     curr_size_++;
   }
-  loop_->runEvery(0.5, [&] { produceConnection(); });
-  loop_->runEvery(0.5, [&] { recycleConnection(); });
+  produce_thread_.start();
+  recycle_thread_.start();
+  running_ = true;
 }
 
-void ConnectionPool::stop() { running_ = false; }
+void ConnectionPool::stop() {
+  produce_thread_.join();
+  recycle_thread_.join();
+  while (!queue_.empty()) {
+    auto *conn = queue_.front();
+    queue_.pop();
+    delete conn;
+    curr_size_--;
+  }
+  running_ = false;
+}
 
 std::shared_ptr<Connection> ConnectionPool::getConnection() {
   std::unique_lock<std::mutex> lock(mutex_);
@@ -53,30 +66,33 @@ std::shared_ptr<Connection> ConnectionPool::getConnection() {
 }
 
 void ConnectionPool::produceConnection() {
-  // while (true) {
-  std::unique_lock<std::mutex> lock(mutex_);
-  while (!queue_.empty()) {
-    cond_.wait(lock);
-  }
+  while (true) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    while (!queue_.empty()) {
+      cond_.wait(lock);
+    }
 
-  if (curr_size_ < config_.max_size_) {
-    addConnection();
-    curr_size_++;
-    cond_.notify_all();
+    if (curr_size_ < config_.max_size_) {
+      addConnection();
+      curr_size_++;
+      cond_.notify_all();
+    }
   }
-  // }
 }
 
 void ConnectionPool::recycleConnection() {
-  std::lock_guard<std::mutex> lock(mutex_);
-  while (queue_.size() > config_.min_size_) {
-    auto *conn = queue_.front();
-    if (conn->getAliveTime() >= config_.max_idle_time_) {
-      queue_.pop();
-      delete conn;
-      curr_size_--;
-    } else {
-      break;
+  while (true) {
+    std::this_thread::sleep_for(std::chrono::microseconds(500));
+    std::lock_guard<std::mutex> lock(mutex_);
+    while (queue_.size() > config_.min_size_) {
+      auto *conn = queue_.front();
+      if (conn->getAliveTime() >= config_.max_idle_time_) {
+        queue_.pop();
+        delete conn;
+        curr_size_--;
+      } else {
+        break;
+      }
     }
   }
 }

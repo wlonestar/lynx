@@ -16,7 +16,10 @@ public:
   std::string toIpPort() const;
   uint16_t port() const;
 
-  const struct sockaddr_in *getSockAddr() const { return &addr_; }
+  const struct sockaddr *getSockAddr() const {
+    return static_cast<const struct sockaddr *>(
+        static_cast<const void *>(&addr_));
+  }
   void setSockAddr(const struct sockaddr_in &addr) { addr_ = addr; }
 
 private:

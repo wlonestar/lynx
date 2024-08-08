@@ -64,17 +64,23 @@ WebServer::WebServer(EventLoop *loop, const std::string &filename) {
     fprintf(stderr, "Error: can not find config file: %s\n", path.c_str());
     abort();
   }
+  LOG_TRACE << "read config from " << path;
   loadConfig(path);
 
   /// Create Http server
   server_ = std::make_unique<HttpServer>(
-      loop, InetAddress(atoi(config_map_["server"]["port"].c_str())),
+      loop,
+      InetAddress(
+          static_cast<uint16_t>(atoi(config_map_["server"]["port"].c_str()))),
       config_map_["server"]["name"]);
+
+  /// Set Http server params
   server_->setThreadNum(atoi(config_map_["server"]["threads"].c_str()));
   server_->setHttpCallback([this](auto &&PH1, auto &&PH2) {
     onRequest(std::forward<decltype(PH1)>(PH1),
               std::forward<decltype(PH2)>(PH2));
   });
+
   addRoute("GET", "/", detail::handleIndex);
   addRoute("GET", "/favicon.ico", detail::handleFavicon);
 
@@ -88,8 +94,7 @@ WebServer::WebServer(EventLoop *loop, const std::string &filename) {
         atoi(config_map_["db"]["max_size"].c_str()),
         atoi(config_map_["db"]["timeout"].c_str()),
         atoi(config_map_["db"]["max_idle_time"].c_str()));
-    pool_ = std::make_unique<ConnectionPool>(loop, config,
-                                             config_map_["db"]["name"]);
+    pool_ = std::make_unique<ConnectionPool>(config, config_map_["db"]["name"]);
   }
 }
 
@@ -105,12 +110,13 @@ ConnectionPool &WebServer::pool() const {
   return *pool_;
 }
 
-void WebServer::addRoute(const std::string &method, const std::string &path,
-                         HttpHandler handler) {
+int WebServer::addRoute(const std::string &method, const std::string &path,
+                        HttpHandler handler) {
   route_table_[std::make_pair(stringToHttpMethod(method), path)] = handler;
+  return 0;
 }
 
-void WebServer::printRoutes() {
+void WebServer::printRouteTable() {
   std::cout << "Route Table:\n";
   for (auto &[pair, handler] : route_table_) {
     printf("%6s - %s\n", methodToString(pair.first), pair.second.c_str());
@@ -155,11 +161,25 @@ void WebServer::loadConfig(const std::string &filePath) {
       abort();
     }
   }
+
+  for (auto &section : config_map_) {
+    for (auto &[first, second] : section.second) {
+      LOG_DEBUG << section.first << "." << first << " = " << second;
+    }
+  }
 }
 
 void WebServer::onRequest(const lynx::HttpRequest &req,
                           lynx::HttpResponse *resp) {
-  std::cout << req.toString() << "\n";
+  LOG_INFO << lynx::methodToString(req.method()) << " " << req.path();
+
+  const std::map<std::string, std::string, lynx::CaseInsensitiveLess> &headers =
+      req.headers();
+  std::stringstream ss;
+  for (const auto &header : headers) {
+    ss << header.first << ": " << header.second << "|";
+  }
+  LOG_INFO << ss.str();
 
   /// Searching for path with query
   std::string path = std::string(req.path());
