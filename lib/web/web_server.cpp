@@ -1,6 +1,4 @@
 #include "lynx/web/web_server.h"
-#include "lynx/db/connection_pool.h"
-#include "lynx/http/http_server.h"
 #include "lynx/logger/logging.h"
 
 #include <yaml-cpp/yaml.h>
@@ -14,29 +12,13 @@ namespace fs = std::filesystem;
 
 namespace detail {
 
-void handleIndex(const HttpRequest &req, HttpResponse *resp) {
-  resp->setStatusCode(HttpResponse::Ok200);
-  resp->setStatusMessage("OK");
-  resp->setContentType("text/html");
-  resp->addHeader("Server", "lynx");
-  std::string now = Timestamp::now().toFormattedString();
-  resp->setBody("<html><head><title>This is title</title></head>"
-                "<body><h1>Hello</h1>Now is " +
-                now + "</body></html>");
-}
-
-void handleFavicon(const HttpRequest &req, HttpResponse *resp) {
-  resp->setStatusCode(HttpResponse::Ok200);
-  resp->setStatusMessage("OK");
-  resp->setContentType("image/png");
-  resp->setBody(
-      std::string(reinterpret_cast<char *>(favicon_jpg), favicon_jpg_len));
-}
-
 void handleNotFound(const HttpRequest &req, HttpResponse *resp) {
   resp->setStatusCode(HttpResponse::NotFound404);
   resp->setStatusMessage("Not Found");
-  resp->setCloseConnection(true);
+  std::string now = Timestamp::now().toFormattedString();
+  resp->setBody("<html><body><h1>Error Page</h1><p>" + now +
+                "</p><p>There was an unexcepted error (type=Not Found, "
+                "status=404).</p></body></html>");
 }
 
 std::string getExecutableDir() {
@@ -80,9 +62,6 @@ WebServer::WebServer(EventLoop *loop, const std::string &filename) {
     onRequest(std::forward<decltype(PH1)>(PH1),
               std::forward<decltype(PH2)>(PH2));
   });
-
-  addRoute("GET", "/", detail::handleIndex);
-  addRoute("GET", "/favicon.ico", detail::handleFavicon);
 
   /// Create Pg connection pool if find `db` key
   if (config_map_.find("db") != config_map_.end()) {
@@ -173,21 +152,21 @@ void WebServer::onRequest(const lynx::HttpRequest &req,
                           lynx::HttpResponse *resp) {
   LOG_INFO << lynx::methodToString(req.method()) << " " << req.path();
 
-  const std::map<std::string, std::string, lynx::CaseInsensitiveLess> &headers =
-      req.headers();
+  /// Log request headers
   std::stringstream ss;
-  for (const auto &header : headers) {
+  for (const auto &header : req.headers()) {
     ss << header.first << ": " << header.second << "|";
   }
   LOG_INFO << ss.str();
 
-  /// Searching for path with query
+  /// Concat path and query
   std::string path = std::string(req.path());
   if (!req.query().empty()) {
     path += "?" + std::string(req.query());
   }
-  LOG_DEBUG << "search for '" << path << "'";
+  LOG_DEBUG << "searching for '" << path << "'";
 
+  /// Searching in route table by method and path
   bool flag = false;
   auto method = req.method();
   for (auto &[pair, handler] : route_table_) {
@@ -201,6 +180,7 @@ void WebServer::onRequest(const lynx::HttpRequest &req,
       }
     }
   }
+
   if (!flag) {
     LOG_DEBUG << "not found";
     detail::handleNotFound(req, resp);

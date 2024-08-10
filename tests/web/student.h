@@ -1,10 +1,8 @@
-#include "lynx/db/connection_pool.h"
-#include "lynx/http/http_request.h"
-#include "lynx/http/http_response.h"
 #include "lynx/logger/logging.h"
 #include "lynx/orm/reflection.h"
 #include "lynx/web/base_controller.h"
 #include "lynx/web/base_repository.h"
+#include "lynx/web/common_result.h"
 
 #include <optional>
 #include <vector>

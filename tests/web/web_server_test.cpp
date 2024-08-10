@@ -1,6 +1,35 @@
+#include "lynx/logger/async_logging.h"
 #include "student.h"
 
 #include "lynx/web/web_server.h"
+
+off_t roll_size = 500 * 1000 * 1000;
+lynx::AsyncLogging *g_async_log = nullptr;
+
+void asyncOutput(const char *msg, int len) { g_async_log->append(msg, len); }
+
+/// For favicon
+extern unsigned char favicon_jpg[];
+extern unsigned int favicon_jpg_len;
+
+void handleIndex(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+  resp->setStatusCode(lynx::HttpResponse::Ok200);
+  resp->setStatusMessage("OK");
+  resp->setContentType("text/html");
+  resp->addHeader("Server", "lynx");
+  std::string now = lynx::Timestamp::now().toFormattedString();
+  resp->setBody("<html><head><title>This is title</title></head>"
+                "<body><h1>Hello</h1>Now is " +
+                now + "</body></html>");
+}
+
+void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
+  resp->setStatusCode(lynx::HttpResponse::Ok200);
+  resp->setStatusMessage("OK");
+  resp->setContentType("image/png");
+  resp->setBody(
+      std::string(reinterpret_cast<char *>(favicon_jpg), favicon_jpg_len));
+}
 
 void initDb(lynx::ConnectionPool &pool) {
   auto conn = pool.getConnection();
@@ -43,6 +72,13 @@ void initDb(lynx::ConnectionPool &pool) {
 }
 
 int main(int argc, char *argv[]) {
+  char name[256] = {'\0'};
+  strncpy(name, argv[0], sizeof(name) - 1);
+  lynx::AsyncLogging log(::basename(name), roll_size);
+  log.start();
+  g_async_log = &log;
+  lynx::Logger::setOutput(asyncOutput);
+
   /// Init Web Server
   lynx::EventLoop loop;
   lynx::WebServer server(&loop);
@@ -54,6 +90,9 @@ int main(int argc, char *argv[]) {
   initDb(server.pool());
 
   /// Register handler
+  server.addRoute("GET", "/", handleIndex);
+  server.addRoute("GET", "/favicon.ico", handleFavicon);
+
   StudentController::init(server.pool());
   StudentController controller;
   controller.registerHandler(server);

@@ -8,15 +8,11 @@
 #include "lynx/net/event_loop.h"
 #include "lynx/net/inet_address.h"
 
-/// For favicon
-extern unsigned char favicon_jpg[];
-extern unsigned int favicon_jpg_len;
-
 namespace lynx {
 
 using HttpHandler = HttpServer::HttpCallback;
 
-class WebServer {
+class WebServer : Noncopyable {
 public:
   explicit WebServer(EventLoop *loop,
                      const std::string &filename = "config.yml");
