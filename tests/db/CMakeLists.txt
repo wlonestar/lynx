@@ -3,6 +3,3 @@ target_link_libraries(connection_test lynx)
 
 add_executable(connection_pool_test connection_pool_test.cpp)
 target_link_libraries(connection_pool_test lynx)
-
-add_executable(async_connection_test async_connection_test.cpp)
-target_link_libraries(async_connection_test lynx)
