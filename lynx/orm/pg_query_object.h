@@ -491,6 +491,136 @@ private:
   size_t idx_ = 0;
 };
 
+template <typename T> class InsertWrapper {
+public:
+  InsertWrapper(PGconn *conn, std::string_view tableName)
+      : conn_(conn), table_name_(tableName) {}
+
+  int insert(T &t) {
+    std::string sql = generateInsertSql();
+    LOG_TRACE << " insert prepare: " << sql;
+    if (!prepare(sql)) {
+      return 0;
+    }
+    return insertImpl(sql, t);
+  }
+
+  int insert(std::vector<T> &t) {
+    std::string sql = generateInsertSql();
+    LOG_TRACE << " insert prepare: " << sql;
+    if (!prepare(sql)) {
+      return 0;
+    }
+
+    for (auto &item : t) {
+      if (!insertImpl(sql, item)) {
+        execute("rollback;");
+        return 0;
+      }
+    }
+    if (!execute("commit;")) {
+      return 0;
+    }
+    return t.size();
+  }
+
+private:
+  bool execute(const std::string &sql) {
+    LOG_DEBUG << "exec: " << sql;
+    res_ = PQexec(conn_, sql.data());
+    bool ret = PQresultStatus(res_) == PGRES_COMMAND_OK;
+    PQclear(res_);
+    return ret;
+  }
+
+  bool insertImpl(std::string &sql, T &t) {
+    std::vector<std::vector<char>> param_values;
+    forEach(t, [&](auto &item, auto field, auto j) {
+      if (!isAutoKey<T>(getName<T>(j).data())) {
+        setParamValue(param_values, t.*item);
+      }
+    });
+    if (param_values.empty()) {
+      return false;
+    }
+
+    std::vector<const char *> param_values_buf;
+    param_values_buf.reserve(param_values.size());
+    for (auto &item : param_values) {
+      param_values_buf.push_back(item.data());
+    }
+
+    // For debugging
+    std::stringstream ss;
+    ss << "params: ";
+    for (size_t i = 0; i < param_values_buf.size(); i++) {
+      ss << i << "=" << *(param_values_buf.data() + i) << ", ";
+    }
+    LOG_DEBUG << ss.str();
+
+    res_ = PQexecPrepared(conn_, "", static_cast<int>(param_values.size()),
+                          param_values_buf.data(), nullptr, nullptr, 0);
+    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQresultErrorMessage(res_);
+      PQclear(res_);
+      return false;
+    }
+    PQclear(res_);
+    return true;
+  }
+
+  constexpr auto generateInsertSql() {
+    std::string table_name = getName<T>().data();
+    std::string sql = "insert into " + table_name + "(";
+
+    auto field_names = getArray<T>();
+    constexpr auto field_size = getValue<T>();
+    for (size_t i = 0; i < field_size; i++) {
+      std::string field_name = field_names[i].data();
+      /// Skip if is auto key
+      if (isAutoKey<T>(field_name)) {
+        continue;
+      }
+      sql += field_name;
+      if (i != field_size - 1) {
+        sql += ", ";
+      }
+    }
+    sql += ") values(";
+
+    int idx = 0;
+    for (size_t i = 0; i < field_size; i++) {
+      std::string field_name = getName<T>(i).data();
+      /// Skip if is auto key
+      if (isAutoKey<T>(field_name)) {
+        continue;
+      }
+      sql += "$" + std::to_string(++idx);
+      if (i != field_size - 1) {
+        sql += ", ";
+      }
+    }
+    sql += ");";
+    return sql;
+  }
+
+  bool prepare(const std::string &sql) {
+    res_ = PQprepare(conn_, "", sql.data(), static_cast<int>(getValue<T>()),
+                     nullptr);
+    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQerrorMessage(conn_);
+      return false;
+    }
+    PQclear(res_);
+    return true;
+  }
+
+  PGconn *conn_;
+  PGresult *res_;
+
+  std::string table_name_;
+};
+
 template <typename T> struct FieldAttribute;
 
 template <typename T, typename U> struct FieldAttribute<U T::*> {

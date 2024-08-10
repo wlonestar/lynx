@@ -1,8 +1,6 @@
 #include "lynx/db/connection.h"
 #include "lynx/logger/logging.h"
 
-#include <libpq-fe.h>
-
 #include <chrono>
 #include <sstream>
 

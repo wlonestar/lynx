@@ -23,6 +23,9 @@ public:
   template <typename T, typename ID>
   using DeleteResult = typename std::enable_if<is_reflection<T>::value,
                                                DeleteWrapper<T, ID>>::type;
+  template <typename T>
+  using InsertResult =
+      typename std::enable_if<is_reflection<T>::value, InsertWrapper<T>>::type;
 
   explicit Connection(const std::string &name = std::string());
   ~Connection();
@@ -44,42 +47,11 @@ public:
     return true;
   }
 
-  template <typename T> bool prepare(const std::string &sql) {
-    res_ = PQprepare(conn_, "", sql.data(), static_cast<int>(getValue<T>()),
-                     nullptr);
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQerrorMessage(conn_);
-      return false;
-    }
-    PQclear(res_);
-    return true;
-  }
-
-  template <typename T> int insert(T &&t) {
-    std::string sql = generateInsertSql<T>();
-    LOG_TRACE << name_ << " insert prepare: " << sql;
-    if (!prepare<T>(sql)) {
-      return false;
-    }
-    return insertImpl(sql, std::forward<T>(t));
+  template <typename T> int insert(T &t) {
+    return InsertWrapper<T>(conn_, getName<T>()).insert(t);
   }
   template <typename T> int insert(std::vector<T> &t) {
-    std::string sql = generateInsertSql<T>();
-    LOG_TRACE << name_ << " insert prepare: " << sql;
-    if (!prepare<T>(sql)) {
-      return 0;
-    }
-
-    for (auto &item : t) {
-      if (!insertImpl(sql, item)) {
-        execute("rollback;");
-        return 0;
-      }
-    }
-    if (!execute("commit;")) {
-      return 0;
-    }
-    return t.size();
+    return InsertWrapper<T>(conn_, getName<T>()).insert(t);
   }
 
   template <typename T, typename ID> constexpr QueryResult<T, ID> query() {
@@ -96,47 +68,12 @@ public:
   uint64_t getAliveTime();
 
 private:
-  template <typename T> bool insertImpl(std::string &sql, T &&t) {
-    std::vector<std::vector<char>> param_values;
-    forEach(t, [&](auto &item, auto field, auto j) {
-      if (!isAutoKey<T>(getName<T>(j).data())) {
-        setParamValue(param_values, t.*item);
-      }
-    });
-    if (param_values.empty()) {
-      return false;
-    }
-
-    std::vector<const char *> param_values_buf;
-    param_values_buf.reserve(param_values.size());
-    for (auto &item : param_values) {
-      param_values_buf.push_back(item.data());
-    }
-
-    // For debug
-    std::stringstream ss;
-    ss << "params: ";
-    for (size_t i = 0; i < param_values_buf.size(); i++) {
-      ss << i << "=" << *(param_values_buf.data() + i) << ", ";
-    }
-    LOG_DEBUG << ss.str();
-
-    res_ = PQexecPrepared(conn_, "", static_cast<int>(param_values.size()),
-                          param_values_buf.data(), nullptr, nullptr, 0);
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQresultErrorMessage(res_);
-      PQclear(res_);
-      return false;
-    }
-    PQclear(res_);
-    return true;
-  }
-
   void setDefaultName();
 
   std::string name_;
   PGconn *conn_ = nullptr;
   PGresult *res_ = nullptr;
+
   std::chrono::steady_clock::time_point alive_time_;
 
   static std::atomic_int32_t num_created;

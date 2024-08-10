@@ -1,9 +1,11 @@
+#ifndef LYNX_DB_ASYNC_CONNECTION_H
+#define LYNX_DB_ASYNC_CONNECTION_H
 
 #include "lynx/logger/logging.h"
 #include "lynx/net/channel.h"
 #include "lynx/net/event_loop.h"
 
-#include "libpq-fe.h"
+#include <libpq-fe.h>
 
 #include <cassert>
 #include <condition_variable>
@@ -12,13 +14,17 @@
 
 namespace lynx {
 
-/// TODO: unused
 class AsyncConnection {
 public:
-  AsyncConnection(EventLoop *loop) : loop_(loop) {}
+  explicit AsyncConnection(EventLoop *loop) : loop_(loop) {}
   ~AsyncConnection() {
-    channel_->disableAll();
-    channel_->remove();
+    if (channel_) {
+      channel_->disableAll();
+      channel_->remove();
+    }
+    if (conn_ != nullptr) {
+      PQfinish(conn_);
+    }
   }
 
   bool connect(const std::string &sql) {
@@ -35,10 +41,12 @@ public:
     channel_->setReadCallback([&](auto /*PH1*/) { handleRead(); });
     channel_->enableReading();
     LOG_INFO << "PQsocket: " << sockfd_;
+    connected_ = true;
     return true;
   }
 
   bool query(const std::string &sql) {
+    assert(connected_);
     std::unique_lock<std::mutex> lock(mutex_);
     while (PQisBusy(conn_) == 1) {
       cond_.wait(lock);
@@ -52,8 +60,8 @@ public:
   }
 
   PGresult *getResult() {
+    assert(connected_);
     std::unique_lock<std::mutex> lock(mutex_);
-    // PQflush(conn_);
     cond_.notify_one();
     return PQgetResult(conn_);
   }
@@ -65,6 +73,7 @@ private:
       return;
     }
     PQflush(conn_);
+    cond_.notify_all();
   }
 
   EventLoop *loop_;
@@ -74,6 +83,10 @@ private:
   std::condition_variable cond_;
 
   PGconn *conn_ = nullptr;
+
+  bool connected_{};
 };
 
 } // namespace lynx
+
+#endif

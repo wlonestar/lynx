@@ -1,4 +1,3 @@
-#include "libpq-fe.h"
 #include "lynx/base/thread.h"
 #include "lynx/db/async_connection.h"
 #include "lynx/logger/logging.h"
@@ -92,12 +91,13 @@ int main() {
   LOG_INFO << "connect: " << connect_sql << " --> "
            << conn.connect(connect_sql);
 
-  lynx::Thread t1([&] {
-    query(conn);
-    query(conn);
-    loop.quit();
-  });
+  lynx::Thread t1([&] { query(conn); });
+  lynx::Thread t2([&] { query(conn); });
+  lynx::Thread t3([&] { query(conn); });
+
   t1.start();
+  t2.start();
+  t3.start();
 
   loop.loop();
 }

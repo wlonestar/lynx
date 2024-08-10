@@ -192,40 +192,40 @@ std::string generateCreateTableSql(Args &&...args) {
   return sql;
 }
 
-template <typename T> constexpr auto generateInsertSql() {
-  std::string table_name = getName<T>().data();
-  std::string sql = "insert into " + table_name + "(";
+// template <typename T> constexpr auto generateInsertSql() {
+//   std::string table_name = getName<T>().data();
+//   std::string sql = "insert into " + table_name + "(";
 
-  auto field_names = getArray<T>();
-  constexpr auto field_size = getValue<T>();
-  for (size_t i = 0; i < field_size; i++) {
-    std::string field_name = field_names[i].data();
-    /// Skip if is auto key
-    if (isAutoKey<T>(field_name)) {
-      continue;
-    }
-    sql += field_name;
-    if (i != field_size - 1) {
-      sql += ", ";
-    }
-  }
-  sql += ") values(";
+//   auto field_names = getArray<T>();
+//   constexpr auto field_size = getValue<T>();
+//   for (size_t i = 0; i < field_size; i++) {
+//     std::string field_name = field_names[i].data();
+//     /// Skip if is auto key
+//     if (isAutoKey<T>(field_name)) {
+//       continue;
+//     }
+//     sql += field_name;
+//     if (i != field_size - 1) {
+//       sql += ", ";
+//     }
+//   }
+//   sql += ") values(";
 
-  int idx = 0;
-  for (size_t i = 0; i < field_size; i++) {
-    std::string field_name = getName<T>(i).data();
-    /// Skip if is auto key
-    if (isAutoKey<T>(field_name)) {
-      continue;
-    }
-    sql += "$" + std::to_string(++idx);
-    if (i != field_size - 1) {
-      sql += ", ";
-    }
-  }
-  sql += ");";
-  return sql;
-}
+//   int idx = 0;
+//   for (size_t i = 0; i < field_size; i++) {
+//     std::string field_name = getName<T>(i).data();
+//     /// Skip if is auto key
+//     if (isAutoKey<T>(field_name)) {
+//       continue;
+//     }
+//     sql += "$" + std::to_string(++idx);
+//     if (i != field_size - 1) {
+//       sql += ", ";
+//     }
+//   }
+//   sql += ");";
+//   return sql;
+// }
 
 } // namespace lynx
 

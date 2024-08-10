@@ -6,7 +6,7 @@ A flexible and scalable server framework for Linux written in C++ with support f
 
 1. **Network Library**: Implement a network library leveraging the Reactor pattern for non-blocking I/O operations and event-driven programming, drawing inspiration from the [muduo](https://github.com/chenshuo/muduo) network library.
 2. **HTTP Server**: Develops an HTTP server that incorporates Ragel, a powerful finite state machine compiler, for parsing HTTP requests.
-3. **Advanced C++ Techniques**: Leverage advanced C++ techniques such as macros and template metaprogramming to implement compile-time reflection, which is used to encapsulate a ORM framework.
+3. **ORM framework**: Leverage advanced C++ techniques such as macros and template metaprogramming to implement compile-time reflection, which is used to encapsulate a ORM framework.
 
 ## Requirements
 
