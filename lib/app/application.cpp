@@ -1,5 +1,6 @@
 #include "lynx/app/application.h"
 #include "lynx/logger/logging.h"
+#include "lynx/net/event_loop.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -39,7 +40,9 @@ std::string getExecutableDir() {
 
 } // namespace detail
 
-Application::Application(EventLoop *loop, const std::string &filename) {
+Application::Application(const std::string &filename) {
+  loop_ = new EventLoop();
+
   /// Load config file
   auto path = detail::getExecutableDir() + "conf/" + filename;
   if (!fs::exists(path)) {
@@ -51,7 +54,7 @@ Application::Application(EventLoop *loop, const std::string &filename) {
 
   /// Create Http server
   server_ = std::make_unique<HttpServer>(
-      loop,
+      loop_,
       InetAddress(
           static_cast<uint16_t>(atoi(config_map_["server"]["port"].c_str()))),
       config_map_["server"]["name"]);
@@ -85,6 +88,8 @@ void Application::start() {
     pool_->start();
   }
 }
+
+void Application::listen() { loop_->loop(); }
 
 ConnectionPool &Application::pool() const {
   if (pool_ == nullptr) {

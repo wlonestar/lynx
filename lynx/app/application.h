@@ -24,14 +24,16 @@ public:
   ///
   /// @note read config yaml format file from the executable file located dir's
   /// `conf/` directory.
-  explicit Application(EventLoop *loop,
-                       const std::string &filename = "config.yml");
+  explicit Application(const std::string &filename = "config.yml");
 
   /// Start the application.
   ///
   /// @note Only create `ConnectionPool` object if config file contains `db`
   /// keys.
   void start();
+
+  /// Listening the http request.
+  void listen();
 
   /// Return the reference of @class ConnectionPool.
   ///
@@ -67,6 +69,7 @@ private:
   /// Not Found handler if can not find corresponding http handler.
   void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 
+  EventLoop *loop_;
   std::unique_ptr<HttpServer> server_;
   std::unique_ptr<ConnectionPool> pool_;
 

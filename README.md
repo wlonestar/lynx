@@ -79,20 +79,22 @@ target_link_libraries(app
   lynx pq nlohmann_json::nlohmann_json yaml-cpp)
 ```
 
-## Examples
+4. Create a simpliest application.
 
-The `examples/application` directory contains a simple application server that demonstrates how to use the framework.
-
-To run the application server:
-
-1. Install the library to `examples/application` directory.
-2. Build and run the examples:
-
-```bash
-make install
-cd examples/application && make
-./app
+```cpp
+int main() {
+  /// Init app.
+  lynx::Application app;
+  /// Start app.
+  app.start();
+  /// Start listening.
+  app.listen();
+}
 ```
+
+After building, now you can access `127.0.0.1:8000/` to see the result like below.
+
+![](https://image-1305118058.cos.ap-nanjing.myqcloud.com/image/Snipaste_2024-08-10_21-30-57.jpg)
 
 ## Contributing
 

@@ -80,8 +80,7 @@ int main(int argc, char *argv[]) {
   lynx::Logger::setOutput(asyncOutput);
 
   /// Init Application
-  lynx::EventLoop loop;
-  lynx::Application app(&loop);
+  lynx::Application app;
 
   LOG_INFO << "start Application";
 
@@ -100,5 +99,5 @@ int main(int argc, char *argv[]) {
   /// print route table
   app.printRouteTable();
 
-  loop.loop();
+  app.listen();
 }
