@@ -1,7 +1,7 @@
-#include "lynx/logger/async_logging.h"
 #include "student.h"
 
-#include "lynx/web/web_server.h"
+#include "lynx/app/application.h"
+#include "lynx/logger/async_logging.h"
 
 off_t roll_size = 500 * 1000 * 1000;
 lynx::AsyncLogging *g_async_log = nullptr;
@@ -79,26 +79,26 @@ int main(int argc, char *argv[]) {
   g_async_log = &log;
   lynx::Logger::setOutput(asyncOutput);
 
-  /// Init Web Server
+  /// Init Application
   lynx::EventLoop loop;
-  lynx::WebServer server(&loop);
+  lynx::Application app(&loop);
 
-  LOG_INFO << "start Web server";
+  LOG_INFO << "start Application";
 
   /// Setup server and pool
-  server.start();
-  initDb(server.pool());
+  app.start();
+  initDb(app.pool());
 
   /// Register handler
-  server.addRoute("GET", "/", handleIndex);
-  server.addRoute("GET", "/favicon.ico", handleFavicon);
+  app.addRoute("GET", "/", handleIndex);
+  app.addRoute("GET", "/favicon.ico", handleFavicon);
 
-  StudentController::init(server.pool());
+  StudentController::init(app.pool());
   StudentController controller;
-  controller.registerHandler(server);
+  controller.registerHandler(app);
 
   /// print route table
-  server.printRouteTable();
+  app.printRouteTable();
 
   loop.loop();
 }

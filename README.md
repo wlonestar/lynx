@@ -17,11 +17,12 @@ A flexible and scalable server framework for Linux written in C++ with support f
 - Boost
 - PostgreSQL
 - nlohmann/json
+- yaml-cpp
 
 Ubuntu/Debian:
 
 ```bash
-sudo apt install clang cmake ninja-build ragal libboost-test-dev libpq-dev nlohmann-json3-dev
+sudo apt install clang cmake ninja-build ragal libboost-test-dev libpq-dev nlohmann-json3-dev libyaml-cpp-dev
 ```
 
 ## Installation
@@ -35,11 +36,14 @@ git clone https://github.com/wlonestar/lynx.git && cd lynx
 2. Configure and build the project using CMake:
 
 ```bash
-cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+cmake -G Ninja -B build \
+  -DCMAKE_C_COMPILER=clang \
+  -DCMAKE_CXX_COMPILER=clang++ \
+  -DCMAKE_BUILD_TYPE=Release
 ninja -C build
 ```
 
-maybe you need to set the compiler to clang
+You need to set the compiler to clang
 
 3. The static library `liblynx.a` will be created in `build/lib` directory.
 
@@ -50,7 +54,11 @@ To integrate lynx into your CMake project, use `find_package` to include header 
 1. Set the proper install prefix:
 
 ```bash
-cmake -G Ninja -B build -DCMAKE_INSTALL_PREFIX=<installation_path> -DCMAKE_BUILD_TYPE=Release
+cmake -G Ninja -B build \
+  -DCMAKE_C_COMPILER=clang \
+  -DCMAKE_CXX_COMPILER=clang++ \
+  -DCMAKE_INSTALL_PREFIX=<installation_path> \
+  -DCMAKE_BUILD_TYPE=Release
 ninja -C build
 ninja -C build install
 ```
@@ -67,14 +75,9 @@ include_directories(${lynx_INCLUDE_DIRS})
 
 ```cmake
 add_executable(app main.cpp)
-target_link_libraries(app lynx pq nlohmann_json::nlohmann_json)
+target_link_libraries(app
+  lynx pq nlohmann_json::nlohmann_json yaml-cpp)
 ```
-
-Refer to `examples/application/CMakeLists.txt` for more details.
-
-## API Document
-
-(TODO)
 
 ## Examples
 
@@ -103,7 +106,7 @@ Contributions to the framework are welcome! Please follow these guidelines:
 
 Lynx is licensed under the [MIT License](https://github.com/wlonestar/lynx/blob/master/LICENSE).
 
-# References
+## References
 
 [1] https://github.com/chenshuo/muduo
 

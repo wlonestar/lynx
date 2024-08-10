@@ -1,8 +1,8 @@
 #ifndef LYNX_WEB_BASE_CONTROLLER_H
 #define LYNX_WEB_BASE_CONTROLLER_H
 
+#include "lynx/app/application.h"
 #include "lynx/logger/logging.h"
-#include "lynx/web/web_server.h"
 
 namespace lynx {
 
@@ -45,9 +45,9 @@ public:
   void requestMapping(const std::string &method, const std::string &path,
                       Func &&func, RequestParam<ParamType>... params);
 
-  void registerHandler(WebServer &server) {
+  void registerHandler(Application &app) {
     for (auto &[pair, handler] : route_table_) {
-      server.addRoute(pair.first, pair.second, handler);
+      app.addRoute(pair.first, pair.second, handler);
     }
   }
 

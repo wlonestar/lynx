@@ -1,4 +1,4 @@
-#include "lynx/web/web_server.h"
+#include "lynx/app/application.h"
 #include "lynx/logger/logging.h"
 
 #include <yaml-cpp/yaml.h>
@@ -39,7 +39,7 @@ std::string getExecutableDir() {
 
 } // namespace detail
 
-WebServer::WebServer(EventLoop *loop, const std::string &filename) {
+Application::Application(EventLoop *loop, const std::string &filename) {
   /// Load config file
   auto path = detail::getExecutableDir() + "conf/" + filename;
   if (!fs::exists(path)) {
@@ -77,32 +77,36 @@ WebServer::WebServer(EventLoop *loop, const std::string &filename) {
   }
 }
 
-void WebServer::start() {
+void Application::start() {
+  LOG_DEBUG << "init http server";
   server_->start();
   if (pool_ != nullptr) {
+    LOG_DEBUG << "init database connection pool";
     pool_->start();
   }
 }
 
-ConnectionPool &WebServer::pool() const {
-  assert(pool_ != nullptr);
+ConnectionPool &Application::pool() const {
+  if (pool_ == nullptr) {
+    LOG_SYSFATAL << "connection pool is not correctly created!";
+  }
   return *pool_;
 }
 
-int WebServer::addRoute(const std::string &method, const std::string &path,
-                        HttpHandler handler) {
+int Application::addRoute(const std::string &method, const std::string &path,
+                          HttpHandler handler) {
   route_table_[std::make_pair(stringToHttpMethod(method), path)] = handler;
   return 0;
 }
 
-void WebServer::printRouteTable() {
+void Application::printRouteTable() {
   std::cout << "Route Table:\n";
   for (auto &[pair, handler] : route_table_) {
     printf("%6s - %s\n", methodToString(pair.first), pair.second.c_str());
   }
 }
 
-void WebServer::loadConfig(const std::string &filePath) {
+void Application::loadConfig(const std::string &filePath) {
   YAML::Node config = YAML::LoadFile(filePath);
   for (const auto &pair : config) {
     auto section_name = pair.first.as<std::string>();
@@ -148,8 +152,8 @@ void WebServer::loadConfig(const std::string &filePath) {
   }
 }
 
-void WebServer::onRequest(const lynx::HttpRequest &req,
-                          lynx::HttpResponse *resp) {
+void Application::onRequest(const lynx::HttpRequest &req,
+                            lynx::HttpResponse *resp) {
   LOG_INFO << lynx::methodToString(req.method()) << " " << req.path();
 
   /// Log request headers
