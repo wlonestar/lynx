@@ -70,8 +70,7 @@ void setupRoutes() {
 }
 
 void handleIndex(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
-  resp->setStatusCode(lynx::HttpResponse::Ok200);
-  resp->setStatusMessage("OK");
+  resp->setStatusCode(lynx::HttpStatus::OK);
   resp->setContentType("text/html");
   resp->addHeader("Server", "lynx");
   std::string now = lynx::Timestamp::now().toFormattedString();
@@ -81,16 +80,14 @@ void handleIndex(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
 }
 
 void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
-  resp->setStatusCode(lynx::HttpResponse::Ok200);
-  resp->setStatusMessage("OK");
+  resp->setStatusCode(lynx::HttpStatus::OK);
   resp->setContentType("image/png");
   resp->setBody(
       std::string(reinterpret_cast<char *>(favicon_jpg), favicon_jpg_len));
 }
 
 void handleNotFound(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
-  resp->setStatusCode(lynx::HttpResponse::NotFound404);
-  resp->setStatusMessage("Not Found");
+  resp->setStatusCode(lynx::HttpStatus::NOT_FOUND);
   resp->setCloseConnection(true);
 }
 

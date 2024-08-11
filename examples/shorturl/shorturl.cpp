@@ -31,13 +31,11 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
 
   auto it = redirections.find(req.path());
   if (it != redirections.end()) {
-    resp->setStatusCode(lynx::HttpResponse::MovedPermanently301);
-    resp->setStatusMessage("Moved Permanently");
+    resp->setStatusCode(lynx::HttpStatus::MOVED_PERMANENTLY);
     resp->addHeader("Location", it->second);
     // resp->setCloseConnection(true);
   } else if (req.path() == "/") {
-    resp->setStatusCode(lynx::HttpResponse::Ok200);
-    resp->setStatusMessage("OK");
+    resp->setStatusCode(lynx::HttpStatus::OK);
     resp->setContentType("text/html");
     std::string now = lynx::Timestamp::now().toFormattedString();
     auto i = redirections.begin();
@@ -50,14 +48,12 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
                   "<body><h1>Known redirections</h1>" +
                   text + "Now is " + now + "</body></html>");
   } else if (req.path() == "/favicon.ico") {
-    resp->setStatusCode(lynx::HttpResponse::Ok200);
-    resp->setStatusMessage("OK");
+    resp->setStatusCode(lynx::HttpStatus::OK);
     resp->setContentType("image/png");
     resp->setBody(
         std::string(reinterpret_cast<char *>(favicon_jpg), favicon_jpg_len));
   } else {
-    resp->setStatusCode(lynx::HttpResponse::NotFound404);
-    resp->setStatusMessage("Not Found");
+    resp->setStatusCode(lynx::HttpStatus::NOT_FOUND);
     resp->setCloseConnection(true);
   }
 }

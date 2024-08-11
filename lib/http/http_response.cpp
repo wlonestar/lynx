@@ -7,9 +7,9 @@ namespace lynx {
 
 void HttpResponse::appendToBuffer(Buffer *output) const {
   char buf[32];
-  snprintf(buf, sizeof(buf), "HTTP/1.1 %d ", status_code_);
+  snprintf(buf, sizeof(buf), "HTTP/1.1 %d ", status_);
   output->append(buf);
-  output->append(status_message_);
+  output->append(statusToString(status_));
   output->append("\r\n");
 
   if (close_connection_) {

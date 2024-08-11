@@ -14,8 +14,7 @@ namespace fs = std::filesystem;
 namespace detail {
 
 void handleNotFound(const HttpRequest &req, HttpResponse *resp) {
-  resp->setStatusCode(HttpResponse::NotFound404);
-  resp->setStatusMessage("Not Found");
+  resp->setStatusCode(HttpStatus::NOT_FOUND);
   std::string now = Timestamp::now().toFormattedString();
   resp->setBody("<html><body><h1>Error Page</h1><p>" + now +
                 "</p><p>There was an unexcepted error (type=Not Found, "

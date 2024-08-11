@@ -53,12 +53,11 @@ public:
 
 private:
   template <typename ParamType>
-  ParamType processRequestParam(const MapType &params,
+  ParamType processRequestParam(const HttpRequest::MapType &params,
                                 const RequestParam<ParamType> &param);
 
   void setRespOk(lynx::HttpResponse *resp) {
-    resp->setStatusCode(lynx::HttpResponse::Ok200);
-    resp->setStatusMessage("OK");
+    resp->setStatusCode(lynx::HttpStatus::OK);
     resp->setContentType("application/json");
     resp->addHeader("Server", "lynx");
   }
@@ -134,7 +133,7 @@ void BaseController::requestMapping(const std::string &method,
 
 template <typename ParamType>
 ParamType
-BaseController::processRequestParam(const MapType &params,
+BaseController::processRequestParam(const HttpRequest::MapType &params,
                                     const RequestParam<ParamType> &param) {
   if (params.find(param.name_) == params.end()) {
     LOG_FATAL << "error in request params";

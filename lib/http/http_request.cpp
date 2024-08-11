@@ -97,18 +97,6 @@ const char *methodToString(const HttpMethod &m) {
   return method_string[idx];
 }
 
-const char *statusToString(const HttpStatus &s) {
-  switch (s) {
-#define XX(code, name, msg)                                                    \
-  case HttpStatus::name:                                                       \
-    return #msg;
-    HTTP_STATUS_MAP(XX)
-#undef XX
-  default:
-    return "unknown";
-  }
-}
-
 HttpRequest::HttpRequest(uint8_t version, bool close)
     : method_(HttpMethod::GET), version_(version), close_(close),
       websocket_(false), parser_param_flag_(0), path_("/") {}
@@ -210,17 +198,6 @@ std::string HttpRequest::toString() const {
   dump(ss);
   return ss.str();
 }
-
-// void HttpRequest::init() {
-//   std::string conn = getHeader("connection");
-//   if (!conn.empty()) {
-//     if (strcasecmp(conn.c_str(), "keep-alive") == 0) {
-//       close_ = false;
-//     } else {
-//       close_ = true;
-//     }
-//   }
-// }
 
 void HttpRequest::initParam() {
   initQueryParam();

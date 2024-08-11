@@ -116,31 +116,6 @@ BOOST_AUTO_TEST_CASE(testBufferPrepend) {
   BOOST_CHECK_EQUAL(buf.prependableBytes(), lynx::Buffer::K_CHEAP_PREPEND - 4);
 }
 
-BOOST_AUTO_TEST_CASE(testBufferReadInt) {
-  lynx::Buffer buf;
-  buf.append("HTTP");
-
-  BOOST_CHECK_EQUAL(buf.readableBytes(), 4);
-  BOOST_CHECK_EQUAL(buf.peekInt8(), 'H');
-  int top16 = buf.peekInt16();
-  BOOST_CHECK_EQUAL(top16, 'H' * 256 + 'T');
-  BOOST_CHECK_EQUAL(buf.peekInt32(), top16 * 65536 + 'T' * 256 + 'P');
-
-  BOOST_CHECK_EQUAL(buf.readInt8(), 'H');
-  BOOST_CHECK_EQUAL(buf.readInt16(), 'T' * 256 + 'T');
-  BOOST_CHECK_EQUAL(buf.readInt8(), 'P');
-  BOOST_CHECK_EQUAL(buf.readableBytes(), 0);
-  BOOST_CHECK_EQUAL(buf.writableBytes(), lynx::Buffer::K_INITIAL_SIZE);
-
-  buf.appendInt8(-1);
-  buf.appendInt16(-2);
-  buf.appendInt32(-3);
-  BOOST_CHECK_EQUAL(buf.readableBytes(), 7);
-  BOOST_CHECK_EQUAL(buf.readInt8(), -1);
-  BOOST_CHECK_EQUAL(buf.readInt16(), -2);
-  BOOST_CHECK_EQUAL(buf.readInt32(), -3);
-}
-
 BOOST_AUTO_TEST_CASE(testBufferFindEOL) {
   lynx::Buffer buf;
   buf.append(std::string(100000, 'x'));

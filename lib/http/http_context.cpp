@@ -8,6 +8,8 @@
 
 namespace lynx {
 
+namespace detail {
+
 void onRequestMethod(void *data, const char *at, size_t length) {
   auto *context = static_cast<HttpContext *>(data);
   HttpMethod m = charsToHttpMethod(at);
@@ -62,17 +64,19 @@ void onRequestHttpField(void *data, const char *field, size_t flen,
                                std::string(value, vlen));
 }
 
+} // namespace detail
+
 HttpContext::HttpContext() : request_(), parser_(), error_(0) {}
 
 void HttpContext::start() {
-  parser_.request_method_ = onRequestMethod;
-  parser_.request_uri_ = onRequestUri;
-  parser_.fragment_ = onRequestFragment;
-  parser_.request_path_ = onRequestPath;
-  parser_.query_string_ = onRequestQuery;
-  parser_.http_version_ = onRequestVersion;
-  parser_.header_done_ = onRequestHeaderDone;
-  parser_.http_field_ = onRequestHttpField;
+  parser_.request_method_ = detail::onRequestMethod;
+  parser_.request_uri_ = detail::onRequestUri;
+  parser_.fragment_ = detail::onRequestFragment;
+  parser_.request_path_ = detail::onRequestPath;
+  parser_.query_string_ = detail::onRequestQuery;
+  parser_.http_version_ = detail::onRequestVersion;
+  parser_.header_done_ = detail::onRequestHeaderDone;
+  parser_.http_field_ = detail::onRequestHttpField;
   parser_.data_ = this;
 }
 

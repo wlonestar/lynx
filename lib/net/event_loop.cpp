@@ -40,9 +40,9 @@ EventLoop *EventLoop::getEventLoopOfCurrentThread() {
 
 EventLoop::EventLoop()
     : looping_(false), quit_(false), event_handling_(false),
-      calling_pending_functors_(false), iteration_(0),
-      thread_id_(current_thread::tid()), poller_(new Epoller(this)),
-      timer_queue_(new TimerQueue(this)), wakeup_fd_(createEventfd()),
+      calling_pending_functors_(false), thread_id_(current_thread::tid()),
+      poller_(new Epoller(this)), timer_queue_(new TimerQueue(this)),
+      wakeup_fd_(createEventfd()),
       wakeup_channel_(new Channel(this, wakeup_fd_)),
       current_active_channel_(nullptr) {
   LOG_DEBUG << "EventLoop created " << this << " in thread " << thread_id_;
@@ -75,7 +75,6 @@ void EventLoop::loop() {
   while (!quit_) {
     active_channels_.clear();
     poll_return_time_ = poller_->poll(K_POLL_TIME_MS, &active_channels_);
-    ++iteration_;
     if (Logger::logLevel() <= Logger::TRACE) {
       printActiveChannels();
     }

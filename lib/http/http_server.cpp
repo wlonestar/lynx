@@ -11,8 +11,7 @@ namespace lynx {
 namespace detail {
 
 void defaultHttpCallback(const HttpRequest & /*unused*/, HttpResponse *resp) {
-  resp->setStatusCode(HttpResponse::NotFound404);
-  resp->setStatusMessage("Not Found");
+  resp->setStatusCode(HttpStatus::NOT_FOUND);
   resp->setCloseConnection(true);
 }
 
