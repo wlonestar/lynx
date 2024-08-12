@@ -55,12 +55,6 @@ include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(tests)
 add_subdirectory(examples)
 
-# Copy config file
-file(
-  COPY ${CMAKE_CURRENT_SOURCE_DIR}/bin/conf/config.yml
-  DESTINATION ${CMAKE_BINARY_DIR}/bin/conf
-  )
-
 # Set library source files
 file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
 # Generate ragel file
