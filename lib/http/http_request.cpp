@@ -5,6 +5,8 @@
 
 namespace lynx {
 
+namespace detail {
+
 static const char xdigit_chars[256] = {
     0,  0,  0,  0, 0, 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0,  0,  0,
     0,  0,  0,  0, 0, 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0,  0,  0,
@@ -63,6 +65,8 @@ std::string trim(const std::string &str,
   auto end = str.find_last_not_of(delimit);
   return str.substr(begin, end - begin + 1);
 }
+
+} // namespace detail
 
 HttpMethod stringToHttpMethod(const std::string &m) {
 #define XX(num, name, string)                                                  \
@@ -199,13 +203,7 @@ std::string HttpRequest::toString() const {
   return ss.str();
 }
 
-void HttpRequest::initParam() {
-  initQueryParam();
-  initBodyParam();
-  initCookies();
-}
-
-#define PARSE_PARAM(str, m, flag, trim)                                        \
+#define PARSE_PARAM(str, m, flag, _trim_)                                      \
   size_t pos = 0;                                                              \
   do {                                                                         \
     size_t last = pos;                                                         \
@@ -215,9 +213,9 @@ void HttpRequest::initParam() {
     }                                                                          \
     size_t key = pos;                                                          \
     pos = str.find(flag, pos);                                                 \
-    m.insert(                                                                  \
-        std::make_pair(trim(str.substr(last, key - last)),                     \
-                       lynx::urlDecode(str.substr(key + 1, pos - key - 1))));  \
+    m.insert(std::make_pair(                                                   \
+        _trim_(str.substr(last, key - last)),                                  \
+        lynx::detail::urlDecode(str.substr(key + 1, pos - key - 1))));         \
     if (pos == std::string::npos) {                                            \
       break;                                                                   \
     }                                                                          \
@@ -255,7 +253,7 @@ void HttpRequest::initCookies() {
     parser_param_flag_ |= 0x4;
     return;
   }
-  PARSE_PARAM(cookie, cookies_, ';', lynx::trim);
+  PARSE_PARAM(cookie, cookies_, ';', lynx::detail::trim);
   parser_param_flag_ |= 0x4;
 }
 

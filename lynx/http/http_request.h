@@ -5,11 +5,8 @@
 #include "lynx/http/http_status.h"
 
 #include <cassert>
-#include <cstdio>
 #include <map>
-#include <string>
 #include <strings.h>
-#include <tuple>
 
 namespace lynx {
 
@@ -61,6 +58,9 @@ public:
   const std::string &query() const { return query_; }
   void setQuery(const std::string &q) { query_ = q; }
 
+  const std::string &uri() const { return uri_; }
+  void setUri(const std::string &u) { uri_ = u; }
+
   void setFragment(const std::string &f) { fragment_ = f; }
 
   const std::string &body() const { return body_; }
@@ -96,7 +96,9 @@ public:
 
   std::string toString() const;
 
-  void initParam();
+  void initQueryParam();
+  void initBodyParam();
+  void initCookies();
 
   void swap(HttpRequest &other) {
     std::swap(method_, other.method_);
@@ -114,10 +116,6 @@ public:
   }
 
 private:
-  void initQueryParam();
-  void initBodyParam();
-  void initCookies();
-
   HttpMethod method_;
   uint8_t version_;
   bool close_;
@@ -127,6 +125,7 @@ private:
 
   std::string path_;
   std::string query_;
+  std::string uri_;
   std::string fragment_;
   std::string body_;
   MapType headers_;

@@ -1,12 +1,6 @@
 #include "student.h"
 
 #include "lynx/app/application.h"
-#include "lynx/logger/async_logging.h"
-
-off_t roll_size = 500 * 1000 * 1000;
-lynx::AsyncLogging *g_async_log = nullptr;
-
-void asyncOutput(const char *msg, int len) { g_async_log->append(msg, len); }
 
 /// For favicon
 extern unsigned char favicon_jpg[];
@@ -70,20 +64,12 @@ void initDb(lynx::ConnectionPool &pool) {
 }
 
 int main(int argc, char *argv[]) {
-  char name[256] = {'\0'};
-  strncpy(name, argv[0], sizeof(name) - 1);
-  lynx::AsyncLogging log(::basename(name), roll_size);
-  log.start();
-  g_async_log = &log;
-  lynx::Logger::setOutput(asyncOutput);
-
   /// Init Application
   lynx::Application app;
 
-  LOG_INFO << "start Application";
-
   /// Setup server and pool
   app.start();
+  LOG_INFO << "start Application";
   initDb(app.pool());
 
   /// Register handler

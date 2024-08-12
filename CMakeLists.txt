@@ -16,27 +16,14 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 set(CXX_FLAGS
   -g -gdwarf-4 -std=c++20 -march=native
   -Wall -Wextra -Werror -Wno-unused-parameter -Wold-style-cast -Wshadow
-  -Wno-null-dereference -Wno-sign-conversion -Wno-unused-local-typedef -Wthread-safety
+  -Wno-null-dereference -Wno-sign-conversion -Wno-unused-local-typedef
+  -Wthread-safety
   )
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 # Set build params
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-
-# Set clang-format format
-find_program(CLANG_FORMAT_EXE NAMES clang-format)
-if (CLANG_FORMAT_EXE)
-  file(GLOB_RECURSE ALL_SOURCE_FILES
-    "${CMAKE_SOURCE_DIR}/lynx/*.h"
-    "${CMAKE_SOURCE_DIR}/lib/*.cpp"
-    )
-  add_custom_target(clang-format
-    COMMAND ${CLANG_FORMAT_EXE} -i --style=file:${CMAKE_SOURCE_DIR}/.clang-format ${ALL_SOURCE_FILES}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-format on source files"
-    )
-endif()
 
 # Find Ragel
 find_program(RAGEL_EXE NAMES ragel)
@@ -47,7 +34,9 @@ endif()
 # Enable ctest
 enable_testing()
 
+##################################################
 # Find packages
+##################################################
 
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
@@ -84,7 +73,9 @@ target_link_libraries(lynx PUBLIC
   yaml-cpp
   )
 
+##################################################
 # Install
+##################################################
 
 # Set header files searching paths
 # Distinguish between build-time and install-time header file paths
@@ -130,3 +121,21 @@ install(FILES ${WEB_HEADERS}    DESTINATION include/lynx/web)
 
 # Install exported config file
 install(EXPORT lynxConfig DESTINATION share/lynx/cmake)
+
+##################################################
+# Custom target
+##################################################
+
+# Set clang-format format
+find_program(CLANG_FORMAT_EXE NAMES clang-format)
+if (CLANG_FORMAT_EXE)
+  file(GLOB ALL_SOURCE_FILES
+    "${CMAKE_SOURCE_DIR}/lynx/*/*.h"
+    "${CMAKE_SOURCE_DIR}/lib/*/*.cpp"
+    )
+  add_custom_target(clang-format
+    COMMAND ${CLANG_FORMAT_EXE} -i --style=file:${CMAKE_SOURCE_DIR}/.clang-format ${ALL_SOURCE_FILES}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running clang-format on source files"
+    )
+endif()

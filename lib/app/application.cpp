@@ -161,28 +161,22 @@ void Application::onRequest(const lynx::HttpRequest &req,
   LOG_INFO << lynx::methodToString(req.method()) << " " << req.path();
 
   /// Log request headers
-  std::stringstream ss;
   for (const auto &header : req.headers()) {
-    ss << header.first << ": " << header.second << "|";
+    LOG_DEBUG << header.first << ": " << header.second;
   }
-  LOG_INFO << ss.str();
 
-  /// Concat path and query
-  std::string path = std::string(req.path());
-  if (!req.query().empty()) {
-    path += "?" + std::string(req.query());
-  }
-  LOG_DEBUG << "searching for '" << path << "'";
-
-  /// Searching in route table by method and path
+  /// Searching in route table by request uri
+  std::string uri = std::string(req.uri());
+  LOG_DEBUG << "searching for '" << uri << "'";
   bool flag = false;
   auto method = req.method();
   for (auto &[pair, handler] : route_table_) {
     if (method == pair.first) {
       std::regex path_regex(pair.second);
-      bool match = std::regex_match(path, path_regex);
+      bool match = std::regex_match(uri, path_regex);
       if (match) {
         flag = true;
+        LOG_DEBUG << "find route '" << pair.second << "'";
         handler(req, resp);
         break;
       }

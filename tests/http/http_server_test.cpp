@@ -94,13 +94,9 @@ void handleNotFound(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
 void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
   LOG_INFO << lynx::methodToString(req.method()) << " " << req.path();
 
-  const std::map<std::string, std::string, lynx::CaseInsensitiveLess> &headers =
-      req.headers();
-  std::stringstream ss;
-  for (const auto &header : headers) {
-    ss << header.first << ": " << header.second << "|";
+  for (const auto &header : req.headers()) {
+    LOG_DEBUG << header.first << ": " << header.second;
   }
-  LOG_INFO << ss.str();
 
   auto method = req.method();
   auto &path = req.path();

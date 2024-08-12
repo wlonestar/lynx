@@ -1,13 +1,10 @@
 #ifndef LYNX_HTTP_HTTP_CONTEXT_H
 #define LYNX_HTTP_HTTP_CONTEXT_H
 
-#include "lynx/base/timestamp.h"
 #include "lynx/http/http_parser.h"
 #include "lynx/http/http_request.h"
 
 namespace lynx {
-
-class Buffer;
 
 class HttpContext {
 public:
@@ -21,7 +18,7 @@ public:
   bool hasError();
 
   HttpRequest &request() { return request_; }
-  const HttpParser &parser() const { return parser_; }
+  HttpParser &parser() { return parser_; }
 
   uint64_t getContentLength();
 
