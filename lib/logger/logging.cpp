@@ -53,11 +53,13 @@ Logger::Impl::Impl(LogLevel level, int oldErrno, const SourceFile &file,
                    int line)
     : time_(Timestamp::now()), stream_(), level_(level), line_(line),
       basename_(file) {
-  stream_ << detail::log_level_color[level];
-  formatTime();
+  stream_ << detail::log_level_color[level]; /// (1). Append log level color.
+  formatTime();                              /// (2).Format the log timestamp.
   current_thread::tid();
-  stream_ << current_thread::tidString();
-  stream_ << detail::log_level_name[level];
+  stream_ << current_thread::tidString();   /// (3). Append the thread id.
+  stream_ << detail::log_level_name[level]; /// (4). Append the log level name.
+
+  /// If there is an error number, append the error message to the log stream.
   if (oldErrno != 0) {
     stream_ << current_thread::strError(oldErrno) << "( errno=" << oldErrno
             << ") ";
@@ -65,29 +67,34 @@ Logger::Impl::Impl(LogLevel level, int oldErrno, const SourceFile &file,
 }
 
 void Logger::Impl::formatTime() {
+  /// Calculate the number of seconds and microseconds since the epoch.
   int64_t micro_seconds_since_epoch = time_.microsecsSinceEpoch();
   auto seconds = static_cast<time_t>(micro_seconds_since_epoch /
                                      Timestamp::K_MICRO_SECS_PER_SEC);
   auto micro_seconds = static_cast<int>(micro_seconds_since_epoch %
-                                        Timestamp ::K_MICRO_SECS_PER_SEC);
+                                        Timestamp::K_MICRO_SECS_PER_SEC);
 
   /// Format datetime if second changed.
   if (seconds != detail::t_last_second) {
-    detail::t_last_second = seconds;
+    detail::t_last_second = seconds; /// Update the last second seen.
 
     std::tm tm;
     localtime_r(&seconds, &tm);
+    // Format the date and time into a thread-local buffer.
     snprintf(detail::t_time, sizeof(detail::t_time),
              "%4d%02d%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1,
              tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
   }
 
+  /// Format the microseconds with leading zeros and append it to log message.
   char us[16];
   snprintf(us, sizeof(us), ".%06d ", micro_seconds);
   stream_ << detail::t_time << us;
 }
 
 void Logger::Impl::finish() {
+  /// Append the log level reset escape sequence and a newline character to log
+  /// message.
   stream_ << " - " << basename_ << ':' << line_ << "\033[0m" << '\n';
 }
 

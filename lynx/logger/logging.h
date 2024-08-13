@@ -8,42 +8,52 @@
 
 namespace lynx {
 
-/// @class Logger
-/// @brief A class that provides a flexible logging mechanism for applications.
-///
-/// It allows for different levels of logging, supports automatic filename and
-/// line number capture, and allows customization of output and flushing
-/// behavior.
+/**
+ * @class Logger
+ * @brief A class that provides a flexible logging mechanism for applications.
+ *
+ * It allows for different levels of logging, supports automatic filename and
+ * line number capture, and allows customization of output and flushing
+ * behavior.
+ */
 class Logger {
 public:
-  /// @enum LogLevel
-  /// @brief Defines the different levels of logging messages.
-  ///
-  /// Each level represents a different severity or purpose for the log message.
-  /// NUM_LOG_LEVELS is a sentinel value used for iteration over log levels but
-  /// should not be used for actual logging.
+  /**
+   * @enum LogLevel
+   * @brief Defines the different levels of logging messages.
+   *
+   * Each level represents a different severity or purpose for the log message.
+   * NUM_LOG_LEVELS is a sentinel value used for iteration over log levels but
+   * should not be used for actual logging.
+   */
   enum LogLevel {
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL,
-    NUM_LOG_LEVELS, /// Used for iteration
+    TRACE,         /// Trace-level message
+    DEBUG,         /// Debug-level message
+    INFO,          /// Informational message
+    WARN,          /// Warning message
+    ERROR,         /// Error message
+    FATAL,         /// Fatal error message
+    NUM_LOG_LEVELS /// Used for iteration
   };
 
   using LogLevel = Logger::LogLevel;
 
-  /// @class SourceFile
-  /// @brief A nested class encapsulates information about the source file where
-  /// a log message originates.
-  ///
-  /// It strips the path prefix from the filename if present, making it easier
-  /// to read in log output.
+  /**
+   * @class SourceFile
+   * @brief A nested class encapsulates information about the source file where
+   * a log message originates.
+   *
+   * It strips the path prefix from the filename if present, making it easier
+   * to read in log output.
+   */
   class SourceFile {
   public:
-    /// Constructor that takes a C-style string array (for automatic size
-    /// deduction).
+    /**
+     * @brief Constructor that takes a C-style string array (for automatic size
+     * deduction).
+     *
+     * @param arr C-style string array
+     */
     template <int N>
     SourceFile(const char (&arr)[N]) : data_(arr), size_(N - 1) {
       const char *slash = strrchr(data_, '/');
@@ -53,7 +63,11 @@ public:
       }
     }
 
-    /// Constructor that takes a raw C-style string pointer.
+    /**
+     * Constructor that takes a raw C-style string pointer.
+     *
+     * @param filename Raw C-style string pointer
+     */
     explicit SourceFile(const char *filename) : data_(filename) {
       const char *slash = strrchr(filename, '/');
       if (slash != nullptr) {
@@ -62,8 +76,8 @@ public:
       size_ = static_cast<int>(strlen(data_));
     }
 
-    const char *data_;
-    int size_;
+    const char *data_; /// Pointer to the file name data
+    int size_;         /// Size of the file name data
   };
 
   Logger(SourceFile file, int line);
@@ -84,27 +98,56 @@ public:
   static void setFlush(FlushFunc);
 
 private:
-  /// @class Impl
-  /// @brief A private nested class that handles the actual logging logic.
-  ///
-  /// It stores the timestamp, log stream, log level, line number, and source
-  /// file basename of the log message. It provides methods for formatting the
-  /// timestamp and finishing the log message.
+  /**
+   * @class Impl
+   * @brief A private nested class that handles the actual logging logic.
+   *
+   * It stores the timestamp, log stream, log level, line number, and source
+   * file basename of the log message. It provides methods for formatting the
+   * timestamp and finishing the log message.
+   */
   class Impl {
   public:
+    /**
+     * Constructor
+     *
+     * @param level Log level
+     * @param oldErrno Old error number
+     * @param file Source file
+     * @param line Line number
+     */
     Impl(LogLevel level, int oldErrno, const SourceFile &file, int line);
 
+    /**
+     * @brief Formats the timestamp of the log message.
+     *
+     * This function formats the timestamp of the log message. It first
+     * calculates the number of seconds and microseconds since the epoch. If the
+     * second has changed since the last log message, it formats the date and
+     * time using `localtime_r` and stores it in a thread-local buffer. It then
+     * appends the formatted timestamp and microseconds to the log message
+     * stream.
+     */
     void formatTime();
+
+    /**
+     * @brief Finish the log message by appending the log level reset escape
+     * sequence and a newline character.
+     *
+     * The log level reset escape sequence "\033[0m" is appended to reset the
+     * terminal color to the default color. A newline character ("\n") is also
+     * appended to separate the log messages.
+     */
     void finish();
 
-    Timestamp time_;
-    LogStream stream_;
-    LogLevel level_;
-    int line_;
-    SourceFile basename_;
+    Timestamp time_;      /// Timestamp
+    LogStream stream_;    /// Log stream
+    LogLevel level_;      /// Log level
+    int line_;            /// Line number
+    SourceFile basename_; /// Source file basename
   };
 
-  Impl impl_;
+  Impl impl_; /// Logging implementation
 };
 
 extern Logger::LogLevel g_log_level;

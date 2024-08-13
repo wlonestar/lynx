@@ -34,8 +34,19 @@ struct CaseInsensitiveLess {
   }
 };
 
+/**
+ * @class HttpRequest
+ * @brief A class that Represents an HTTP request
+ *
+ * This class encapsulates the information in an HTTP request, including the
+ * request method, version, connection status, WebSocket status, header fields,
+ * parameter fields, cookie fields, and a buffer for storing the request body.
+ * It provides methods for setting and getting these attributes, as well as
+ * methods for setting, getting, and deleting headers, parameters, and cookies.
+ */
 class HttpRequest {
 public:
+  /// Uses a std::map with a custom comparison method to store header
   using MapType = std::map<std::string, std::string, CaseInsensitiveLess>;
 
   HttpRequest(uint8_t version = 0x11, bool close = true);

@@ -12,7 +12,28 @@
 
 namespace lynx {
 
+/**
+ * @struct ConnectionPoolConfig
+ * @brief Configuration for a connection pool
+ *
+ * This struct holds the configuration details for a connection pool, such as
+ * the database host, port, user, password, database name, minimum pool size,
+ * maximum pool size, connection timeout, and maximum idle time.
+ */
 struct ConnectionPoolConfig {
+  /**
+   * @brief Constructs a new ConnectionPoolConfig object
+   *
+   * @param host The host of the database
+   * @param port The port of the database
+   * @param user The username for the database
+   * @param password The password for the database
+   * @param dbname The name of the database
+   * @param minSize The minimum pool size
+   * @param maxSize The maximum pool size
+   * @param timeout The connection timeout
+   * @param maxIdleTime The maximum idle time
+   */
   ConnectionPoolConfig(const std::string &host, uint16_t port,
                        const std::string &user, const std::string &password,
                        const std::string &dbname, size_t minSize,
@@ -32,21 +53,43 @@ struct ConnectionPoolConfig {
   size_t max_idle_time_;
 };
 
+/**
+ * @class ConnectionPool
+ * @brief Connection pool for managing database connections
+ *
+ * This class manages a pool of database connections. It provides methods to
+ * start and stop the pool, get connections from the pool, and recycle
+ * connections back to the pool.
+ */
 class ConnectionPool {
 public:
+  /**
+   * @brief Constructs a new ConnectionPool object
+   *
+   * @param config The configuration for the connection pool
+   * @param name The name of the connection pool
+   */
   ConnectionPool(ConnectionPoolConfig &config,
                  const std::string &name = "ConnectionPool");
   ~ConnectionPool();
 
+  /// Starts the connection pool
   void start();
+
+  /// Stops the connection pool
   void stop();
 
+  /// Gets a connection from the connection pool
   std::shared_ptr<Connection> getConnection();
 
 private:
+  /// Produces a new connection and adds it to the pool
   void produceConnection();
+
+  /// Recycles a connection back to the pool
   void recycleConnection();
 
+  /// Adds a connection to the pool
   void addConnection();
 
   ConnectionPoolConfig config_;

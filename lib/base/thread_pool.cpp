@@ -94,20 +94,28 @@ void ThreadPool::runInThread() {
 }
 
 ThreadPool::Task ThreadPool::take() {
+  /// Acquire the lock to access the task queue.
   std::unique_lock<std::mutex> lock(mutex_);
 
+  /// Wait until a task is available or the thread pool has stopped running.
   while (queue_.empty() && running_) {
     not_empty_.wait(lock);
   }
 
-  Task task;
+  Task task; /// The task to be returned.
+
+  /// If there is at least one task in the queue, retrieve and remove it.
   if (!queue_.empty()) {
     task = queue_.front();
     queue_.pop_front();
+
+    /// If the maximum queue size is set, notify the not_full condition
+    /// variable.
     if (max_queue_size_ > 0) {
       not_full_.notify_one();
     }
   }
+
   return task;
 }
 

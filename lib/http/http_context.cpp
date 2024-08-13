@@ -102,8 +102,4 @@ bool HttpContext::parseRequest(char *data, size_t len) {
 bool HttpContext::isFinished() { return parser_.isFinished(); }
 bool HttpContext::hasError() { return error_ || parser_.hasError(); }
 
-uint64_t HttpContext::getContentLength() {
-  return atoll(request_.getHeader("content-length").c_str());
-}
-
 } // namespace lynx

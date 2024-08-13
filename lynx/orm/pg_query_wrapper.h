@@ -1,9 +1,8 @@
-#ifndef LYNX_ORM_PG_QUERY_OBJECT_H
-#define LYNX_ORM_PG_QUERY_OBJECT_H
+#ifndef LYNX_ORM_PG_QUERY_WRAPPER_H
+#define LYNX_ORM_PG_QUERY_WRAPPER_H
 
 #include "lynx/logger/logging.h"
 #include "lynx/orm/key_util.h"
-#include "lynx/orm/sql_util.h"
 #include "lynx/orm/traits_util.h"
 
 #include <libpq-fe.h>
@@ -15,79 +14,179 @@
 
 namespace lynx {
 
+namespace detail {
+
+/**
+ * @brief This function is used to set the parameter value for PostgreSQL query.
+ *
+ * @tparam T The type of the parameter value.
+ * @param paramValues A vector of vectors of characters to store the parameter
+ * values.
+ * @param value The actual parameter value.
+ */
+template <typename T>
+constexpr void setParamValue(std::vector<std::vector<char>> &paramValues,
+                             T &&value) {
+  using U = std::remove_const_t<std::remove_reference_t<T>>;
+
+  /// Check if the type is a 64 bit integer
+  if constexpr (std::is_same_v<U, int64_t> || std::is_same_v<U, uint64_t>) {
+    std::vector<char> temp(65, 0);
+    auto v_str = std::to_string(value); /// Convert the value to a string
+    memcpy(temp.data(), v_str.data(), v_str.size());
+    paramValues.push_back(temp);
+  }
+  /// Check if the type is an integral or floating point type
+  else if constexpr (std::is_integral_v<U> || std::is_floating_point_v<U>) {
+    std::vector<char> temp(20, 0);
+    auto v_str = std::to_string(value); /// Convert the value to a string
+    memcpy(temp.data(), v_str.data(), v_str.size());
+    paramValues.push_back(std::move(temp));
+  }
+  /// Check if the type is an enum
+  else if constexpr (std::is_enum_v<U>) {
+    std::vector<char> temp(20, 0);
+    auto v_str = std::to_string(static_cast<std::underlying_type_t<U>>(
+        value)); /// Convert the value to a string
+    memcpy(temp.data(), v_str.data(), v_str.size());
+    paramValues.push_back(std::move(temp));
+  }
+  /// Check if the type is a std::string
+  else if constexpr (std::is_same_v<U, std::string>) {
+    std::vector<char> temp = {};
+    std::copy(value.data(), value.data() + value.size() + 1,
+              std::back_inserter(temp)); /// Copy the string to the vector
+    paramValues.push_back(std::move(temp));
+  }
+  /// Check if the type is an array
+  else if constexpr (std::is_array<U>::value) {
+    std::vector<char> temp = {};
+    std::copy(value, value + ArraySize<U>::value,
+              std::back_inserter(temp)); /// Copy the array to the vector
+    paramValues.push_back(std::move(temp));
+  }
+}
+
+} // namespace detail
+
+/**
+ * @class Selectable
+ * @brief A struct template representing a selectable expression in a SQL query.
+ *
+ * @tparam ReturnType The return type of the expression.
+ */
 template <typename ReturnType> struct Selectable {
+  /**
+   * @brief Constructs a Selectable object.
+   *
+   * @param field The field or column name.
+   * @param tblName The table name.
+   * @param op The operator to be used in the expression.
+   */
   Selectable(std::string_view &&field, std::string_view &&tblName,
              std::string_view &&op)
       : expr_(std::string(op) + "(" + std::string(field) + ")"),
         tbl_name_(tblName) {}
 
+  /// Returns the string representation of the expression.
   inline std::string toString() const { return expr_; }
+
+  /// Returns the table name associated with the expression.
   inline std::string tableName() const { return tbl_name_; }
 
+  /// The return type of the expression.
   ReturnType return_type; // NOLINT
 
 private:
-  std::string expr_;
-  std::string tbl_name_;
+  std::string expr_;     /// The string representation of the expression.
+  std::string tbl_name_; /// The table name associated with the expression.
 };
 
+/**
+ * @class Expr
+ * @brief A class representing an expression in a SQL query.
+ */
 class Expr {
 public:
-  Expr(std::string_view &&field, std::string_view &&tblName)
+  /**
+   * @brief Constructs an Expr object.
+   *
+   * @param field The field or column name.
+   * @param tblName The table name.
+   */
+  explicit Expr(std::string_view &&field, std::string_view &&tblName)
       : expr_(field), tbl_name_(tblName) {}
 
+  /**
+   * @brief Creates a new expression by applying an operator to the current
+   *        expression and a value.
+   *
+   * @tparam T The type of the value.
+   * @param op The operator to be used in the expression.
+   * @param value The value to be used in the expression.
+   *
+   * @return An Expr object representing the new expression.
+   */
   template <typename T> Expr makeExpr(std::string &&op, T value) {
     using U = std::decay_t<T>;
+    /// If the value is an array, a string, or a constant character pointer,
+    /// wrap it in quotes and append it to the current expression.
     if constexpr (std::is_array<U>::value || std::is_same_v<U, std::string> ||
                   std::is_same_v<U, const char *>) {
       return Expr(expr_ + " " + op + " " + "'" + value + "'", tbl_name_);
-    } else if constexpr (std::is_same_v<T, Expr>) {
+    }
+    /// If the value is another Expr object, append it to the current
+    /// expression.
+    else if constexpr (std::is_same_v<T, Expr>) {
       return Expr(expr_ + " " + op + " " + value.expr_, tbl_name_);
-    } else {
+    }
+    /// Otherwise, convert the value to a string and append it to the current
+    /// expression.
+    else {
       return Expr(expr_ + " " + op + " " + std::to_string(value), tbl_name_);
     }
   }
 
-  template <typename T> inline Expr operator==(T value) {
-    return Expr(makeExpr("=", value));
+  template <typename T> inline Expr operator==(T val) {
+    return Expr(makeExpr("=", val));
   }
-  template <typename T> inline Expr operator=(T value) {
-    return Expr(makeExpr("=", value));
+  template <typename T> inline Expr operator=(T val) {
+    return Expr(makeExpr("=", val));
   }
-  template <typename T> inline Expr operator|(T value) {
-    return Expr(makeExpr(",", value));
+  template <typename T> inline Expr operator|(T val) {
+    return Expr(makeExpr(",", val));
   }
-  template <typename T> inline Expr operator!=(T value) {
-    return Expr(makeExpr("!=", value));
+  template <typename T> inline Expr operator!=(T val) {
+    return Expr(makeExpr("!=", val));
   }
-  template <typename T> inline Expr operator<(T value) {
-    return Expr(makeExpr("<", value));
+  template <typename T> inline Expr operator<(T val) {
+    return Expr(makeExpr("<", val));
   }
-  template <typename T> inline Expr operator>(T value) {
-    return Expr(makeExpr(">", value));
+  template <typename T> inline Expr operator>(T val) {
+    return Expr(makeExpr(">", val));
   }
-  template <typename T> inline Expr operator<=(T value) {
-    return Expr(makeExpr("<=", value));
+  template <typename T> inline Expr operator<=(T val) {
+    return Expr(makeExpr("<=", val));
   }
-  template <typename T> inline Expr operator>=(T value) {
-    return Expr(makeExpr(">=", value));
+  template <typename T> inline Expr operator>=(T val) {
+    return Expr(makeExpr(">=", val));
   }
-  inline Expr operator%(std::string &&value) {
-    return Expr(makeExpr("like", value));
+  inline Expr operator%(std::string &&val) {
+    return Expr(makeExpr("like", val));
   }
-  inline Expr operator^(std::string &&value) {
-    return Expr(makeExpr("not like", value));
+  inline Expr operator^(std::string &&val) {
+    return Expr(makeExpr("not like", val));
   }
-  inline Expr operator&&(Expr &&value) { return Expr(makeExpr("and", value)); }
-  inline Expr operator||(Expr &&value) { return Expr(makeExpr("or", value)); }
+  inline Expr operator&&(Expr &&val) { return Expr(makeExpr("and", val)); }
+  inline Expr operator||(Expr &&val) { return Expr(makeExpr("or", val)); }
 
   inline std::string toString() const { return expr_; }
   inline std::string tableName() const { return tbl_name_; }
   inline std::string print() const { return tbl_name_ + ", " + expr_; }
 
 private:
-  std::string expr_;
-  std::string tbl_name_;
+  std::string expr_;     /// The string representation of the expression.
+  std::string tbl_name_; /// The table name associated with the expression.
 };
 
 template <typename T, typename ID> class QueryWrapper {
@@ -320,7 +419,7 @@ public:
       if (j != size - 1) {
         sql += ", ";
       }
-      setParamValue(param_values_, t.*item);
+      detail::setParamValue(param_values_, t.*item);
     });
     (*this).set_sql_ = " set " + sql;
     return std::move(*this);
@@ -333,7 +432,7 @@ public:
   }
 
   inline UpdateWrapper &&where(ID id) {
-    setParamValue(param_values_, id);
+    detail::setParamValue(param_values_, id);
     (*this).where_sql_ = " where (" + std::string(getAutoKey<T>()) + " = $" +
                          std::to_string(++idx_) + ")";
     return std::move(*this);
@@ -422,7 +521,7 @@ public:
   }
 
   inline DeleteWrapper &&where(ID id) {
-    setParamValue(param_values_, id);
+    detail::setParamValue(param_values_, id);
     (*this).where_sql_ = " where (" + std::string(getAutoKey<T>()) + " = $" +
                          std::to_string(++idx_) + ")";
     return std::move(*this);
@@ -537,7 +636,7 @@ private:
     std::vector<std::vector<char>> param_values;
     forEach(t, [&](auto &item, auto field, auto j) {
       if (!isAutoKey<T>(getName<T>(j).data())) {
-        setParamValue(param_values, t.*item);
+        detail::setParamValue(param_values, t.*item);
       }
     });
     if (param_values.empty()) {

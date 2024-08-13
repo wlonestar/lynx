@@ -40,50 +40,68 @@ std::string getExecutableDir() {
 } // namespace detail
 
 Application::Application(const std::string &filename) {
+  /// Create a new event loop
   loop_ = new EventLoop();
 
-  /// Load config file
+  /// Load configuration file
   auto path = detail::getExecutableDir() + "conf/" + filename;
   if (!fs::exists(path)) {
     fprintf(stderr, "Error: can not find config file: %s\n", path.c_str());
     abort();
   }
-  LOG_TRACE << "read config from " << path;
+  LOG_TRACE << "Reading config from " << path;
   loadConfig(path);
 
-  /// Create Http server
+  /// Create HTTP server
   server_ = std::make_unique<HttpServer>(
-      loop_,
-      InetAddress(
-          static_cast<uint16_t>(atoi(config_map_["server"]["port"].c_str()))),
-      config_map_["server"]["name"]);
+      loop_, // Event loop
+      InetAddress(static_cast<uint16_t>(
+          atoi(config_map_["server"]["port"].c_str()))), // Port
+      config_map_["server"]["name"]                      // Server name
+  );
 
-  /// Set Http server params
-  server_->setThreadNum(atoi(config_map_["server"]["threads"].c_str()));
+  /// Set HTTP server parameters
+  server_->setThreadNum(
+      atoi(config_map_["server"]["threads"].c_str())); // Number of threads
   server_->setHttpCallback([this](auto &&PH1, auto &&PH2) {
     onRequest(std::forward<decltype(PH1)>(PH1),
               std::forward<decltype(PH2)>(PH2));
   });
 
-  /// Create Pg connection pool if find `db` key
+  /// Create PostgreSQL connection pool if configuration is present
   if (config_map_.find("db") != config_map_.end()) {
     ConnectionPoolConfig config(
-        config_map_["db"]["host"], atoi(config_map_["db"]["port"].c_str()),
-        config_map_["db"]["user"], config_map_["db"]["password"],
-        config_map_["db"]["dbname"],
-        atoi(config_map_["db"]["min_size"].c_str()),
-        atoi(config_map_["db"]["max_size"].c_str()),
-        atoi(config_map_["db"]["timeout"].c_str()),
-        atoi(config_map_["db"]["max_idle_time"].c_str()));
+        config_map_["db"]["host"],                       // Host
+        atoi(config_map_["db"]["port"].c_str()),         // Port
+        config_map_["db"]["user"],                       // Username
+        config_map_["db"]["password"],                   // Password
+        config_map_["db"]["dbname"],                     // Database name
+        atoi(config_map_["db"]["min_size"].c_str()),     // Minimum pool size
+        atoi(config_map_["db"]["max_size"].c_str()),     // Maximum pool size
+        atoi(config_map_["db"]["timeout"].c_str()),      // Connection timeout
+        atoi(config_map_["db"]["max_idle_time"].c_str()) // Maximum idle time
+    );
     pool_ = std::make_unique<ConnectionPool>(config, config_map_["db"]["name"]);
   }
 }
 
-void Application::start() {
-  LOG_DEBUG << "init http server";
-  server_->start();
+/// TODO:
+Application::~Application() {
   if (pool_ != nullptr) {
-    LOG_DEBUG << "init database connection pool";
+    pool_->stop();
+  }
+  loop_->quit();
+  delete loop_;
+}
+
+void Application::start() {
+  /// Initialize the HTTP server
+  LOG_DEBUG << "Initializing HTTP server";
+  server_->start();
+
+  /// Initialize the database connection pool if it is configured
+  if (pool_ != nullptr) {
+    LOG_DEBUG << "Initializing database connection pool";
     pool_->start();
   }
 }
@@ -97,10 +115,9 @@ ConnectionPool &Application::pool() const {
   return *pool_;
 }
 
-int Application::addRoute(const std::string &method, const std::string &path,
-                          HttpHandler handler) {
+void Application::addRoute(const std::string &method, const std::string &path,
+                           HttpHandler handler) {
   route_table_[std::make_pair(stringToHttpMethod(method), path)] = handler;
-  return 0;
 }
 
 void Application::printRouteTable() {
@@ -111,15 +128,21 @@ void Application::printRouteTable() {
 }
 
 void Application::loadConfig(const std::string &filePath) {
+  /// Load the YAML configuration file
   YAML::Node config = YAML::LoadFile(filePath);
+
+  /// Iterate over each section in the configuration file
   for (const auto &pair : config) {
     auto section_name = pair.first.as<std::string>();
-    /// Fill in default key and value
+
+    /// Fill in default key-value pairs for the "server" section
     if (section_name == "server") {
       config_map_["server"]["name"] = "WebServer";
       config_map_["server"]["port"] = "8000";
       config_map_["server"]["threads"] = "5";
-    } else if (section_name == "db") {
+    }
+    /// Fill in default key-value pairs for the "db" section
+    else if (section_name == "db") {
       config_map_["db"]["name"] = "PgConnectionPool";
       config_map_["db"]["min_size"] = "5";
       config_map_["db"]["max_size"] = "10";
@@ -127,6 +150,7 @@ void Application::loadConfig(const std::string &filePath) {
       config_map_["db"]["max_idle_time"] = "5000";
     }
 
+    /// Store the key-value pairs for the current section
     std::map<std::string, std::string> section_map;
     for (const auto &sub_pair : pair.second) {
       auto key = sub_pair.first.as<std::string>();
@@ -137,8 +161,10 @@ void Application::loadConfig(const std::string &filePath) {
     config_map_[section_name] = section_map;
   }
 
+  /// Check if the "db" section exists in the configuration
   if (config_map_.find("db") != config_map_.end()) {
     auto db = config_map_["db"];
+    /// Check if the required keys for database connection are present
     bool valid = db.find("host") != db.end() && db.find("port") != db.end() &&
                  db.find("user") != db.end() &&
                  db.find("password") != db.end() &&
@@ -149,6 +175,7 @@ void Application::loadConfig(const std::string &filePath) {
     }
   }
 
+  /// Log the configuration values
   for (auto &section : config_map_) {
     for (auto &[first, second] : section.second) {
       LOG_DEBUG << section.first << "." << first << " = " << second;
@@ -158,16 +185,18 @@ void Application::loadConfig(const std::string &filePath) {
 
 void Application::onRequest(const lynx::HttpRequest &req,
                             lynx::HttpResponse *resp) {
+  /// Log the request method and path
   LOG_INFO << lynx::methodToString(req.method()) << " " << req.path();
 
-  /// Log request headers
+  /// Log the request headers
+  LOG_DEBUG << "Request headers:";
   for (const auto &header : req.headers()) {
     LOG_DEBUG << header.first << ": " << header.second;
   }
 
-  /// Searching in route table by request uri
+  /// Search for a matching route in the route table
   std::string uri = std::string(req.uri());
-  LOG_DEBUG << "searching for '" << uri << "'";
+  LOG_DEBUG << "Searching for '" << uri << "'";
   bool flag = false;
   auto method = req.method();
   for (auto &[pair, handler] : route_table_) {
@@ -176,15 +205,17 @@ void Application::onRequest(const lynx::HttpRequest &req,
       bool match = std::regex_match(uri, path_regex);
       if (match) {
         flag = true;
-        LOG_DEBUG << "find route '" << pair.second << "'";
+        LOG_DEBUG << "Found route '" << pair.second << "'";
+        // Invoke the handler for the matching route
         handler(req, resp);
         break;
       }
     }
   }
 
+  /// If no matching route is found, handle it as a not found request
   if (!flag) {
-    LOG_DEBUG << "not found";
+    LOG_DEBUG << "Not found";
     detail::handleNotFound(req, resp);
   }
 }

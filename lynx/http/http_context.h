@@ -6,21 +6,38 @@
 
 namespace lynx {
 
+/**
+ * @class HttpContext
+ * @brief Represents the HTTP context, which includes the HTTP request and the
+ * parser.
+ */
 class HttpContext {
 public:
   HttpContext();
 
+  /// Starts parsing the HTTP request.
   void start();
 
+  /**
+   * @brief Parses the HTTP request.
+   *
+   * @param data Pointer to the request data.
+   * @param len Length of the request data.
+   * @return True if the request is parsed successfully, false otherwise.
+   */
   bool parseRequest(char *data, size_t len);
 
+  /// Checks if the parsing of the HTTP request is finished.
   bool isFinished();
+
+  /// Checks if there is an error in parsing the HTTP request.
   bool hasError();
 
+  /// Returns a reference to the HttpRequest object.
   HttpRequest &request() { return request_; }
-  HttpParser &parser() { return parser_; }
 
-  uint64_t getContentLength();
+  /// Returns a reference to the HttpParser object.
+  HttpParser &parser() { return parser_; }
 
 private:
   HttpRequest request_;

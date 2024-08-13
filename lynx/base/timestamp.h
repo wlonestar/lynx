@@ -8,10 +8,13 @@
 
 namespace lynx {
 
-/// \brief Class represents a point in time as microseconds since Unix epoch.
-///
-/// It provides methods to access the timestamp in different formats and to
-/// compare or manipulate timestamps.
+/**
+ * @class Timestamp
+ * @brief Class represents a point in time as microseconds since Unix epoch.
+ *
+ * It provides methods to access the timestamp in different formats and to
+ * compare or manipulate timestamps.
+ */
 class Timestamp {
 public:
   Timestamp() : microsecs_since_epoch_(0) {}
@@ -30,8 +33,10 @@ public:
     std::swap(microsecs_since_epoch_, other.microsecs_since_epoch_);
   }
 
-  /// Converts the timestamp to a string in the format:
-  /// "[millsecond].[microsecond]".
+  /**
+   * @brief Converts the timestamp to a string in the format:
+   * "[millsecond].[microsecond]".
+   */
   std::string toString() const {
     char buf[32] = {0};
     int64_t seconds = microsecs_since_epoch_ / K_MICRO_SECS_PER_SEC;
@@ -40,9 +45,12 @@ public:
     return buf;
   }
 
-  /// Converts the timestamp to a formatted string in the  format: "YYYYMMDD
-  /// HH:mm:ss.SSSSSS".
-  /// Optionally includes microseconds if `showMicrosecs` is true.
+  /**
+   * @brief Converts the timestamp to a formatted string in the format:
+   * "YYYYMMDD HH:mm:ss.SSSSSS".
+   *
+   * Optionally includes microseconds if `showMicrosecs` is true.
+   */
   std::string toFormattedString(bool showMicrosecs = true) const {
     char buf[32] = {0};
     int64_t seconds = microsecs_since_epoch_ / K_MICRO_SECS_PER_SEC;
@@ -63,9 +71,12 @@ public:
     return buf;
   }
 
-  /// Creates a new timestamp representing the current time.
-  /// Uses `gettimeofday` to get the current time, which is not a syscall and is
-  /// relatively cost-efficient.
+  /**
+   * @brief Creates a new timestamp representing the current time.
+   *
+   * @note Uses `gettimeofday` to get the current time, which is not a syscall
+   * and is relatively cost-efficient.
+   */
   static Timestamp now() {
     struct timeval tv;
     gettimeofday(&tv, nullptr);

@@ -6,6 +6,23 @@
 
 namespace lynx {
 
+namespace detail {
+
+template <typename Tuple1, typename Tuple2, size_t... Idx>
+std::string generateConnectSql(const Tuple1 &t1, const Tuple2 &t2,
+                               std::index_sequence<Idx...> /*unused*/) {
+  std::stringstream os;
+  auto serialize = [&os](const std::string &key, const auto &val) {
+    os << key << "=" << val << " ";
+  };
+
+  int unused[] = {0, (serialize(std::get<Idx>(t1), std::get<Idx>(t2)), 0)...};
+  (void)unused;
+  return os.str();
+}
+
+} // namespace detail
+
 std::atomic_int32_t Connection::num_created;
 
 Connection::Connection(const std::string &name) : name_(name) {
@@ -26,7 +43,7 @@ bool Connection::connect(const std::string &host, size_t port,
   auto fields = std::make_tuple("host", "port", "user", "password", "dbname");
   auto args_tp = std::make_tuple(host, port, user, password, dbname);
   auto index = std::make_index_sequence<5>();
-  std::string sql = generateConnectSql(fields, args_tp, index);
+  std::string sql = detail::generateConnectSql(fields, args_tp, index);
   LOG_DEBUG << name_ << " connect: " << sql;
   conn_ = PQconnectdb(sql.data());
   if (PQstatus(conn_) != CONNECTION_OK) {

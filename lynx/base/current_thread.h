@@ -10,9 +10,29 @@ extern thread_local int t_tid_string_length;   // tid string length
 extern thread_local const char *t_thread_name; // thread name
 extern thread_local char t_errnobuf[512];      // describes the error code
 
-/// use `::syscall(SYS_gettid)` to get current thread id
+/**
+ * @brief This function caches the thread ID if it hasn't been cached yet.
+ *
+ * This function first checks if the thread ID has already been cached. If not,
+ * it retrieves the thread ID using the `SYS_gettid` system call and stores it
+ * in the `t_cached_tid` variable. It then formats the thread ID into a string
+ * and stores it in the `t_tid_string` variable. The length of the thread ID
+ * string is also stored in the `t_tid_string_length` variable.
+ */
 void cachedTid();
-/// returns a string that describes the error code passed in the argument errnum
+
+/**
+ * @brief Retrieve the error message corresponding to the specified error
+ * number.
+ *
+ * @param errnum The error number.
+ * @return const char* A pointer to the error message.
+ *
+ * This function retrieves the error message corresponding to the specified
+ * error number using the `strerror_r` function. The error message is stored in
+ * a thread-local buffer `t_errnobuf`. The function returns a pointer to the
+ * error message.
+ */
 const char *strError(int errnum);
 
 /// run `cachedTid()` when this thread first call `tid()`

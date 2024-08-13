@@ -49,12 +49,6 @@ void Epoller::fillActiveChannels(int numEvents,
   assert(static_cast<size_t>(numEvents) <= events_.size());
   for (int i = 0; i < numEvents; ++i) {
     auto *channel = static_cast<Channel *>(events_[i].data.ptr);
-#ifndef NDEBUG
-    int fd = channel->fd();
-    auto it = channels_.find(fd);
-    assert(it != channels_.end());
-    assert(it->second == channel);
-#endif
     channel->setRevents(events_[i].events);
     activeChannels->push_back(channel);
   }

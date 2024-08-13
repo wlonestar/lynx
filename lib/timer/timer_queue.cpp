@@ -10,17 +10,45 @@ namespace lynx {
 
 namespace detail {
 
+/**
+ * @brief Creates a timer file descriptor.
+ *
+ * Creates a timer file descriptor using the timerfd_create system call.
+ *
+ * @return The file descriptor of the timer.
+ *
+ * @throws lynx::LogSysFatalError If the timerfd_create system call fails.
+ */
 int createTimerfd() {
+  /// Create a timer file descriptor.
   int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+  /// Check if the timerfd_create system call was successful.
   if (timerfd < 0) {
+    /// If the system call failed, log a fatal error and terminate the program.
     LOG_SYSFATAL << "Failed in timerfd_create";
   }
+  /// Return the file descriptor of the timer.
   return timerfd;
 }
 
+/**
+ * @brief Calculates the time difference between the current time and the
+ * specified time.
+ *
+ * This function calculates the time difference between the current time and the
+ * specified time. The time difference is returned as a timespec structure. The
+ * function ensures that the time difference is at least 100 microseconds.
+ *
+ * @param when The specified time.
+ *
+ * @return The time difference between the current time and the specified time.
+ */
 struct timespec howMuchTimeFromNow(Timestamp when) {
+  /// Calculate the difference in microseconds between the current time and the
+  /// specified time.
   int64_t microseconds =
       when.microsecsSinceEpoch() - Timestamp::now().microsecsSinceEpoch();
+  /// Ensure that the time difference is at least 100 microseconds.
   if (microseconds < 100) {
     microseconds = 100;
   }
@@ -32,6 +60,21 @@ struct timespec howMuchTimeFromNow(Timestamp when) {
   return ts;
 }
 
+/**
+ * @brief Reads the timerfd and logs the number of events that have occurred and
+ * the current time.
+ *
+ * This function reads the timerfd and logs the number of events that have
+ * occurred and the current time. The function reads the timerfd using the
+ * read() system call and logs the result using the LOG_TRACE macro. If the
+ * number of bytes read is not equal to the size of the uint64_t type, the
+ * function logs an error using the LOG_ERROR macro.
+ *
+ * @param timerfd The file descriptor of the timerfd.
+ * @param now The current time.
+ *
+ * @throws None
+ */
 void readTimerfd(int timerfd, Timestamp now) {
   uint64_t howmany;
   ssize_t n = ::read(timerfd, &howmany, sizeof(howmany));
@@ -43,12 +86,27 @@ void readTimerfd(int timerfd, Timestamp now) {
   }
 }
 
+/**
+ * @brief Resets the timerfd to the specified expiration time.
+ *
+ * This function resets the timerfd to the specified expiration time. It
+ * calculates the time difference between the expiration time and the current
+ * time and sets the new interval and value of the timerfd using the
+ * timerfd_settime() system call. If the timerfd_settime() call fails, an error
+ * message is logged using the LOG_SYSERR macro.
+ *
+ * @param timerfd The file descriptor of the timerfd.
+ * @param expiration The desired expiration time.
+ *
+ * @throws None
+ */
 void resetTimerfd(int timerfd, Timestamp expiration) {
   struct itimerspec new_value;
   struct itimerspec old_value;
   memset(&new_value, 0, sizeof(new_value));
   memset(&old_value, 0, sizeof(old_value));
   new_value.it_value = howMuchTimeFromNow(expiration);
+  /// Set the new interval and value of the timerfd.
   int ret = ::timerfd_settime(timerfd, 0, &new_value, &old_value);
   if (ret != 0) {
     LOG_SYSERR << "timerfd_settime()";
