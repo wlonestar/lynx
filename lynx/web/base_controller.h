@@ -6,45 +6,141 @@
 
 namespace lynx {
 
+/**
+ * @struct RequestBody
+ * @brief A template struct that represents a request body with a specific type.
+ *
+ * This struct is used to represent a request body with a specific type.
+ * It is typically used in conjunction with the requestMapping function in
+ * the BaseController class.
+ *
+ * @tparam BodyType the type of the request body
+ */
 template <typename BodyType> struct RequestBody {
   explicit RequestBody() = default;
 };
 
+/**
+ * @struct PathVariable
+ * @brief A template struct that represents a path variable with a specific
+ * type.
+ *
+ * This struct is used to represent a path variable with a specific type.
+ * It is typically used in conjunction with the requestMapping function in
+ * the BaseController class.
+ *
+ * @tparam VarType the type of the path variable
+ */
 template <typename VarType> struct PathVariable {
   explicit PathVariable() = default;
 };
 
+/**
+ * @struct RequestParam
+ * @brief A template struct that represents a request parameter with a specific
+ * type.
+ *
+ * This struct is used to represent a request parameter with a specific type.
+ * It is typically used in conjunction with the requestMapping function in
+ * the BaseController class.
+ *
+ * @tparam ParamType the type of the request parameter
+ */
 template <typename ParamType> struct RequestParam {
   explicit RequestParam(const std::string &name) : name_(name) {}
 
   std::string name_;
 };
 
+/**
+ * @class BaseController
+ * @brief Base class for HTTP request handlers.
+ *
+ * This class serves as a base for implementing HTTP request handlers. It
+ * provides a convenient way to map HTTP methods to handler functions.
+ */
 class BaseController {
 public:
+  /// Default constructor.
   BaseController() = default;
 
+  /**
+   * @brief Maps an HTTP request to a handler function.
+   *
+   * @tparam Func The type of the handler function.
+   * @param method The HTTP method of the request.
+   * @param path The path of the request.
+   * @param func The handler function.
+   */
   template <typename Func>
   void requestMapping(const std::string &method, const std::string &path,
                       Func &&func);
 
+  /**
+   * @brief Maps an HTTP request to a handler function with a path variable.
+   *
+   * @tparam PathType The type of the path variable.
+   * @tparam Func The type of the handler function.
+   * @param method The HTTP method of the request.
+   * @param path The path of the request.
+   * @param func The handler function.
+   * @param unused Unused parameter.
+   */
   template <typename PathType, typename Func>
   void requestMapping(const std::string &method, const std::string &path,
                       Func &&func, PathVariable<PathType> /*unused*/);
 
+  /**
+   * @brief Maps an HTTP request to a handler function with a request body.
+   *
+   * @tparam BodyType The type of the request body.
+   * @tparam Func The type of the handler function.
+   * @param method The HTTP method of the request.
+   * @param path The path of the request.
+   * @param func The handler function.
+   * @param unused Unused parameter.
+   */
   template <typename BodyType, typename Func>
   void requestMapping(const std::string &method, const std::string &path,
                       Func &&func, RequestBody<BodyType> /*unused*/);
 
+  /**
+   * @brief Maps an HTTP request to a handler function with both a path variable
+   *        and a request body.
+   *
+   * @tparam PathType The type of the path variable.
+   * @tparam BodyType The type of the request body.
+   * @tparam Func The type of the handler function.
+   * @param method The HTTP method of the request.
+   * @param path The path of the request.
+   * @param func The handler function.
+   * @param unused1 Unused parameter.
+   * @param unused2 Unused parameter.
+   */
   template <typename PathType, typename BodyType, typename Func>
   void requestMapping(const std::string &method, const std::string &path,
-                      Func &&func, PathVariable<PathType> /*unused*/,
-                      RequestBody<BodyType> /*unused*/);
+                      Func &&func, PathVariable<PathType> /*unused1*/,
+                      RequestBody<BodyType> /*unused2*/);
 
+  /**
+   * @brief Maps an HTTP request to a handler function with request parameters.
+   *
+   * @tparam ParamType The type of the request parameters.
+   * @tparam Func The type of the handler function.
+   * @param method The HTTP method of the request.
+   * @param path The path of the request.
+   * @param func The handler function.
+   * @param params The request parameters.
+   */
   template <typename... ParamType, typename Func>
   void requestMapping(const std::string &method, const std::string &path,
                       Func &&func, RequestParam<ParamType>... params);
 
+  /**
+   * @brief Registers the HTTP routes with the application.
+   *
+   * @param app The application to register the routes with.
+   */
   void registerHandler(Application &app) {
     for (auto &[pair, handler] : route_table_) {
       app.addRoute(pair.first, pair.second, handler);
@@ -52,16 +148,30 @@ public:
   }
 
 private:
+  /**
+   * @brief Processes a request parameter.
+   *
+   * @tparam ParamType The type of the request parameter.
+   * @param params The map of request parameters.
+   * @param param The request parameter to process.
+   * @return The processed request parameter.
+   */
   template <typename ParamType>
   ParamType processRequestParam(const HttpRequest::MapType &params,
                                 const RequestParam<ParamType> &param);
 
+  /**
+   * @brief Sets the response to OK with JSON content type.
+   *
+   * @param resp The HTTP response object.
+   */
   void setRespOk(lynx::HttpResponse *resp) {
     resp->setStatusCode(lynx::HttpStatus::OK);
     resp->setContentType("application/json");
     resp->addHeader("Server", "lynx");
   }
 
+  /// The map of HTTP routes.
   std::map<std::pair<std::string, std::string>, HttpHandler> route_table_;
 };
 
