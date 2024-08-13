@@ -85,7 +85,6 @@ Application::Application(const std::string &filename) {
   }
 }
 
-/// TODO:
 Application::~Application() {
   if (pool_ != nullptr) {
     pool_->stop();

@@ -6,7 +6,7 @@
 
 int main() {
   LOG_INFO << "pid = " << getpid();
-  lynx::EventLoop loop; // one loop shared by multiple servers
+  lynx::EventLoop loop; /// one loop shared by multiple servers
 
   ChargenServer chargen_server(&loop, lynx::InetAddress(2019));
   chargen_server.start();

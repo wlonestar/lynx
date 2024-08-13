@@ -44,8 +44,7 @@ void onRequestPath(void *data, const char *at, size_t length) {
 void onRequestQuery(void *data, const char *at, size_t length) {
   auto *context = static_cast<HttpContext *>(data);
   context->request().setQuery(std::string(at, length));
-  /// Init query params
-  context->request().initQueryParam();
+  context->request().initQueryParam(); /// Init query params
 }
 
 void onRequestVersion(void *data, const char *at, size_t length) {
@@ -64,8 +63,7 @@ void onRequestVersion(void *data, const char *at, size_t length) {
 
 void onRequestHeaderDone(void *data, const char *at, size_t length) {
   auto *context = static_cast<HttpContext *>(data);
-  /// Init cookies
-  context->request().initCookies();
+  context->request().initCookies(); /// Init cookies
   /// Set parser's content length
   std::string content_len = context->request().getHeader("content-length");
   context->parser().content_len_ = atoi(content_len.c_str());

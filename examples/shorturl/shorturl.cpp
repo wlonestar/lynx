@@ -33,7 +33,6 @@ void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
   if (it != redirections.end()) {
     resp->setStatusCode(lynx::HttpStatus::MOVED_PERMANENTLY);
     resp->addHeader("Location", it->second);
-    // resp->setCloseConnection(true);
   } else if (req.path() == "/") {
     resp->setStatusCode(lynx::HttpStatus::OK);
     resp->setContentType("text/html");

@@ -298,16 +298,23 @@ namespace lynx {
 #define MAKE_ARG_LIST(N, op, arg, ...)                                         \
   MACRO_CONCAT(MAKE_ARG_LIST, N)(op, arg, __VA_ARGS__)
 
-///
-/// `classname`: The name of the class whose members are being reflected.
-/// `...`: A variadic parameter pack representing the members of the class.
-///
-/// `applyImpl`: Returns a tuple of the class members.
-/// `size_type`: A type alias represents the number of members.
-/// `name`: Returns the name of the class.
-/// `fields`: Returns the fields of the class as a string view.
-/// `value`: Returns the number of members by accessing `size_type::value`.
-/// `arr`: Returns an array of string views representing the field names.
+/**
+ * @brief A macro used to define the reflection members of a class.
+ *
+ * @param class_name The name of the class whose members are being reflected.
+ * @param ... A variadic parameter pack representing the members of the class.
+ *
+ * @return A struct containing the reflection members of the class.
+ *
+ * The struct contains the following members:
+ * - `applyImpl`: Returns a tuple of the class members.
+ * - `size_type`: A type alias representing the number of members.
+ * - `name`: Returns the name of the class as a string view.
+ * - `struct_name`: Returns the name of the class as a string view.
+ * - `fields`: Returns the field names of the class as a string view.
+ * - `value`: Returns the number of members by accessing `size_type::value`.
+ * - `arr`: Returns an array of string views representing the field names.
+ */
 #define MAKE_REFLECT_MEMBERS(class_name, ...)                                  \
   inline auto reflectMembersFunc(class_name const &) {                         \
     struct ReflectMembers {                                                    \
@@ -331,12 +338,15 @@ namespace lynx {
     return ReflectMembers{};                                                   \
   }
 
-///
-/// `class_name`: The name of the class
-/// `table_name`: A string representing the table name, used for metadata
-/// purposes.
-/// `N`: The number of class members.
-/// `...`: Variadic arguments representing the class members.
+/**
+ * This macro is used to define metadata for a class.
+ *
+ * @param class_name The name of the class.
+ * @param table_name A string representing the table name, used for metadata
+ * purposes.
+ * @param N The number of class members.
+ * @param ... Variadic arguments representing the class members.
+ */
 #define MAKE_META_DATA(class_name, table_name, N, ...)                         \
   constexpr std::array<std::string_view, N> arr_##class_name = {               \
       MACRO_EXPAND(MACRO_CONCAT(CON_STR, N)(__VA_ARGS__))};                    \
@@ -345,12 +355,28 @@ namespace lynx {
   MAKE_REFLECT_MEMBERS(class_name,                                             \
                        MAKE_ARG_LIST(N, &class_name::FD, __VA_ARGS__))
 
+/**
+ * @brief This macro defines a function named `to_json` which takes a
+ * `nlohmann::json` object and a constant reference to an object of type `T`.
+ * It serializes the data members of `T` into the `json` object.
+ *
+ * @param T The type of object to serialize.
+ */
 #define TO_JSON(T)                                                             \
+  /* NOLINTNEXTLINE */                                                         \
   void to_json(lynx::json &j, const T &t) {                                    \
     lynx::forEach(                                                             \
         t, [&t, &j](auto item, auto field, auto i) { j[field] = t.*item; });   \
   }
 
+/**
+ * @brief This macro defines a function named `from_json` which takes a
+ * constant reference to a `nlohmann::json` object and a non-constant reference
+ * to an object of type `T`. It deserializes the data members of `T` from the
+ * `json` object.
+ *
+ * @param T The type of object to deserialize.
+ */
 #define FROM_JSON(T)                                                           \
   /* NOLINTNEXTLINE */                                                         \
   void from_json(const lynx::json &j, T &t) {                                  \
@@ -376,32 +402,66 @@ namespace lynx {
 template <typename T>
 using reflect_members = decltype(reflectMembersFunc(std::declval<T>()));
 
-///
-/// `T`: The type to check for reflection capabilities.
-///
-/// By default,, the type `T` is not considered reflective.
+/**
+ * @brief Trait class to check if a type has reflection capabilities.
+ *
+ * This class template is used to determine if a type `T` has reflection
+ * capabilities. It provides a static member constant `value` which is of type
+ * `bool` and is `true` if `T` is considered reflective, and `false` otherwise.
+ *
+ * @tparam T The type to check for reflection capabilities.
+ * @tparam Enable A placeholder template parameter. It is not used in the class
+ * definition but is used to enable partial specialization.
+ */
 template <typename T, typename = void>
 struct is_reflection : std::false_type {}; // NOLINT
 
-///
-/// `T`: The type to check for reflection capabilities.
-///
-/// This specialization uses `std::void_t<decltype(reflect_members<T>::arr())>`
-/// as the second template parameter.
-///
-/// `std::void_t` is a helper template that converts any valid type expression
-/// into `void`.
-///
-/// If `decltype(reflect_members<T>::arr())` is valid, `std::void_t` converts it
-/// into `void`, making the specialization applicable, indicating that the type
-/// `T` is considered reflective.
+/**
+ * @brief Partial specialization of `is_reflection` for types `T` that have
+ * reflection capabilities.
+ *
+ * This specialization of `is_reflection` uses
+ * `std::void_t<decltype(reflect_members<T>::arr())>` as the second template
+ * parameter. `std::void_t` is a helper template that converts any valid type
+ * expression into `void`.
+ *
+ * If `decltype(reflect_members<T>::arr())` is valid, `std::void_t` converts it
+ * into `void`, making the specialization applicable, indicating that the type
+ * `T` is considered reflective.
+ *
+ * @tparam T The type to check for reflection capabilities.
+ */
 template <typename T>
 struct is_reflection<T, std::void_t<decltype(reflect_members<T>::arr())>>
     : std::true_type {};
 
+/**
+ * @brief Trait class template to check if a given type `T` is an instantiation
+ * of a template class `U`.
+ *
+ * This trait class template is used to check if a type `T` is an instantiation
+ * of a template class `U`. It provides a static member constant `value` of type
+ * `bool`, which is `true` if `T` is an instantiation of `U`, and `false`
+ * otherwise.
+ *
+ * @tparam U The template class to check against.
+ * @tparam T The type to check for instantiation.
+ */
 template <template <typename...> class U, typename T>
 struct is_template_instant_of : std::false_type {}; // NOLINT
 
+/**
+ * @brief Partial specialization of `is_template_instant_of` for types `T` that
+ * are an instantiation of `U`.
+ *
+ * This partial specialization of `is_template_instant_of` is used to check if a
+ * type `T` is an instantiation of the template class `U`. It defines `value` as
+ * `true` for the given specialization.
+ *
+ * @tparam U The template class to check against.
+ * @tparam args... The variadic template parameter pack representing the
+ * argument(s) of the template class.
+ */
 template <template <typename...> class U, typename... args>
 struct is_template_instant_of<U, U<args...>> : std::true_type {};
 
@@ -414,43 +474,86 @@ struct is_tuple : is_template_instant_of<std::tuple, T> {}; // NOLINT
 template <typename T>
 inline constexpr bool is_reflection_v = is_reflection<T>::value; // NOLINT
 
-///
-/// forEach function with array
-///
-/// This function uses a fold expression to apply the callable `f` to each
-/// element of the tuple `t`, each corresponding element of the array `arr`.
-///
-/// The fold expression expands to a series of function calls, one for each
-/// element of the tuple.
+/**
+ * @brief `forEach` function with array
+ *
+ * This function applies the callable `f` to each element of the tuple `t` and
+ * each corresponding element of the array `arr`.
+ *
+ * @tparam Args variadic template parameters representing the types of the
+ * elements of the tuple.
+ * @tparam A the type of the array.
+ * @tparam F the type of the callable.
+ * @tparam Idx the index sequence.
+ * @param t the tuple to iterate over.
+ * @param arr the array to iterate over.
+ * @param f the callable to apply to each element.
+ * @param unused unused parameter, used to disambiguate the function.
+ */
 template <typename... Args, typename A, typename F, std::size_t... Idx>
 constexpr void forEach(const std::tuple<Args...> &t, const A &arr, F &&f,
                        std::index_sequence<Idx...> /*unused*/) {
+  /// Apply the callable `f` to each element of the tuple and each corresponding
+  /// element of the array.
   (std::forward<F>(f)(std::get<Idx>(t), arr[Idx],
                       std::integral_constant<size_t, Idx>{}),
    ...);
 }
 
-/// forEach function without array
+/**
+ * @brief `forEach` function without array
+ *
+ * This function applies the callable `f` to each element of the tuple `t`.
+ *
+ * @tparam Args variadic template parameters representing the types of the
+ * elements of the tuple.
+ * @tparam F the type of the callable.
+ * @tparam Idx the index sequence.
+ * @param t the tuple to iterate over.
+ * @param f the callable to apply to each element.
+ * @param unused unused parameter, used to disambiguate the function.
+ */
 template <typename... Args, typename F, std::size_t... Idx>
 constexpr void forEach(std::tuple<Args...> &t, F &&f,
                        std::index_sequence<Idx...> /*unused*/) {
+  /// Apply the callable `f` to each element of the tuple.
   (std::forward<F>(f)(std::get<Idx>(t), std::integral_constant<size_t, Idx>{}),
    ...);
 }
 
-/// forEach function for reflective types
+/**
+ * @brief `forEach` function for reflective types
+ *
+ * This function applies the callable `f` to each element of the tuple resulting
+ * from `reflectMembersFunc(t)` and each corresponding element of the array
+ * resulting from `M::arr()`.
+ *
+ * @tparam T the type to check for reflections.
+ * @tparam F the type of the callable.
+ */
 template <typename T, typename F>
 constexpr std::enable_if_t<is_reflection<T>::value> forEach(T &&t, F &&f) {
   using M = decltype(reflectMembersFunc(std::forward<T>(t)));
+  /// Apply the callable `f` to each element of the tuple resulting from
+  /// `reflectMembersFunc(t)` and each corresponding element of the array
+  /// resulting from `M::arr()`.
   forEach(M::applyImpl(), M::arr(), std::forward<F>(f),
           std::make_index_sequence<M::value()>{});
 }
 
-/// forEach function for tuple
+/**
+ * @brief `forEach` function for tuple
+ *
+ * This function applies the callable `f` to each element of the tuple `t`.
+ *
+ * @tparam T the type of the tuple.
+ * @tparam F the type of the callable.
+ */
 template <typename T, typename F>
 constexpr std::enable_if_t<!is_reflection<T>::value &&
                            is_tuple<std::decay_t<T>>::value>
 forEach(T &&t, F &&f) {
+  /// Apply the callable `f` to each element of the tuple `t`.
   forEach(std::forward<T>(t), std::forward<F>(f),
           std::make_index_sequence<std::tuple_size_v<std::decay_t<T>>>{});
 }
