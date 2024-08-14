@@ -88,7 +88,8 @@ public:
 
   std::string getHeader(const std::string &key,
                         const std::string &def = "") const;
-  std::string getParam(const std::string &key, const std::string &def = "");
+  std::string getParam(const std::string &key,
+                       const std::string &def = "") const;
   std::string getCookie(const std::string &key, const std::string &def = "");
 
   void setHeader(const std::string &key, const std::string &val);

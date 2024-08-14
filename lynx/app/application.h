@@ -10,7 +10,7 @@
 
 namespace lynx {
 
-using HttpHandler = HttpServer::HttpCallback;
+using HttpHandler = std::function<void(const HttpRequest &, HttpResponse *)>;
 
 /**
  * @class Application
@@ -23,15 +23,12 @@ using HttpHandler = HttpServer::HttpCallback;
 class Application : Noncopyable {
 public:
   /**
-   * @brief Constructor of @class `Application`.
+   * @brief Constructor for the Application class.
    *
-   * @param filename The name of the configuration file. Default is
-   * "config.yml".
-   *
-   * @note read config yaml format file from the executable file located dir's
-   * `conf/` directory.
+   * @param filename The name of the configuration file. If empty, a default
+   * configuration is used.
    */
-  explicit Application(const std::string &filename = "config.yml");
+  explicit Application(const std::string &filename = "");
   ~Application();
 
   /**

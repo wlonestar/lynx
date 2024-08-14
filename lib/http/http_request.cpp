@@ -113,7 +113,7 @@ std::string HttpRequest::getHeader(const std::string &key,
 }
 
 std::string HttpRequest::getParam(const std::string &key,
-                                  const std::string &def) {
+                                  const std::string &def) const {
   auto it = params_.find(key);
   return it == params_.end() ? def : it->second;
 }

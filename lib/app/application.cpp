@@ -43,6 +43,19 @@ Application::Application(const std::string &filename) {
   /// Create a new event loop
   loop_ = new EventLoop();
 
+  /// If no configuration file is provided, create a default HTTP server
+  if (filename.empty()) {
+    server_ = std::make_unique<HttpServer>(loop_, InetAddress(8000), "App");
+
+    /// Set HTTP server parameters
+    server_->setThreadNum(5);
+    server_->setHttpCallback([this](auto &&req, auto &&resp) {
+      onRequest(std::forward<decltype(req)>(req),
+                std::forward<decltype(resp)>(resp));
+    });
+    return;
+  }
+
   /// Load configuration file
   auto path = detail::getExecutableDir() + "conf/" + filename;
   if (!fs::exists(path)) {
@@ -52,17 +65,15 @@ Application::Application(const std::string &filename) {
   LOG_TRACE << "Reading config from " << path;
   loadConfig(path);
 
-  /// Create HTTP server
+  /// Create HTTP server with parameters from the configuration file
   server_ = std::make_unique<HttpServer>(
-      loop_, // Event loop
-      InetAddress(static_cast<uint16_t>(
-          atoi(config_map_["server"]["port"].c_str()))), // Port
-      config_map_["server"]["name"]                      // Server name
-  );
+      loop_,
+      InetAddress(
+          static_cast<uint16_t>(atoi(config_map_["server"]["port"].c_str()))),
+      config_map_["server"]["name"]);
 
   /// Set HTTP server parameters
-  server_->setThreadNum(
-      atoi(config_map_["server"]["threads"].c_str())); // Number of threads
+  server_->setThreadNum(atoi(config_map_["server"]["threads"].c_str()));
   server_->setHttpCallback([this](auto &&PH1, auto &&PH2) {
     onRequest(std::forward<decltype(PH1)>(PH1),
               std::forward<decltype(PH2)>(PH2));

@@ -1,3 +1,4 @@
-add_subdirectory(simple)
-add_subdirectory(shorturl)
-add_subdirectory(timer)
+add_subdirectory(simple_app_0)
+add_subdirectory(simple_app_1)
+add_subdirectory(simple_app_2)
+add_subdirectory(simple_app_3)

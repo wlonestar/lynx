@@ -1,5 +1,5 @@
 server:
-  name: WebServer
+  name: SimpleApp2 
   port: 8000
   threads: 5
 db:

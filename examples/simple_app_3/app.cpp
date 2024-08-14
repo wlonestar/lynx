@@ -1,11 +1,7 @@
-#include "lynx/logger/logging.h"
-#include "lynx/orm/reflection.h"
+#include "lynx/app/application.h"
 #include "lynx/web/base_controller.h"
 #include "lynx/web/base_repository.h"
 #include "lynx/web/common_result.h"
-
-#include <optional>
-#include <vector>
 
 enum Gender : int {
   Male,
@@ -24,6 +20,32 @@ struct Student {
 REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
                               major, gpa);
 REGISTER_AUTO_KEY(Student, id);
+
+void initDb(lynx::ConnectionPool &pool) {
+  auto conn = pool.getConnection();
+  /// Create table (drop if table already exists)
+  conn->execute("drop table student; drop sequence student_id_seq;");
+  lynx::AutoKeyMap key_map{"id"};
+  lynx::NotNullMap not_null_map;
+  not_null_map.fields = {"id", "name", "gender", "entry_year"};
+  bool flag = conn->createTable<Student>(key_map, not_null_map);
+  if (!flag) {
+    abort();
+  }
+  /// Insert data
+  std::vector<Student> students;
+  for (int i = 0; i < 20; i++) {
+    Student s;
+    s.id = 5 + i;
+    s.name = "Che hen " + std::to_string(i);
+    s.gender = rand() % 2 == 0 ? Gender::Female : Gender::Male;
+    s.entry_year = 2023;
+    s.major = rand() % 2 == 0 ? "CS" : "SE";
+    s.gpa = 3.5 + (rand() % 10) * 0.05;
+    students.push_back(s);
+  }
+  conn->insert(students);
+}
 
 class StudentRepository : public lynx::BaseRepository<Student, uint64_t> {
 public:
@@ -150,3 +172,18 @@ private:
 };
 
 std::unique_ptr<StudentService> StudentController::service;
+
+int main() {
+  /// Create app by reading from config file.
+  lynx::Application app("simple_config_3.yml");
+  /// Init app.
+  app.start();
+
+  /// Register handlers
+  StudentController::init(app.pool());
+  StudentController controller;
+  controller.registerHandler(app);
+
+  /// Start listening.
+  app.listen();
+}

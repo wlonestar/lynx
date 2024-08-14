@@ -65,7 +65,7 @@ void initDb(lynx::ConnectionPool &pool) {
 
 int main(int argc, char *argv[]) {
   /// Init Application
-  lynx::Application app;
+  lynx::Application app("test_config.yml");
 
   /// Setup server and pool
   app.start();

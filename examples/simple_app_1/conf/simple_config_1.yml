@@ -1,0 +1,4 @@
+server:
+  name: SimpleApp1
+  port: 8000
+  threads: 5

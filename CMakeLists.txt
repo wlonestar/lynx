@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(lynx VERSION 1.0.0)
+project(lynx VERSION 0.1.0)
 
 include(cmake/utils.cmake)
 
