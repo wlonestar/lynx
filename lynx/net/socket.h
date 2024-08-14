@@ -22,6 +22,7 @@ class Socket : Noncopyable {
 public:
   /**
    * @brief Constructs a Socket with a given file descriptor.
+   *
    * @param sockfd The file descriptor for the socket.
    */
   explicit Socket(int sockfd) : sockfd_(sockfd) {}
@@ -41,6 +42,7 @@ public:
 
   /**
    * @brief Binds the socket to a local address.
+   *
    * @param localaddr The local address to bind the socket to.
    */
   void bindAddress(const InetAddress &localaddr);
@@ -54,7 +56,9 @@ public:
 
   /**
    * @brief Accepts an incoming connection.
+   *
    * @param peeraddr Pointer to an InetAddress to store the peer address.
+   *
    * @return The file descriptor for the accepted connection.
    */
   int accept(InetAddress *peeraddr);

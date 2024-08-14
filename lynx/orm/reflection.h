@@ -339,7 +339,7 @@ namespace lynx {
   }
 
 /**
- * This macro is used to define metadata for a class.
+ * @brief This macro is used to define metadata for a class.
  *
  * @param class_name The name of the class.
  * @param table_name A string representing the table name, used for metadata
@@ -358,6 +358,7 @@ namespace lynx {
 /**
  * @brief This macro defines a function named `to_json` which takes a
  * `nlohmann::json` object and a constant reference to an object of type `T`.
+ *
  * It serializes the data members of `T` into the `json` object.
  *
  * @param T The type of object to serialize.
@@ -372,8 +373,9 @@ namespace lynx {
 /**
  * @brief This macro defines a function named `from_json` which takes a
  * constant reference to a `nlohmann::json` object and a non-constant reference
- * to an object of type `T`. It deserializes the data members of `T` from the
- * `json` object.
+ * to an object of type `T`.
+ *
+ * It deserializes the data members of `T` from the `json` object.
  *
  * @param T The type of object to deserialize.
  */

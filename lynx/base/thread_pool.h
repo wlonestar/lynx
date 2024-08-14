@@ -18,15 +18,17 @@ namespace lynx {
  */
 class ThreadPool : Noncopyable {
 public:
-  /// Alias for the type of the tasks to be executed.
   using Task = std::function<void()>;
 
   explicit ThreadPool(const std::string &name = std::string("ThreadPool"));
-
   ~ThreadPool();
 
   /**
-   * @brief Starts the thread pool with the given number of threads.
+   * @brief Starts the thread pool with the specified number of threads.
+   *
+   * This function initializes the thread pool with the specified number of
+   * threads. If the number of threads is zero, the thread_init_callback
+   * function is called immediately.
    *
    * @param numThreads The number of threads to create in the pool.
    */
@@ -53,9 +55,17 @@ public:
   size_t queueSize() const;
 
   /**
-   * @brief Submits a task to the ThreadPool for execution.
+   * @brief Run a task in the thread pool.
    *
-   * @param task The task to be executed.
+   * If the thread pool has no threads, the task is run directly. Otherwise, the
+   * task is added to the task queue and the first available thread will run it.
+   *
+   * If the task queue is full and the thread pool is still running, the caller
+   * will block until the task can be added to the queue.
+   *
+   * If the thread pool is not running, the task is discarded.
+   *
+   * @param task The task to be run in the thread pool.
    */
   void run(Task task);
 
@@ -63,7 +73,16 @@ private:
   /// Checks if the task queue is full.
   bool isFull() const;
 
-  /// The main function executed by each thread in the pool.
+  /**
+   * @brief This function is the main function of each thread in the thread
+   * pool. It continuously takes tasks from the task queue and executes them.
+   *
+   * It acquires the lock to access the task queue and waits until a task is
+   * available or the thread pool has stopped running. Once a task is available,
+   * it executes the task and releases the lock. If an exception is caught
+   * during the execution of the task, it prints the exception message to stderr
+   * and aborts the program.
+   */
   void runInThread();
 
   /**

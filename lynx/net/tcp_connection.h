@@ -40,6 +40,7 @@ class TcpConnection : Noncopyable,
 public:
   /**
    * @brief Constructs a TcpConnection with the given parameters.
+   *
    * @param loop The EventLoop that manages this connection.
    * @param name The name of the connection.
    * @param sockfd The socket file descriptor.
@@ -69,6 +70,7 @@ public:
 
   /**
    * @brief Sets the TCP_NODELAY option for the connection.
+   *
    * @param on True to enable TCP_NODELAY, false to disable.
    */
   void setTcpNoDelay(bool on);
@@ -81,6 +83,7 @@ public:
 
   /**
    * @brief Checks if the connection is currently reading.
+   *
    * @return True if the connection is reading, false otherwise.
    */
   bool isReading() const { return reading_; }

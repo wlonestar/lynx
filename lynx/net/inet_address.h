@@ -22,6 +22,7 @@ public:
 
   /**
    * @brief Converts the address to a string representation of the IP address.
+   *
    * @return A string representation of the IP address.
    */
   std::string toIp() const;
@@ -29,6 +30,7 @@ public:
   /**
    * @brief Converts the address to a string representation of the IP address
    * and port.
+   *
    * @return A string representation of the IP address and port.
    */
   std::string toIpPort() const;

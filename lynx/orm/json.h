@@ -5,6 +5,7 @@
 
 namespace lynx {
 
+/// Alias for nlohmann::json.
 using json = nlohmann::json;
 
 } // namespace lynx

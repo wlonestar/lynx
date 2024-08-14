@@ -23,7 +23,6 @@ namespace lynx {
  */
 template <typename T, typename ID> class BaseRepository {
 public:
-  /// Constructs a BaseRepository object.
   explicit BaseRepository(lynx::ConnectionPool &pool) : pool_(pool) {}
 
   /**

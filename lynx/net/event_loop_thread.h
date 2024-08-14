@@ -23,6 +23,7 @@ public:
   /**
    * @brief Constructs an EventLoopThread with an optional initialization
    * callback and thread name.
+   *
    * @param cb The callback to run when the thread starts. Defaults to an empty
    * callback.
    * @param name The name of the thread. Defaults to an empty string.
@@ -39,6 +40,7 @@ public:
 
   /**
    * @brief Starts the thread and returns the EventLoop running in the thread.
+   *
    * @return A pointer to the EventLoop running in the thread.
    */
   EventLoop *startLoop();

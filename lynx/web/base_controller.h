@@ -61,7 +61,6 @@ template <typename ParamType> struct RequestParam {
  */
 class BaseController {
 public:
-  /// Default constructor.
   BaseController() = default;
 
   /**

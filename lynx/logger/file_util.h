@@ -19,7 +19,6 @@ namespace lynx::util {
  */
 class AppendFile : Noncopyable {
 public:
-  /// Constructs an AppendFile object with the given filename.
   explicit AppendFile(std::string filename);
   ~AppendFile();
 
@@ -28,16 +27,10 @@ public:
    *
    * @param logline The log line to append.
    * @param len The length of the log line.
-   *
-   * @throws None.
    */
   void append(const char *logline, size_t len);
 
-  /**
-   * @brief Flushes any remaining data in the buffer to the file.
-   *
-   * @throws None.
-   */
+  /// Flushes any remaining data in the buffer to the file.
   void flush();
 
   /**

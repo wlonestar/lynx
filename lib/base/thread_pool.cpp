@@ -22,10 +22,13 @@ void ThreadPool::start(int numThreads) {
   for (int i = 0; i < numThreads; ++i) {
     char id[32];
     snprintf(id, sizeof(id), "%d", i + 1);
+    /// Create a new thread and add it to the vector
     threads_.emplace_back(new Thread([&] { runInThread(); }, name_ + id));
     threads_[i]->start();
   }
 
+  /// If there are no threads and a thread_init_callback function is provided,
+  /// call the callback function immediately
   if (numThreads == 0 && thread_init_callback_) {
     thread_init_callback_();
   }
@@ -54,12 +57,17 @@ void ThreadPool::run(Task task) {
     task();
   } else {
     std::unique_lock<std::mutex> lock(mutex_);
+    /// If the queue is full and the thread pool is running, wait until
+    /// there is space available in the queue.
     while (isFull() && running_) {
       not_full_.wait(lock);
     }
+    /// If the thread pool is not running, return immediately.
     if (!running_) {
       return;
     }
+    /// At this point, we know that there is space available in the queue,
+    /// so add the task to the queue and notify the first available thread.
     assert(!isFull());
 
     queue_.push_back(std::move(task));
@@ -73,20 +81,27 @@ bool ThreadPool::isFull() const {
 
 void ThreadPool::runInThread() {
   try {
+    /// If a thread initialization callback is provided, call it.
     if (thread_init_callback_) {
       thread_init_callback_();
     }
+    /// Continuously take tasks from the task queue and execute them.
     while (running_) {
-      Task task(take());
+      Task task(take()); /// Take a task from the task queue.
+      /// If a task is available, execute it.
       if (task) {
         task();
       }
     }
   } catch (const std::exception &ex) {
+    /// If an exception is caught during the execution of a task,
+    /// print the exception message to stderr and abort the program.
     fprintf(stderr, "exception caught in ThreadPool %s\n", name_.c_str());
     fprintf(stderr, "reason: %s\n", ex.what());
     abort();
   } catch (...) {
+    /// If an unknown exception is caught during the execution of a task,
+    /// print a message to stderr and rethrow the exception.
     fprintf(stderr, "unknown exception caught in ThreadPool %s\n",
             name_.c_str());
     throw;

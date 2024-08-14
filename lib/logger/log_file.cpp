@@ -40,8 +40,8 @@ bool LogFile::rollFile() {
   std::string filename = getLogFileName(basename_, &now);
   time_t start = now / K_ROLL_PER_SECONDS * K_ROLL_PER_SECONDS;
 
-  // If the current time is greater than the last roll time,
-  // update the last roll time, last flush time, and start of period time.
+  /// If the current time is greater than the last roll time,
+  /// update the last roll time, last flush time, and start of period time.
   if (now > last_roll_) {
     last_roll_ = now;
     last_flush_ = now;

@@ -23,6 +23,7 @@ class Timer : Noncopyable {
 public:
   /**
    * @brief Constructs a Timer object.
+   *
    * @param cb The callback function to be executed.
    * @param when The time at which the callback function should be executed.
    * @param interval The interval at which the callback function should be

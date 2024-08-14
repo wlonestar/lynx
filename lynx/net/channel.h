@@ -36,6 +36,7 @@ public:
 
   /**
    * @brief Constructs a Channel with the given EventLoop and file descriptor.
+   *
    * @param loop The EventLoop that this Channel belongs to.
    * @param fd The file descriptor that this Channel will manage.
    */
@@ -44,6 +45,7 @@ public:
 
   /**
    * @brief Handles the event. Called by the EventLoop when an event occurs.
+   *
    * @param receiveTime The timestamp when the event was received.
    */
   void handleEvent(Timestamp receiveTime);
@@ -55,6 +57,7 @@ public:
   /**
    * @brief Ties this Channel to a shared object to prevent the object from
    * being destructed.
+   *
    * @param obj The shared object to tie to this Channel.
    */
   void tie(const std::shared_ptr<void> &obj);
@@ -96,9 +99,7 @@ public:
   void doNotLogHup() { log_hup_ = false; }
   EventLoop *ownerLoop() { return loop_; }
 
-  /**
-   * @brief Removes this channel from the EventLoop.
-   */
+  /// Removes this channel from the EventLoop.
   void remove();
 
 private:

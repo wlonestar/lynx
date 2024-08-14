@@ -25,7 +25,6 @@ namespace lynx {
  * |                   |                  |                  |
  * 0      <=      readerIndex   <=   writerIndex    <=     size
  * +-------------------+------------------+------------------+
- *
  */
 class Buffer {
 public:
@@ -34,6 +33,7 @@ public:
 
   /**
    * @brief Constructs a Buffer with an initial size.
+   *
    * @param initialSize The initial size of the buffer.
    */
   explicit Buffer(size_t initialSize = K_INITIAL_SIZE)
@@ -56,12 +56,14 @@ public:
 
   /**
    * @brief Returns a pointer to the beginning of readable data.
+   *
    * @return A pointer to the readable data.
    */
   const char *peek() const { return begin() + reader_index_; }
 
   /**
    * @brief Finds the first occurrence of CRLF in the readable data.
+   *
    * @return A pointer to the CRLF if found, otherwise nullptr.
    */
   const char *findCRLF() const {
@@ -71,7 +73,9 @@ public:
 
   /**
    * @brief Finds the first occurrence of CRLF starting from a given position.
+   *
    * @param start The starting position.
+   *
    * @return A pointer to the CRLF if found, otherwise nullptr.
    */
   const char *findCRLF(const char *start) const {
@@ -83,6 +87,7 @@ public:
 
   /**
    * @brief Finds the first occurrence of EOL in the readable data.
+   *
    * @return A pointer to the EOL if found, otherwise nullptr.
    */
   const char *findEOL() const {
@@ -92,7 +97,9 @@ public:
 
   /**
    * @brief Finds the first occurrence of EOL starting from a given position.
+   *
    * @param start The starting position.
+   *
    * @return A pointer to the EOL if found, otherwise nullptr.
    */
   const char *findEOL(const char *start) const {
@@ -104,6 +111,7 @@ public:
 
   /**
    * @brief Retrieves (consumes) a specified number of bytes from the buffer.
+   *
    * @param len The number of bytes to retrieve.
    */
   void retrieve(size_t len) {
@@ -117,6 +125,7 @@ public:
 
   /**
    * @brief Retrieves data up to a specified end position.
+   *
    * @param end The end position.
    */
   void retrieveUntil(const char *end) {
@@ -133,6 +142,7 @@ public:
 
   /**
    * @brief Retrieves all readable data as a string.
+   *
    * @return A string containing all readable data.
    */
   std::string retrieveAllAsString() {
@@ -141,7 +151,9 @@ public:
 
   /**
    * @brief Retrieves a specified number of bytes as a string.
+   *
    * @param len The number of bytes to retrieve.
+   *
    * @return A string containing the retrieved data.
    */
   std::string retrieveAsString(size_t len) {
@@ -153,18 +165,21 @@ public:
 
   /**
    * @brief Converts all readable data to a string.
+   *
    * @return A string containing all readable data.
    */
   std::string toString() const { return {peek(), readableBytes()}; }
 
   /**
    * @brief Appends a string to the buffer.
+   *
    * @param str The string to append.
    */
   void append(const std::string &str) { append(str.data(), str.size()); }
 
   /**
    * @brief Appends data to the buffer.
+   *
    * @param data A pointer to the data to append.
    * @param len The length of the data.
    */
@@ -176,6 +191,7 @@ public:
 
   /**
    * @brief Appends data to the buffer.
+   *
    * @param data A pointer to the data to append.
    * @param len The length of the data.
    */
@@ -185,6 +201,7 @@ public:
 
   /**
    * @brief Ensures that the buffer has enough writable bytes.
+   *
    * @param len The number of writable bytes required.
    */
   void ensureWritableBytes(size_t len) {
@@ -196,6 +213,7 @@ public:
 
   /**
    * @brief Returns a pointer to the beginning of the writable data.
+   *
    * @return A pointer to the writable data.
    */
   char *beginWrite() { return begin() + writer_index_; }
@@ -203,6 +221,7 @@ public:
 
   /**
    * @brief Updates the write index after writing data.
+   *
    * @param len The number of bytes written.
    */
   void hasWritten(size_t len) {
@@ -212,6 +231,7 @@ public:
 
   /**
    * @brief Reverts the write index by a specified number of bytes.
+   *
    * @param len The number of bytes to unwrite.
    */
   void unwrite(size_t len) {
@@ -221,6 +241,7 @@ public:
 
   /**
    * @brief Prepends data to the buffer.
+   *
    * @param data A pointer to the data to prepend.
    * @param len The length of the data.
    */
@@ -233,6 +254,7 @@ public:
 
   /**
    * @brief Shrinks the buffer to fit its contents plus reserved space.
+   *
    * @param reserve The number of bytes to reserve.
    */
   void shrink(size_t reserve) {
@@ -246,8 +268,10 @@ public:
 
   /**
    * @brief Reads data from a file descriptor into the buffer.
+   *
    * @param fd The file descriptor to read from.
    * @param savedErrno Pointer to store the saved errno value in case of error.
+   *
    * @return The number of bytes read, or -1 in case of error.
    */
   ssize_t readFd(int fd, int *savedErrno);
@@ -258,6 +282,7 @@ private:
 
   /**
    * @brief Ensures there is enough space to write data.
+   *
    * @param len The number of bytes to ensure space for.
    */
   void makeSpace(size_t len) {

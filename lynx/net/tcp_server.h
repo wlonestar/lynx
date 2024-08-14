@@ -31,6 +31,7 @@ public:
 
   /**
    * @brief Constructs a TcpServer with the given parameters.
+   *
    * @param loop The EventLoop that manages this server.
    * @param listenAddr The address to listen on.
    * @param name The name of the server.

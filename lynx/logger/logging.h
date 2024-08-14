@@ -64,7 +64,7 @@ public:
     }
 
     /**
-     * Constructor that takes a raw C-style string pointer.
+     * @brief Constructor that takes a raw C-style string pointer.
      *
      * @param filename Raw C-style string pointer
      */

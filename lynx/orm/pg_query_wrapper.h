@@ -119,7 +119,7 @@ public:
 
   /**
    * @brief Creates a new expression by applying an operator to the current
-   *        expression and a value.
+   * expression and a value.
    *
    * @tparam T The type of the value.
    * @param op The operator to be used in the expression.

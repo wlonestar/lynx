@@ -77,6 +77,7 @@ HttpMethod stringToHttpMethod(const std::string &m) {
 #undef XX
   return HttpMethod::INVALID_METHOD;
 }
+
 HttpMethod charsToHttpMethod(const char *m) {
 #define XX(num, name, string)                                                  \
   if (strncmp(#string, m, strlen(#string)) == 0) {                             \
@@ -136,9 +137,7 @@ void HttpRequest::setCookie(const std::string &key, const std::string &val) {
 }
 
 void HttpRequest::delHeader(const std::string &key) { headers_.erase(key); }
-
 void HttpRequest::delParam(const std::string &key) { params_.erase(key); }
-
 void HttpRequest::delCookie(const std::string &key) { cookies_.erase(key); }
 
 bool HttpRequest::hasHeader(const std::string &key, std::string *val) {

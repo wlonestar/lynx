@@ -24,6 +24,7 @@ public:
 
   /**
    * @brief Constructs an Epoller associated with the given EventLoop.
+   *
    * @param loop The EventLoop that manages this Epoller.
    */
   Epoller(EventLoop *loop);
@@ -31,8 +32,10 @@ public:
 
   /**
    * @brief Polls the epoll file descriptor for events.
+   *
    * @param timeoutMs The timeout in milliseconds.
    * @param activeChannels The list to store active channels.
+   *
    * @return The current time when polling returns.
    */
   Timestamp poll(int timeoutMs, ChannelList *activeChannels);
@@ -45,7 +48,9 @@ public:
 
   /**
    * @brief Checks if a channel is in the epoll interest list.
+   *
    * @param channel The channel to check.
+   *
    * @return True if the channel is in the list, otherwise false.
    */
   bool hasChannel(Channel *channel) const;
@@ -59,6 +64,7 @@ private:
 
   /**
    * @brief Fills the active channels list based on the number of events.
+   *
    * @param numEvents The number of events.
    * @param activeChannels The list to store active channels.
    */
@@ -66,6 +72,7 @@ private:
 
   /**
    * @brief Updates the epoll interest list with a given operation.
+   *
    * @param operation The epoll operation (e.g., EPOLL_CTL_ADD).
    * @param channel The channel to update.
    */

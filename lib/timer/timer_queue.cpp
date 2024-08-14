@@ -11,23 +11,18 @@ namespace lynx {
 namespace detail {
 
 /**
- * @brief Creates a timer file descriptor.
- *
- * Creates a timer file descriptor using the timerfd_create system call.
+ * @brief Creates a timer file descriptor using the timerfd_create system call.
  *
  * @return The file descriptor of the timer.
- *
- * @throws lynx::LogSysFatalError If the timerfd_create system call fails.
  */
 int createTimerfd() {
   /// Create a timer file descriptor.
   int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
   /// Check if the timerfd_create system call was successful.
   if (timerfd < 0) {
-    /// If the system call failed, log a fatal error and terminate the program.
+    /// Log a fatal error and terminate the program.
     LOG_SYSFATAL << "Failed in timerfd_create";
   }
-  /// Return the file descriptor of the timer.
   return timerfd;
 }
 
@@ -44,8 +39,6 @@ int createTimerfd() {
  * @return The time difference between the current time and the specified time.
  */
 struct timespec howMuchTimeFromNow(Timestamp when) {
-  /// Calculate the difference in microseconds between the current time and the
-  /// specified time.
   int64_t microseconds =
       when.microsecsSinceEpoch() - Timestamp::now().microsecsSinceEpoch();
   /// Ensure that the time difference is at least 100 microseconds.
@@ -72,8 +65,6 @@ struct timespec howMuchTimeFromNow(Timestamp when) {
  *
  * @param timerfd The file descriptor of the timerfd.
  * @param now The current time.
- *
- * @throws None
  */
 void readTimerfd(int timerfd, Timestamp now) {
   uint64_t howmany;
@@ -97,8 +88,6 @@ void readTimerfd(int timerfd, Timestamp now) {
  *
  * @param timerfd The file descriptor of the timerfd.
  * @param expiration The desired expiration time.
- *
- * @throws None
  */
 void resetTimerfd(int timerfd, Timestamp expiration) {
   struct itimerspec new_value;

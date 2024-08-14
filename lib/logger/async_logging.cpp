@@ -23,8 +23,7 @@ AsyncLogging::~AsyncLogging() {
 }
 
 void AsyncLogging::append(const char *logline, size_t len) {
-  std::lock_guard<std::mutex> lock(
-      mutex_); /// Acquire the lock to ensure thread safety
+  std::lock_guard<std::mutex> lock(mutex_);
 
   /// Check if the current buffer has enough space to append the log line
   if (current_buffer_->avail() > static_cast<int>(len)) {

@@ -20,7 +20,6 @@ namespace lynx {
  */
 class Thread : Noncopyable {
 public:
-  /// Type of the function to be executed in the thread.
   using ThreadFunc = std::function<void()>;
 
   /**

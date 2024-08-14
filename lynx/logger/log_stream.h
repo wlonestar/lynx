@@ -25,8 +25,10 @@ const int K_LARGE_BUFFER = 4000 * 1000;
  */
 template <int SIZE> class FixedBuffer : Noncopyable {
 public:
-  /// Constructs a FixedBuffer object with the current write position set to
-  /// the beginning of the buffer.
+  /**
+   * @brief Constructs a FixedBuffer object with the current write position set
+   * to the beginning of the buffer.
+   */
   FixedBuffer() : cur_(data_) {}
   ~FixedBuffer() = default;
 
@@ -136,8 +138,8 @@ private:
 
   Buffer buffer_; /// The fixed-size buffer used by LogStream
 
-  static const int K_MAX_NUMERIC_SIZE =
-      48; /// The maximum size of a numeric value
+  /// The maximum size of a numeric value
+  static const int K_MAX_NUMERIC_SIZE = 48;
 };
 
 } // namespace lynx

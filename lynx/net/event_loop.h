@@ -46,54 +46,65 @@ public:
 
   /**
    * @brief Gets the time when poll() returned.
+   *
    * @return The timestamp of the last poll() return.
    */
   Timestamp pollReturnTime() const { return poll_return_time_; }
 
   /**
    * @brief Runs a callback immediately in the event loop.
+   *
    * @param cb The callback to run.
    */
   void runInLoop(Functor cb);
 
   /**
    * @brief Queues a callback to be run in the event loop.
+   *
    * @param cb The callback to queue.
    */
   void queueInLoop(Functor cb);
 
   /**
    * @brief Gets the size of the pending functor queue.
+   *
    * @return The size of the pending functor queue.
    */
   size_t queueSize() const;
 
   /**
    * @brief Runs a callback at a specific time.
+   *
    * @param time The time to run the callback.
    * @param cb The callback to run.
+   *
    * @return The ID of the timer.
    */
   TimerId runAt(Timestamp time, TimerCallback cb);
 
   /**
    * @brief Runs a callback after a delay.
+   *
    * @param delay The delay in seconds.
    * @param cb The callback to run.
+   *
    * @return The ID of the timer.
    */
   TimerId runAfter(double delay, TimerCallback cb);
 
   /**
    * @brief Runs a callback at regular intervals.
+   *
    * @param interval The interval in seconds.
    * @param cb The callback to run.
+   *
    * @return The ID of the timer.
    */
   TimerId runEvery(double interval, TimerCallback cb);
 
   /**
    * @brief Cancels a timer.
+   *
    * @param timerId The ID of the timer to cancel.
    */
   void cancel(TimerId timerId);
@@ -108,7 +119,9 @@ public:
 
   /**
    * @brief Checks if the event loop has a specific channel.
+   *
    * @param channel The channel to check.
+   *
    * @return True if the channel exists, false otherwise.
    */
   bool hasChannel(Channel *channel);

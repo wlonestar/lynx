@@ -40,9 +40,7 @@ public:
    */
   void append(const char *logline, int len);
 
-  /**
-   * @brief Flush the log file to disk.
-   */
+  /// Flush the log file to disk.
   void flush();
 
   /**
@@ -88,8 +86,8 @@ private:
   time_t last_flush_;      /// The time of the last log file flush.
   std::unique_ptr<util::AppendFile> file_; /// The appended file.
 
-  const static int K_ROLL_PER_SECONDS =
-      60 * 60 * 24; /// The number of seconds in a day.
+  /// The number of seconds in a day.
+  const static int K_ROLL_PER_SECONDS = 60 * 60 * 24;
 };
 
 } // namespace lynx

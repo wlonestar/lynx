@@ -69,6 +69,8 @@ private:
   StudentRepository repository_;
 };
 
+const static std::string ID_REX = R"(\d+)";
+
 class StudentController : public lynx::BaseController {
 public:
   static void init(lynx::ConnectionPool &pool) {
@@ -76,18 +78,22 @@ public:
   }
 
   explicit StudentController() {
+    if (service == nullptr) {
+      LOG_FATAL << "Please init controller first";
+      return;
+    }
     requestMapping("GET", "/student100", selectTop100);
     requestMapping("GET", "/student", selectAll);
-    requestMapping("GET", R"(/student\?page=(\d+)&size=(\d+))", selectByPage,
-                   lynx::RequestParam<size_t>("page"),
+    requestMapping("GET", "/student\\?page=" + ID_REX + "&size=" + ID_REX,
+                   selectByPage, lynx::RequestParam<size_t>("page"),
                    lynx::RequestParam<size_t>("size"));
-    requestMapping("GET", R"(/student/(\d+))", selectById,
+    requestMapping("GET", "/student/" + ID_REX, selectById,
                    lynx::PathVariable<uint64_t>());
     requestMapping("POST", "/student", insert, lynx::RequestBody<Student>());
-    requestMapping("PUT", R"(/student/(\d+))", updateById,
+    requestMapping("PUT", "/student/" + ID_REX, updateById,
                    lynx::PathVariable<uint64_t>(),
                    lynx::RequestBody<Student>());
-    requestMapping("DELETE", R"(/student/(\d+))", deleteById,
+    requestMapping("DELETE", "/student/" + ID_REX, deleteById,
                    lynx::PathVariable<uint64_t>());
   }
 
@@ -101,13 +107,13 @@ public:
     return lynx::makeOkResult("query success", service->selectAll());
   }
 
-  /// "GET" "/student?page=(\d+)&size=(\d+)"
+  /// "GET" "/student?page={page}&size={size}"
   static lynx::json selectByPage(size_t page, size_t size) {
     return lynx::makeOkResult("query success",
                               service->selectByPage(page, size));
   }
 
-  /// "GET" "/student/(\d+)"
+  /// "GET" "/student/{id}"
   static lynx::json selectById(uint64_t id) {
     if (auto data = service->selectById(id)) {
       return lynx::makeOkResult("query success", *data);
@@ -123,7 +129,7 @@ public:
     return lynx::makeErrorResult("insert fail", "id not exists");
   }
 
-  /// "PUT" "/student/(\d+)"
+  /// "PUT" "/student/{id}"
   static lynx::json updateById(uint64_t id, Student &student) {
     if (service->updateById(id, std::move(student))) {
       return lynx::makeOkResult<std::string>("update success", "success");
@@ -131,7 +137,7 @@ public:
     return lynx::makeErrorResult("update fail", "id not exists");
   }
 
-  /// "DELETE" "/student/(\d+)"
+  /// "DELETE" "/student/{id}"
   static lynx::json deleteById(uint64_t id) {
     if (service->deleteById(id)) {
       return lynx::makeOkResult<std::string>("delete success", "success");

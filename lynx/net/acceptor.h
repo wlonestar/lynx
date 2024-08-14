@@ -23,6 +23,7 @@ public:
 
   /**
    * @brief Constructs an Acceptor with the given parameters.
+   *
    * @param loop The EventLoop that manages this Acceptor.
    * @param listenAddr The address to listen on.
    * @param reuseport Whether to enable port reuse.
@@ -30,9 +31,7 @@ public:
   Acceptor(EventLoop *loop, const InetAddress &listenAddr, bool reuseport);
   ~Acceptor();
 
-  /**
-   * @brief Starts listening for incoming connections.
-   */
+  /// Starts listening for incoming connections.
   void listen();
 
   bool listening() const { return listening_; }

@@ -185,7 +185,7 @@ void Application::loadConfig(const std::string &filePath) {
 void Application::onRequest(const lynx::HttpRequest &req,
                             lynx::HttpResponse *resp) {
   /// Log the request method and path
-  LOG_INFO << lynx::methodToString(req.method()) << " " << req.path();
+  LOG_INFO << lynx::methodToString(req.method()) << " " << req.uri();
 
   /// Log the request headers
   LOG_DEBUG << "Request headers:";
