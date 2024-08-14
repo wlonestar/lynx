@@ -131,12 +131,21 @@ void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
 }
 
 int main() {
+  /// Init Async logger.
+  off_t roll_size = 500 * 1000 * 1000;
+  char name[256] = {'\0'};
+  strncpy(name, argv[0], sizeof(name) - 1);
+  lynx::AsyncLogging log(::basename(name), roll_size);
+  log.start();
+  lynx::Logger::setOutput(
+      [&](const char *msg, int len) { log.append(msg, len); });
+
   /// Create app by reading from config file.
   lynx::Application app("simple_config_1.yml");
   /// Init app.
   app.start();
 
-  /// Add route
+  /// Add route.
   app.addRoute("GET", "/", handleIndex);
   app.addRoute("GET", "/favicon.ico", handleFavicon);
   app.addRoute("GET", "/hello\\?name=(\\w+)",
@@ -206,7 +215,7 @@ int main() {
   /// Init database
   initDb(app.pool());
 
-  /// Add route
+  /// Add route.
   app.addRoute("GET", "/student", [&](auto &req, lynx::HttpResponse *resp) {
     auto conn = app.pool().getConnection();
     // Auto convert to json
@@ -341,7 +350,7 @@ int main() {
   /// Init app.
   app.start();
 
-  /// Register handlers
+  /// Register handlers.
   StudentController::init(app.pool());
   StudentController controller;
   controller.registerHandler(app);

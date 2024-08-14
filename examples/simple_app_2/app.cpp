@@ -53,7 +53,7 @@ int main() {
   /// Init database
   initDb(app.pool());
 
-  /// Add route
+  /// Add route.
   app.addRoute("GET", "/student", [&](auto &req, lynx::HttpResponse *resp) {
     auto conn = app.pool().getConnection();
     // Auto convert to json

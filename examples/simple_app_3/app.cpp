@@ -179,7 +179,7 @@ int main() {
   /// Init app.
   app.start();
 
-  /// Register handlers
+  /// Register handlers.
   StudentController::init(app.pool());
   StudentController controller;
   controller.registerHandler(app);
