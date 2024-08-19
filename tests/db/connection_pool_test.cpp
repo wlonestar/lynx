@@ -27,7 +27,7 @@ REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
 REGISTER_AUTO_KEY(Student, id)
 
 void query(lynx::ConnectionPool &pool) {
-  auto conn = pool.getConnection();
+  auto conn = pool.acquire();
   auto result = conn->query<Student, uint64_t>().limit(3).toVector();
   for (auto &student : result) {
     LOG_INFO << lynx::serialize(student);

@@ -22,7 +22,7 @@ REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
 REGISTER_AUTO_KEY(Student, id);
 
 void initDb(lynx::ConnectionPool &pool) {
-  auto conn = pool.getConnection();
+  auto conn = pool.acquire();
   /// Create table (drop if table already exists)
   conn->execute("drop table student; drop sequence student_id_seq;");
   lynx::AutoKeyMap key_map{"id"};
@@ -53,7 +53,7 @@ public:
       : lynx::BaseRepository<Student, uint64_t>(pool) {}
 
   std::vector<Student> selectAll() {
-    auto conn = pool_.getConnection();
+    auto conn = pool_.acquire();
     auto students = conn->query<Student, uint64_t>().toVector();
     return students;
   }

@@ -24,7 +24,7 @@ void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
 }
 
 void initDb(lynx::ConnectionPool &pool) {
-  auto conn = pool.getConnection();
+  auto conn = pool.acquire();
 
   /// Create table (drop if table already exists)
   conn->execute("drop table student; drop sequence student_id_seq;");

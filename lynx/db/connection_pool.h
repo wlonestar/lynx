@@ -69,27 +69,65 @@ public:
    * @param config The configuration for the connection pool
    * @param name The name of the connection pool
    */
-  ConnectionPool(ConnectionPoolConfig &config,
-                 const std::string &name = "ConnectionPool");
+  explicit ConnectionPool(ConnectionPoolConfig &config,
+                          const std::string &name = "ConnectionPool");
   ~ConnectionPool();
 
-  /// Starts the connection pool
+  /**
+   * @brief Starts the connection pool by creating the minimum number of
+   * connections.
+   *
+   * This function creates the minimum number of connections specified in the
+   * configuration and adds them to the connection pool.
+   */
   void start();
 
-  /// Stops the connection pool
+  /**
+   * @brief Stops the connection pool by joining the threads and deleting all
+   * the connections in the queue.
+   *
+   * This function waits for the producer and recycler threads to finish and
+   * then deletes all the connections in the queue.
+   */
   void stop();
 
-  /// Gets a connection from the connection pool
-  std::shared_ptr<Connection> getConnection();
+  /**
+   * @brief Acquires a connection from the pool.
+   *
+   * This function tries to acquire a connection from the pool. If the pool is
+   * empty, it waits for a specified timeout duration until a connection is
+   * available. If the queue is still empty after the timeout, it returns a
+   * connection from the front of the queue.
+   *
+   * @return A shared pointer to the acquired connection.
+   */
+  std::shared_ptr<Connection> acquire();
 
 private:
-  /// Produces a new connection and adds it to the pool
+  /**
+   * @brief Produces a new connection and adds it to the pool
+   *
+   * This method runs in a separate thread and continuously checks
+   * the connection pool. If the pool is empty or the current size
+   * is less than the maximum size, it produces a new connection.
+   */
   void produceConnection();
 
-  /// Recycles a connection back to the pool
+  /**
+   * @brief Recycles a connection in the pool.
+   *
+   * This function is a loop that periodically checks the pool for connections
+   * that are idle for longer than the maximum idle time. If a connection is
+   * found, it is removed from the pool and closed.
+   */
   void recycleConnection();
 
-  /// Adds a connection to the pool
+  /**
+   * @brief Adds a new connection to the pool
+   *
+   * This function creates a new Connection object, connects it to the database,
+   * and adds it to the connection pool.
+   */
   void addConnection();
 
   ConnectionPoolConfig config_;

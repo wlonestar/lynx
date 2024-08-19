@@ -31,7 +31,7 @@ public:
       : lynx::BaseRepository<Student, uint64_t>(pool) {}
 
   std::vector<Student> selectAll() {
-    auto conn = pool_.getConnection();
+    auto conn = pool_.acquire();
     auto students = conn->query<Student, uint64_t>().toVector();
     return students;
   }

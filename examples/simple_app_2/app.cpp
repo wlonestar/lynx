@@ -19,7 +19,7 @@ REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
 REGISTER_AUTO_KEY(Student, id);
 
 void initDb(lynx::ConnectionPool &pool) {
-  auto conn = pool.getConnection();
+  auto conn = pool.acquire();
   /// Create table (drop if table already exists)
   conn->execute("drop table student; drop sequence student_id_seq;");
   lynx::AutoKeyMap key_map{"id"};
@@ -55,7 +55,7 @@ int main() {
 
   /// Add route.
   app.addRoute("GET", "/student", [&](auto &req, lynx::HttpResponse *resp) {
-    auto conn = app.pool().getConnection();
+    auto conn = app.pool().acquire();
     // Auto convert to json
     auto data = conn->query<Student, uint64_t>().toVector();
     lynx::json result;
