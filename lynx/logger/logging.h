@@ -27,13 +27,13 @@ public:
    * should not be used for actual logging.
    */
   enum LogLevel {
-    TRACE,         /// Trace-level message
-    DEBUG,         /// Debug-level message
-    INFO,          /// Informational message
-    WARN,          /// Warning message
-    ERROR,         /// Error message
-    FATAL,         /// Fatal error message
-    NUM_LOG_LEVELS /// Used for iteration
+    TRACE,          /// Trace-level message
+    DEBUG,          /// Debug-level message
+    INFO,           /// Informational message
+    WARN,           /// Warning message
+    ERROR,          /// Error message
+    FATAL,          /// Fatal error message
+    NUM_LOG_LEVELS, /// Used for iteration
   };
 
   using LogLevel = Logger::LogLevel;

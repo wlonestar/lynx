@@ -69,7 +69,6 @@ void ThreadPool::run(Task task) {
     /// At this point, we know that there is space available in the queue,
     /// so add the task to the queue and notify the first available thread.
     assert(!isFull());
-
     queue_.push_back(std::move(task));
     not_empty_.notify_one();
   }
@@ -94,14 +93,10 @@ void ThreadPool::runInThread() {
       }
     }
   } catch (const std::exception &ex) {
-    /// If an exception is caught during the execution of a task,
-    /// print the exception message to stderr and abort the program.
     fprintf(stderr, "exception caught in ThreadPool %s\n", name_.c_str());
     fprintf(stderr, "reason: %s\n", ex.what());
     abort();
   } catch (...) {
-    /// If an unknown exception is caught during the execution of a task,
-    /// print a message to stderr and rethrow the exception.
     fprintf(stderr, "unknown exception caught in ThreadPool %s\n",
             name_.c_str());
     throw;
@@ -109,21 +104,17 @@ void ThreadPool::runInThread() {
 }
 
 ThreadPool::Task ThreadPool::take() {
-  /// Acquire the lock to access the task queue.
   std::unique_lock<std::mutex> lock(mutex_);
-
   /// Wait until a task is available or the thread pool has stopped running.
   while (queue_.empty() && running_) {
     not_empty_.wait(lock);
   }
 
   Task task; /// The task to be returned.
-
   /// If there is at least one task in the queue, retrieve and remove it.
   if (!queue_.empty()) {
     task = queue_.front();
     queue_.pop_front();
-
     /// If the maximum queue size is set, notify the not_full condition
     /// variable.
     if (max_queue_size_ > 0) {
