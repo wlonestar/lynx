@@ -1,4 +1,5 @@
 #include "lynx/base/thread.h"
+#include "lynx/base/thread_pool.h"
 #include "lynx/db/connection.h"
 #include "lynx/db/connection_pool.h"
 #include "lynx/logger/logging.h"
@@ -28,22 +29,32 @@ REGISTER_AUTO_KEY(Student, id)
 
 void query(lynx::ConnectionPool &pool) {
   auto conn = pool.acquire();
-  auto result = conn->query<Student, uint64_t>().limit(3).toVector();
-  for (auto &student : result) {
-    LOG_INFO << lynx::serialize(student);
-  }
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  auto result =
+      conn->query<Student, uint64_t>().limit(rand() % 10 + 1).toVector();
+  LOG_INFO << "query " << result.size() << " records";
 }
 
 int main() {
   lynx::ConnectionPoolConfig config("127.0.0.1", 5432, "postgres", "123456",
                                     "demo", 2, 4, 10, 5000);
 
-  lynx::ConnectionPool pool(config);
-  pool.start();
+  lynx::ConnectionPool connection_pool(config);
+  connection_pool.start();
 
-  for (int i = 0; i < 50; i++) {
-    lynx::Thread t1([&] { query(pool); });
-    t1.start();
+  lynx::ThreadPool thread_pool("ThreadPool");
+  thread_pool.setMaxQueueSize(5);
+  thread_pool.start(3);
+
+  LOG_WARN << "Querying";
+  for (int i = 0; i < 100; i++) {
+    thread_pool.run([&] { query(connection_pool); });
   }
+  LOG_WARN << "Done";
+
+  std::latch latch(1);
+  thread_pool.run([&] { latch.count_down(); });
+  latch.wait();
+
+  thread_pool.stop();
+  connection_pool.stop();
 }

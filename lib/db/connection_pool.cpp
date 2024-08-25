@@ -10,9 +10,8 @@ namespace lynx {
 
 ConnectionPool::ConnectionPool(ConnectionPoolConfig &config,
                                const std::string &name)
-    : config_(config), name_(name),
-      produce_thread_([&] { produceConnection(); }),
-      recycle_thread_([&] { recycleConnection(); }) {}
+    : config_(config), name_(name), produce_thread_([&] { threadProduce(); }),
+      recycle_thread_([&] { threadRecycle(); }), latch_(2) {}
 
 ConnectionPool::~ConnectionPool() {
   if (running_) {
@@ -21,19 +20,19 @@ ConnectionPool::~ConnectionPool() {
 }
 
 void ConnectionPool::start() {
-  /// Create the minimum number of connections
+  running_ = true;
   for (size_t i = 0; i < config_.min_size_; i++) {
     addConnection();
     curr_size_++;
   }
-
-  /// Start the threads responsible for producing connections and recycling them
   produce_thread_.start();
   recycle_thread_.start();
-  running_ = true;
+  latch_.wait();
 }
 
 void ConnectionPool::stop() {
+  running_ = false;
+  cond_.notify_all();
   /// Wait for the producer and recycler threads to finish
   produce_thread_.join();
   recycle_thread_.join();
@@ -45,7 +44,6 @@ void ConnectionPool::stop() {
     delete conn;
     curr_size_--;
   }
-  running_ = false;
 }
 
 std::shared_ptr<Connection> ConnectionPool::acquire() {
@@ -76,12 +74,17 @@ std::shared_ptr<Connection> ConnectionPool::acquire() {
   return conn_ptr;
 }
 
-void ConnectionPool::produceConnection() {
-  while (true) {
+void ConnectionPool::threadProduce() {
+  assert(running_ == true);
+  latch_.count_down();
+  while (running_) {
     std::unique_lock<std::mutex> lock(mutex_);
     while (!queue_.empty()) {
       /// If the pool is not empty, wait until a connection is released
       cond_.wait(lock);
+      if (!running_) {
+        break;
+      }
     }
 
     /// If the current size is less than the maximum size, produce a new
@@ -95,10 +98,16 @@ void ConnectionPool::produceConnection() {
   }
 }
 
-void ConnectionPool::recycleConnection() {
-  while (true) {
+void ConnectionPool::threadRecycle() {
+  assert(running_ == true);
+  latch_.count_down();
+  while (running_) {
     /// Sleep for 500 microseconds between checks
     std::this_thread::sleep_for(std::chrono::microseconds(500));
+    if (!running_) {
+      break;
+    }
+
     std::lock_guard<std::mutex> lock(mutex_);
     while (queue_.size() > config_.min_size_) {
       /// Get the front of the queue

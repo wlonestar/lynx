@@ -9,7 +9,7 @@ namespace lynx {
 AsyncLogging::AsyncLogging(const std::string &basename, off_t rollSize,
                            int flushInterval)
     : flush_interval_(flushInterval), running_(false), basename_(basename),
-      roll_size_(rollSize), thread_([this] { threadFunc(); }, "Logging"),
+      roll_size_(rollSize), thread_([&] { threadFunc(); }, "Logging"),
       latch_(1), current_buffer_(new Buffer), next_buffer_(new Buffer) {
   current_buffer_->bzero();
   next_buffer_->bzero();

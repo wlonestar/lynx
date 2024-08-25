@@ -5,7 +5,9 @@
 #include "lynx/db/connection.h"
 #include "lynx/net/event_loop.h"
 
+#include <cassert>
 #include <condition_variable>
+#include <latch>
 #include <memory>
 #include <queue>
 #include <string>
@@ -40,7 +42,9 @@ struct ConnectionPoolConfig {
                        size_t maxSize, size_t timeout, size_t maxIdleTime)
       : host_(host), port_(port), user_(user), password_(password),
         dbname_(dbname), min_size_(minSize), max_size_(maxSize),
-        timeout_(timeout), max_idle_time_(maxIdleTime) {}
+        timeout_(timeout), max_idle_time_(maxIdleTime) {
+    assert(minSize <= maxSize);
+  }
 
   std::string host_;
   uint16_t port_;
@@ -111,7 +115,7 @@ private:
    * the connection pool. If the pool is empty or the current size
    * is less than the maximum size, it produces a new connection.
    */
-  void produceConnection();
+  void threadProduce();
 
   /**
    * @brief Recycles a connection in the pool.
@@ -120,7 +124,7 @@ private:
    * that are idle for longer than the maximum idle time. If a connection is
    * found, it is removed from the pool and closed.
    */
-  void recycleConnection();
+  void threadRecycle();
 
   /**
    * @brief Adds a new connection to the pool
@@ -140,6 +144,7 @@ private:
 
   Thread produce_thread_;
   Thread recycle_thread_;
+  std::latch latch_;
 
   bool running_ = false;
 };
