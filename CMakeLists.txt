@@ -51,14 +51,14 @@ include_directories(${nlohmann_json_INCLUDE_DIRS})
 find_package(yaml-cpp REQUIRED)
 include_directories(${YAML_CPP_INCLUDE_DIRS})
 
-include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/include)
 add_subdirectory(tests)
 add_subdirectory(examples)
 
 # Set library source files
 file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
 # Generate ragel file
-ragelmaker(lynx/http/http_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/http)
+ragelmaker(include/lynx/http/http_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/http)
 # Set build library
 add_library(lynx STATIC ${LIB_SRC})
 target_link_libraries(lynx PUBLIC
@@ -86,23 +86,23 @@ install(
 
 # Install header files
 # install(DIRECTORY lynx/ DESTINATION include/lynx FILES_MATCHING PATTERN "*.h")
-FILE(GLOB BASE_HEADERS lynx/base/*.h)
-FILE(GLOB DB_HEADERS lynx/db/*.h)
-FILE(GLOB HTTP_HEADERS lynx/http/*.h)
-FILE(GLOB LOGGER_HEADERS lynx/logger/*.h)
+FILE(GLOB BASE_HEADERS include/lynx/base/*.h)
+FILE(GLOB DB_HEADERS include/lynx/db/*.h)
+FILE(GLOB HTTP_HEADERS include/lynx/http/*.h)
+FILE(GLOB LOGGER_HEADERS include/lynx/logger/*.h)
 set(NET_HEADERS
-  lynx/net/buffer.h
-  lynx/net/channel.h
-  lynx/net/event_loop.h
-  lynx/net/event_loop_thread.h
-  lynx/net/event_loop_thread_pool.h
-  lynx/net/inet_address.h
-  lynx/net/tcp_connection.h
-  lynx/net/tcp_server.h
+  include/lynx/net/buffer.h
+  include/lynx/net/channel.h
+  include/lynx/net/event_loop.h
+  include/lynx/net/event_loop_thread.h
+  include/lynx/net/event_loop_thread_pool.h
+  include/lynx/net/inet_address.h
+  include/lynx/net/tcp_connection.h
+  include/lynx/net/tcp_server.h
   )
-FILE(GLOB ORM_HEADERS lynx/orm/*.h)
-set(TIMER_HEADERS lynx/timer/timer_id.h)
-FILE(GLOB WEB_HEADERS lynx/web/*.h)
+FILE(GLOB ORM_HEADERS include/lynx/orm/*.h)
+set(TIMER_HEADERS include/lynx/timer/timer_id.h)
+FILE(GLOB WEB_HEADERS include/lynx/web/*.h)
 
 install(FILES ${BASE_HEADERS}   DESTINATION include/lynx/base)
 install(FILES ${DB_HEADERS}     DESTINATION include/lynx/db)
@@ -124,7 +124,7 @@ install(EXPORT lynxConfig DESTINATION share/lynx/cmake)
 find_program(CLANG_FORMAT_EXE NAMES clang-format)
 if (CLANG_FORMAT_EXE)
   file(GLOB ALL_SOURCE_FILES
-    "${CMAKE_SOURCE_DIR}/lynx/*/*.h"
+    "${CMAKE_SOURCE_DIR}/include/lynx/*/*.h"
     "${CMAKE_SOURCE_DIR}/lib/*/*.cpp"
     )
   add_custom_target(clang-format
