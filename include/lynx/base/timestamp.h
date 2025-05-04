@@ -6,6 +6,8 @@
 #include <string>
 #include <sys/time.h>
 
+#include <fmt/format.h>
+
 namespace lynx {
 
 /**
@@ -18,7 +20,7 @@ namespace lynx {
 class Timestamp {
 public:
   /// Constructs a new timestamp initialized to 0.
-  Timestamp() : microsecs_since_epoch_(0) {}
+  Timestamp() : MicrosecsSinceEpoch(0) {}
 
   /**
    * @brief Constructs a new timestamp from the number of microseconds since
@@ -26,23 +28,23 @@ public:
    *
    * @param microsecsSinceEpoch The number of microseconds since Unix epoch.
    */
-  explicit Timestamp(int64_t microsecsSinceEpoch)
-      : microsecs_since_epoch_(microsecsSinceEpoch) {}
+  explicit Timestamp(int64_t MicrosecsSinceEpoch)
+      : MicrosecsSinceEpoch(MicrosecsSinceEpoch) {}
 
   /// Gets the number of microseconds since Unix epoch.
-  int64_t microsecsSinceEpoch() const { return microsecs_since_epoch_; }
+  int64_t microsecsSinceEpoch() const { return MicrosecsSinceEpoch; }
 
   /// Gets the number of seconds since Unix epoch.
   time_t secondsSinceEpoch() const {
-    return static_cast<time_t>(microsecs_since_epoch_ / K_MICRO_SECS_PER_SEC);
+    return static_cast<time_t>(MicrosecsSinceEpoch / KMicroSecsPerSec);
   }
 
   /// Checks if the timestamp is valid.
-  bool valid() const { return microsecs_since_epoch_ > 0; }
+  bool valid() const { return MicrosecsSinceEpoch > 0; }
 
   /// Swaps the timestamp with another one.
-  void swap(Timestamp &other) {
-    std::swap(microsecs_since_epoch_, other.microsecs_since_epoch_);
+  void swap(Timestamp &Other) {
+    std::swap(MicrosecsSinceEpoch, Other.MicrosecsSinceEpoch);
   }
 
   /**
@@ -52,11 +54,9 @@ public:
    * @return The string representation of the timestamp.
    */
   std::string toString() const {
-    char buf[32] = {0};
-    int64_t seconds = microsecs_since_epoch_ / K_MICRO_SECS_PER_SEC;
-    int64_t microseconds = microsecs_since_epoch_ % K_MICRO_SECS_PER_SEC;
-    snprintf(buf, sizeof(buf), "%ld.%06ld", seconds, microseconds);
-    return buf;
+    int64_t Seconds = MicrosecsSinceEpoch / KMicroSecsPerSec;
+    int64_t Microseconds = MicrosecsSinceEpoch % KMicroSecsPerSec;
+    return fmt::format("{:d}.{:06d}", Seconds, Microseconds);
   }
 
   /**
@@ -68,42 +68,41 @@ public:
    *
    * @return The formatted string representation of the timestamp.
    */
-  std::string toFormattedString(bool showMicrosecs = true) const {
-    char buf[32] = {0};
-    int64_t seconds = microsecs_since_epoch_ / K_MICRO_SECS_PER_SEC;
-    std::tm tm_time;
-    localtime_r(&seconds, &tm_time);
+  std::string toFormattedString(bool ShowMicrosecs = true) const {
+    int64_t Seconds = MicrosecsSinceEpoch / KMicroSecsPerSec;
+    std::tm TmTime;
+    localtime_r(&Seconds, &TmTime);
 
-    if (showMicrosecs) {
-      auto microseconds =
-          static_cast<int>(microsecs_since_epoch_ % K_MICRO_SECS_PER_SEC);
-      snprintf(buf, sizeof(buf), "%4d%02d%02d %02d:%02d:%02d.%06d",
-               tm_time.tm_year + 1900, tm_time.tm_mon + 1, tm_time.tm_mday,
-               tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec, microseconds);
-    } else {
-      snprintf(buf, sizeof(buf), "%4d%02d%02d %02d:%02d:%02d",
-               tm_time.tm_year + 1900, tm_time.tm_mon + 1, tm_time.tm_mday,
-               tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec);
+    if (ShowMicrosecs) {
+      auto Microseconds =
+          static_cast<int>(MicrosecsSinceEpoch % KMicroSecsPerSec);
+      return fmt::format("{:4d}{:02d}{:02d} {:02d}:{:02d}:{:02d}.{:06d}",
+                         TmTime.tm_year + 1900, TmTime.tm_mon + 1,
+                         TmTime.tm_mday, TmTime.tm_hour, TmTime.tm_min,
+                         TmTime.tm_sec, Microseconds);
     }
-    return buf;
+
+    return fmt::format("{:4d}{:02d}{:02d} {:02d}:{:02d}:{:02d}",
+                       TmTime.tm_year + 1900, TmTime.tm_mon + 1, TmTime.tm_mday,
+                       TmTime.tm_hour, TmTime.tm_min, TmTime.tm_sec);
   }
 
   /// Creates a new timestamp representing the current time.
   static Timestamp now() {
-    struct timeval tv;
-    gettimeofday(&tv, nullptr);
-    int64_t seconds = tv.tv_sec;
-    return Timestamp(seconds * K_MICRO_SECS_PER_SEC + tv.tv_usec);
+    struct timeval Tv;
+    gettimeofday(&Tv, nullptr);
+    int64_t Seconds = Tv.tv_sec;
+    return Timestamp(Seconds * KMicroSecsPerSec + Tv.tv_usec);
   }
 
   /// Creates an invalid timestamp.
   static Timestamp invalid() { return {}; }
 
   /// The number of microseconds per second.
-  static const int K_MICRO_SECS_PER_SEC = 1000 * 1000;
+  static const int KMicroSecsPerSec = 1000 * 1000;
 
 private:
-  int64_t microsecs_since_epoch_;
+  int64_t MicrosecsSinceEpoch;
 };
 
 /**
@@ -115,8 +114,8 @@ private:
  * @return True if the first timestamp is less than the second timestamp, and
  * false otherwise.
  */
-inline bool operator<(Timestamp lhs, Timestamp rhs) {
-  return lhs.microsecsSinceEpoch() < rhs.microsecsSinceEpoch();
+inline bool operator<(Timestamp Lhs, Timestamp Rhs) {
+  return Lhs.microsecsSinceEpoch() < Rhs.microsecsSinceEpoch();
 }
 
 /**
@@ -127,8 +126,8 @@ inline bool operator<(Timestamp lhs, Timestamp rhs) {
  *
  * @return True if the two timestamps are equal, and false otherwise.
  */
-inline bool operator==(Timestamp lhs, Timestamp rhs) {
-  return lhs.microsecsSinceEpoch() == rhs.microsecsSinceEpoch();
+inline bool operator==(Timestamp Lhs, Timestamp Rhs) {
+  return Lhs.microsecsSinceEpoch() == Rhs.microsecsSinceEpoch();
 }
 
 /**
@@ -140,9 +139,9 @@ inline bool operator==(Timestamp lhs, Timestamp rhs) {
  * @return The time difference between the two timestamps in seconds as a
  * double.
  */
-inline double timeDiff(Timestamp high, Timestamp low) {
-  int64_t diff = high.microsecsSinceEpoch() - low.microsecsSinceEpoch();
-  return static_cast<double>(diff) / Timestamp::K_MICRO_SECS_PER_SEC;
+inline double timeDiff(Timestamp High, Timestamp Low) {
+  int64_t Diff = High.microsecsSinceEpoch() - Low.microsecsSinceEpoch();
+  return static_cast<double>(Diff) / Timestamp::KMicroSecsPerSec;
 }
 
 /**
@@ -154,9 +153,9 @@ inline double timeDiff(Timestamp high, Timestamp low) {
  * @return A new timestamp that is the result of adding the time interval to the
  * original timestamp.
  */
-inline Timestamp addTime(Timestamp timestamp, double seconds) {
-  auto delta = static_cast<int64_t>(seconds * Timestamp::K_MICRO_SECS_PER_SEC);
-  return Timestamp(timestamp.microsecsSinceEpoch() + delta);
+inline Timestamp addTime(Timestamp TS, double Seconds) {
+  auto Delta = static_cast<int64_t>(Seconds * Timestamp::KMicroSecsPerSec);
+  return Timestamp(TS.microsecsSinceEpoch() + Delta);
 }
 
 } // namespace lynx

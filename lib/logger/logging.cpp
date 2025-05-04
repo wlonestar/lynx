@@ -70,9 +70,9 @@ void Logger::Impl::formatTime() {
   /// Calculate the number of seconds and microseconds since the epoch.
   int64_t micro_seconds_since_epoch = time_.microsecsSinceEpoch();
   auto seconds = static_cast<time_t>(micro_seconds_since_epoch /
-                                     Timestamp::K_MICRO_SECS_PER_SEC);
-  auto micro_seconds = static_cast<int>(micro_seconds_since_epoch %
-                                        Timestamp::K_MICRO_SECS_PER_SEC);
+                                     Timestamp::KMicroSecsPerSec);
+  auto micro_seconds =
+      static_cast<int>(micro_seconds_since_epoch % Timestamp::KMicroSecsPerSec);
 
   /// Format datetime if second changed.
   if (seconds != detail::t_last_second) {

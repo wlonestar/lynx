@@ -38,6 +38,8 @@ enable_testing()
 # Find packages
 ##################################################
 
+# Find fmt
+find_package(fmt REQUIRED)
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -45,7 +47,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 find_package(PostgreSQL REQUIRED)
 include_directories(${PostgreSQL_INCLUDE_DIRS})
 # Find nlohmann::json
-find_package(nlohmann_json 3.11.3 REQUIRED)
+find_package(nlohmann_json REQUIRED)
 include_directories(${nlohmann_json_INCLUDE_DIRS})
 # Find yaml-cpp
 find_package(yaml-cpp REQUIRED)
@@ -62,6 +64,7 @@ ragelmaker(include/lynx/http/http_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/
 # Set build library
 add_library(lynx STATIC ${LIB_SRC})
 target_link_libraries(lynx PUBLIC
+  fmt::fmt
   pq
   nlohmann_json::nlohmann_json
   yaml-cpp

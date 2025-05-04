@@ -23,7 +23,7 @@ Lynx is a flexible and scalable server framework for Linux written in C++ with s
 Ubuntu/Debian Installation:
 
 ```bash
-sudo apt install clang cmake ninja-build ragal libboost-test-dev libpq-dev nlohmann-json3-dev libyaml-cpp-dev
+sudo apt install clang cmake ninja-build ragel libboost-test-dev libpq-dev nlohmann-json3-dev libyaml-cpp-dev
 ```
 
 ## Installation
