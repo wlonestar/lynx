@@ -35,8 +35,7 @@ struct NotNullMap {
 /**
  * @brief Map containing the auto-increment key fields for all ORM classes.
  */
-inline std::unordered_map<std::string_view, std::string_view>
-    g_orm_auto_key_map;
+inline std::unordered_map<std::string_view, std::string_view> GOrmAutoKeyMap;
 
 /**
  * @brief Adds an auto-increment key field to the map.
@@ -46,8 +45,8 @@ inline std::unordered_map<std::string_view, std::string_view>
  *
  * @return int Always returns 0.
  */
-inline int addAutoKeyField(std::string_view key, std::string_view value) {
-  g_orm_auto_key_map.emplace(key, value);
+inline int addAutoKeyField(std::string_view Key, std::string_view Value) {
+  GOrmAutoKeyMap.emplace(Key, Value);
   return 0;
 }
 
@@ -61,8 +60,8 @@ inline int addAutoKeyField(std::string_view key, std::string_view value) {
  */
 template <typename T> inline auto getAutoKey() {
   using U = decltype(reflectMembersFunc(std::declval<T>()));
-  auto it = g_orm_auto_key_map.find(U::struct_name());
-  return it == g_orm_auto_key_map.end() ? "" : it->second;
+  auto It = GOrmAutoKeyMap.find(U::struct_name());
+  return It == GOrmAutoKeyMap.end() ? "" : It->second;
 }
 
 /**
@@ -75,10 +74,10 @@ template <typename T> inline auto getAutoKey() {
  * @return `true` if the field is an auto-increment key field, `false`
  * otherwise.
  */
-template <typename T> inline auto isAutoKey(std::string_view fieldName) {
+template <typename T> inline auto isAutoKey(std::string_view FieldName) {
   using U = decltype(reflectMembersFunc(std::declval<T>()));
-  auto it = g_orm_auto_key_map.find(U::struct_name());
-  return it == g_orm_auto_key_map.end() ? false : it->second == fieldName;
+  auto It = GOrmAutoKeyMap.find(U::struct_name());
+  return It == GOrmAutoKeyMap.end() ? false : It->second == FieldName;
 }
 
 /**

@@ -17,53 +17,53 @@ namespace lynx {
 namespace detail {
 
 /**
- * @brief This function is used to set the parameter value for PostgreSQL query.
+ * @brief This function is used to set the parameter Value for PostgreSQL query.
  *
- * @tparam T The type of the parameter value.
+ * @tparam Ty The type of the parameter Value.
  * @param paramValues A vector of vectors of characters to store the parameter
  * values.
- * @param value The actual parameter value.
+ * @param Value The actual parameter Value.
  */
-template <typename T>
-constexpr void setParamValue(std::vector<std::vector<char>> &paramValues,
-                             T &&value) {
-  using U = std::remove_const_t<std::remove_reference_t<T>>;
+template <typename Ty>
+constexpr void setParamValue(std::vector<std::vector<char>> &ParamValues,
+                             Ty &&Value) {
+  using U = std::remove_const_t<std::remove_reference_t<Ty>>;
 
   /// Check if the type is a 64 bit integer
   if constexpr (std::is_same_v<U, int64_t> || std::is_same_v<U, uint64_t>) {
-    std::vector<char> temp(65, 0);
-    auto v_str = std::to_string(value); /// Convert the value to a string
-    memcpy(temp.data(), v_str.data(), v_str.size());
-    paramValues.push_back(temp);
+    std::vector<char> Temp(65, 0);
+    auto VStr = std::to_string(Value); /// Convert the Value to a string
+    memcpy(Temp.data(), VStr.data(), VStr.Size());
+    ParamValues.push_back(Temp);
   }
   /// Check if the type is an integral or floating point type
   else if constexpr (std::is_integral_v<U> || std::is_floating_point_v<U>) {
-    std::vector<char> temp(20, 0);
-    auto v_str = std::to_string(value); /// Convert the value to a string
-    memcpy(temp.data(), v_str.data(), v_str.size());
-    paramValues.push_back(std::move(temp));
+    std::vector<char> Temp(20, 0);
+    auto VStr = std::to_string(Value); /// Convert the Value to a string
+    memcpy(Temp.data(), VStr.data(), VStr.Size());
+    ParamValues.push_back(std::move(Temp));
   }
   /// Check if the type is an enum
   else if constexpr (std::is_enum_v<U>) {
-    std::vector<char> temp(20, 0);
-    auto v_str = std::to_string(static_cast<std::underlying_type_t<U>>(
-        value)); /// Convert the value to a string
-    memcpy(temp.data(), v_str.data(), v_str.size());
-    paramValues.push_back(std::move(temp));
+    std::vector<char> Temp(20, 0);
+    auto VStr = std::to_string(static_cast<std::underlying_type_t<U>>(
+        Value)); /// Convert the Value to a string
+    memcpy(Temp.data(), VStr.data(), VStr.Size());
+    ParamValues.push_back(std::move(Temp));
   }
   /// Check if the type is a std::string
   else if constexpr (std::is_same_v<U, std::string>) {
-    std::vector<char> temp = {};
-    std::copy(value.data(), value.data() + value.size() + 1,
-              std::back_inserter(temp)); /// Copy the string to the vector
-    paramValues.push_back(std::move(temp));
+    std::vector<char> Temp = {};
+    std::copy(Value.data(), Value.data() + Value.Size() + 1,
+              std::back_inserter(Temp)); /// Copy the string to the vector
+    ParamValues.push_back(std::move(Temp));
   }
   /// Check if the type is an array
-  else if constexpr (std::is_array<U>::value) {
-    std::vector<char> temp = {};
-    std::copy(value, value + ArraySize<U>::value,
-              std::back_inserter(temp)); /// Copy the array to the vector
-    paramValues.push_back(std::move(temp));
+  else if constexpr (std::is_array<U>::Value) {
+    std::vector<char> Temp = {};
+    std::copy(Value, Value + ArraySize<U>::Value,
+              std::back_inserter(Temp)); /// Copy the array to the vector
+    ParamValues.push_back(std::move(Temp));
   }
 }
 
@@ -79,27 +79,27 @@ template <typename ReturnType> struct Selectable {
   /**
    * @brief Constructs a Selectable object.
    *
-   * @param field The field or column name.
+   * @param Field The Field or column name.
    * @param tblName The table name.
    * @param op The operator to be used in the expression.
    */
-  Selectable(std::string_view &&field, std::string_view &&tblName,
-             std::string_view &&op)
-      : expr_(std::string(op) + "(" + std::string(field) + ")"),
-        tbl_name_(tblName) {}
+  Selectable(std::string_view &&Field, std::string_view &&TblName,
+             std::string_view &&OP)
+      : Expr(std::string(OP) + "(" + std::string(Field) + ")"),
+        TblName(TblName) {}
 
   /// Returns the string representation of the expression.
-  inline std::string toString() const { return expr_; }
+  inline std::string toString() const { return Expr; }
 
   /// Returns the table name associated with the expression.
-  inline std::string tableName() const { return tbl_name_; }
+  inline std::string tableName() const { return TblName; }
 
   /// The return type of the expression.
   ReturnType return_type; // NOLINT
 
 private:
-  std::string expr_;     /// The string representation of the expression.
-  std::string tbl_name_; /// The table name associated with the expression.
+  std::string Expr;    /// The string representation of the expression.
+  std::string TblName; /// The table name associated with the expression.
 };
 
 /**
@@ -111,508 +111,508 @@ public:
   /**
    * @brief Constructs an Expr object.
    *
-   * @param field The field or column name.
+   * @param Field The Field or column name.
    * @param tblName The table name.
    */
-  explicit Expr(std::string_view &&field, std::string_view &&tblName)
-      : expr_(field), tbl_name_(tblName) {}
+  explicit Expr(std::string_view &&Field, std::string_view &&TblName)
+      : Exp(Field), TblName(TblName) {}
 
   /**
    * @brief Creates a new expression by applying an operator to the current
-   * expression and a value.
+   * expression and a Value.
    *
-   * @tparam T The type of the value.
+   * @tparam Ty The type of the Value.
    * @param op The operator to be used in the expression.
-   * @param value The value to be used in the expression.
+   * @param Value The Value to be used in the expression.
    *
    * @return An Expr object representing the new expression.
    */
-  template <typename T> Expr makeExpr(std::string &&op, T value) {
-    using U = std::decay_t<T>;
-    /// If the value is an array, a string, or a constant character pointer,
+  template <typename Ty> Expr makeExpr(std::string &&OP, Ty Value) {
+    using U = std::decay_t<Ty>;
+    /// If the Value is an array, a string, or a constant character pointer,
     /// wrap it in quotes and append it to the current expression.
     if constexpr (std::is_array<U>::value || std::is_same_v<U, std::string> ||
                   std::is_same_v<U, const char *>) {
-      return Expr(expr_ + " " + op + " " + "'" + value + "'", tbl_name_);
+      return Expr(Exp + " " + OP + " " + "'" + Value + "'", TblName);
     }
-    /// If the value is another Expr object, append it to the current
+    /// If the Value is another Expr object, append it to the current
     /// expression.
-    else if constexpr (std::is_same_v<T, Expr>) {
-      return Expr(expr_ + " " + op + " " + value.expr_, tbl_name_);
+    else if constexpr (std::is_same_v<Ty, Expr>) {
+      return Expr(Exp + " " + OP + " " + Value.Exp, TblName);
     }
-    /// Otherwise, convert the value to a string and append it to the current
+    /// Otherwise, convert the Value to a string and append it to the current
     /// expression.
     else {
-      return Expr(expr_ + " " + op + " " + std::to_string(value), tbl_name_);
+      return Expr(Exp + " " + OP + " " + std::to_string(Value), TblName);
     }
   }
 
-  template <typename T> inline Expr operator==(T val) {
-    return Expr(makeExpr("=", val));
+  template <typename Ty> inline Expr operator==(Ty Val) {
+    return Expr(makeExpr("=", Val));
   }
-  template <typename T> inline Expr operator=(T val) {
-    return Expr(makeExpr("=", val));
+  template <typename Ty> inline Expr operator=(Ty Val) { // NOLINT
+    return Expr(makeExpr("=", Val));
   }
-  template <typename T> inline Expr operator|(T val) {
-    return Expr(makeExpr(",", val));
+  template <typename Ty> inline Expr operator|(Ty Val) {
+    return Expr(makeExpr(",", Val));
   }
-  template <typename T> inline Expr operator!=(T val) {
-    return Expr(makeExpr("!=", val));
+  template <typename Ty> inline Expr operator!=(Ty Val) {
+    return Expr(makeExpr("!=", Val));
   }
-  template <typename T> inline Expr operator<(T val) {
-    return Expr(makeExpr("<", val));
+  template <typename Ty> inline Expr operator<(Ty Val) {
+    return Expr(makeExpr("<", Val));
   }
-  template <typename T> inline Expr operator>(T val) {
-    return Expr(makeExpr(">", val));
+  template <typename Ty> inline Expr operator>(Ty Val) {
+    return Expr(makeExpr(">", Val));
   }
-  template <typename T> inline Expr operator<=(T val) {
-    return Expr(makeExpr("<=", val));
+  template <typename Ty> inline Expr operator<=(Ty Val) {
+    return Expr(makeExpr("<=", Val));
   }
-  template <typename T> inline Expr operator>=(T val) {
-    return Expr(makeExpr(">=", val));
+  template <typename Ty> inline Expr operator>=(Ty Val) {
+    return Expr(makeExpr(">=", Val));
   }
-  inline Expr operator%(std::string &&val) {
-    return Expr(makeExpr("like", val));
+  inline Expr operator%(std::string &&Val) {
+    return Expr(makeExpr("like", Val));
   }
-  inline Expr operator^(std::string &&val) {
-    return Expr(makeExpr("not like", val));
+  inline Expr operator^(std::string &&Val) {
+    return Expr(makeExpr("not like", Val));
   }
-  inline Expr operator&&(Expr &&val) { return Expr(makeExpr("and", val)); }
-  inline Expr operator||(Expr &&val) { return Expr(makeExpr("or", val)); }
+  inline Expr operator&&(Expr &&Val) { return Expr(makeExpr("and", Val)); }
+  inline Expr operator||(Expr &&Val) { return Expr(makeExpr("or", Val)); }
 
-  inline std::string toString() const { return expr_; }
-  inline std::string tableName() const { return tbl_name_; }
-  inline std::string print() const { return tbl_name_ + ", " + expr_; }
+  inline std::string toString() const { return Exp; }
+  inline std::string tableName() const { return TblName; }
+  inline std::string print() const { return TblName + ", " + Exp; }
 
 private:
-  std::string expr_;     /// The string representation of the expression.
-  std::string tbl_name_; /// The table name associated with the expression.
+  std::string Exp;     /// The string representation of the expression.
+  std::string TblName; /// The table name associated with the expression.
 };
 
-template <typename T, typename ID> class QueryWrapper {
+template <typename Ty, typename ID> class QueryWrapper {
 public:
-  QueryWrapper(PGconn *conn, std::string_view tableName)
-      : conn_(conn), table_name_(tableName) {}
+  QueryWrapper(PGconn *Conn, std::string_view TableName)
+      : Conn(Conn), TableName(TableName) {}
 
-  QueryWrapper(PGconn *conn, std::string_view tableName, T &queryResult,
-               const std::string &selectSql, const std::string &whereSql,
-               const std::string &groupBySql, const std::string &havingSql,
-               const std::string &orderBySql, const std::string &limitSql,
-               const std::string &offsetSql)
-      : conn_(conn), table_name_(tableName), query_result_(queryResult),
-        select_sql_(selectSql), where_sql_(whereSql), group_by_sql_(groupBySql),
-        having_sql_(havingSql), order_by_sql_(orderBySql), limit_sql_(limitSql),
-        offset_sql_(offsetSql) {}
+  QueryWrapper(PGconn *Conn, std::string_view TableName, Ty &QueryResult,
+               const std::string &SelectSql, const std::string &WhereSql,
+               const std::string &GroupBySql, const std::string &HavingSql,
+               const std::string &OrderBySql, const std::string &LimitSql,
+               const std::string &OffsetSql)
+      : Conn(Conn), TableName(TableName), QueryResult(QueryResult),
+        SelectSql(SelectSql), WhereSql(WhereSql), GroupBySql(GroupBySql),
+        HavingSql(HavingSql), OrderBySql(OrderBySql), LimitSql(LimitSql),
+        OffsetSql(OffsetSql) {}
 
-  template <typename... Args> inline auto select(Args &&...args) {
-    std::string sql = "select ";
-    if constexpr (sizeof...(Args) > 0) {
-      selectImpl(sql, std::forward<Args>(args)...);
+  template <typename... ArgTys> inline auto select(ArgTys &&...Args) {
+    std::string Sql = "select ";
+    if constexpr (sizeof...(ArgTys) > 0) {
+      selectImpl(Sql, std::forward<ArgTys>(Args)...);
     } else {
-      sql += " * ";
+      Sql += " * ";
     }
-    sql += " from " + table_name_;
-    (*this).select_sql_ = sql;
-    return newQuery(std::tuple<decltype(args.return_type)...>{});
+    Sql += " from " + TableName;
+    (*this).select_sql_ = Sql;
+    return newQuery(std::tuple<decltype(Args.return_type)...>{});
   }
 
-  inline QueryWrapper &&set(const Expr &expr) {
-    table_name_ = expr.tableName();
-    (*this).set_sql_ = " set " + expr.toString();
+  inline QueryWrapper &&set(const Expr &Expr) {
+    TableName = Expr.tableName();
+    (*this).set_sql_ = " set " + Expr.toString();
     return std::move(*this);
   }
-  inline QueryWrapper &&where(const Expr &expr) {
-    table_name_ = expr.tableName();
-    (*this).where_sql_ = " where (" + expr.toString() + ")";
+  inline QueryWrapper &&where(const Expr &Expr) {
+    TableName = Expr.tableName();
+    (*this).where_sql_ = " where (" + Expr.toString() + ")";
     return std::move(*this);
   }
-  inline QueryWrapper &&where(ID id) {
-    std::stringstream ss;
-    ss << " where (" << getAutoKey<T>() << " = " << id << ")";
-    (*this).where_sql_ = ss.str();
+  inline QueryWrapper &&where(ID Id) {
+    std::stringstream SS;
+    SS << " where (" << getAutoKey<Ty>() << " = " << Id << ")";
+    (*this).where_sql_ = SS.str();
     return std::move(*this);
   }
-  inline QueryWrapper &&groupBy(const Expr &expr) {
-    (*this).group_by_sql_ = " group by (" + expr.toString() + ")";
+  inline QueryWrapper &&groupBy(const Expr &Expr) {
+    (*this).group_by_sql_ = " group by (" + Expr.toString() + ")";
     return std::move(*this);
   }
-  inline QueryWrapper &&having(const Expr &expr) {
-    (*this).having_sql_ = " having (" + expr.toString() + ")";
+  inline QueryWrapper &&having(const Expr &Expr) {
+    (*this).having_sql_ = " having (" + Expr.toString() + ")";
     return std::move(*this);
   }
-  inline QueryWrapper &&orderBy(const Expr &expr) {
-    (*this).order_by_sql_ = " order by " + expr.toString() + " asc";
+  inline QueryWrapper &&orderBy(const Expr &Expr) {
+    (*this).order_by_sql_ = " order by " + Expr.toString() + " asc";
     return std::move(*this);
   }
-  inline QueryWrapper &&orderByDesc(const Expr &expr) {
-    (*this).order_by_sql_ = " order by " + expr.toString() + " desc";
+  inline QueryWrapper &&orderByDesc(const Expr &Expr) {
+    (*this).order_by_sql_ = " order by " + Expr.toString() + " desc";
     return std::move(*this);
   }
-  inline QueryWrapper &&limit(std::size_t n) {
-    (*this).limit_sql_ = " limit " + std::to_string(n);
+  inline QueryWrapper &&limit(std::size_t N) {
+    (*this).limit_sql_ = " limit " + std::to_string(N);
     return std::move(*this);
   }
-  inline QueryWrapper &&offset(std::size_t n) {
-    (*this).offset_sql_ = " offset " + std::to_string(n);
+  inline QueryWrapper &&offset(std::size_t N) {
+    (*this).offset_sql_ = " offset " + std::to_string(N);
     return std::move(*this);
   }
 
   std::string toString() {
-    if (select_sql_.empty()) {
-      select_sql_ = "select * from " + table_name_;
+    if (SelectSql.empty()) {
+      SelectSql = "select * from " + TableName;
     }
-    return select_sql_ + where_sql_ + group_by_sql_ + having_sql_ +
-           order_by_sql_ + limit_sql_ + offset_sql_ + ";";
+    return SelectSql + WhereSql + GroupBySql + HavingSql + OrderBySql +
+           LimitSql + OffsetSql + ";";
   }
 
-  std::vector<T> toVector() { return execute<T>(toString()); }
+  std::vector<Ty> toVector() { return execute<Ty>(toString()); }
 
 private:
-  template <typename Ty>
-  constexpr std::enable_if_t<is_reflection<Ty>::value, std::vector<Ty>>
-  execute(const std::string &sql) {
-    std::vector<Ty> ret_vector;
-    LOG_DEBUG << "query: " << sql;
-    res_ = PQexec(conn_, sql.c_str());
-    if (PQresultStatus(res_) != PGRES_TUPLES_OK) {
-      LOG_ERROR << PQresultErrorMessage(res_);
-      PQclear(res_);
-      return ret_vector;
+  template <typename _Ty>
+  constexpr std::enable_if_t<is_reflection<_Ty>::Value, std::vector<_Ty>>
+  execute(const std::string &Sql) {
+    std::vector<_Ty> RetVector;
+    LOG_DEBUG << "query: " << Sql;
+    Res = PQexec(Conn, Sql.c_str());
+    if (PQresultStatus(Res) != PGRES_TUPLES_OK) {
+      LOG_ERROR << PQresultErrorMessage(Res);
+      PQclear(Res);
+      return RetVector;
     }
-    size_t ntuples = PQntuples(res_);
-    for (size_t i = 0; i < ntuples; i++) {
-      Ty tp = {};
-      forEach(tp, [this, &tp, &i](auto item, auto field, auto j) {
-        this->assignValue(tp.*item, i, static_cast<int>(decltype(j)::value));
+    size_t Ntuples = PQntuples(Res);
+    for (size_t I = 0; I < Ntuples; I++) {
+      _Ty Tp = {};
+      forEach(Tp, [this, &Tp, &I](auto Item, auto Field, auto J) {
+        this->assignValue(Tp.*Item, I, static_cast<int>(decltype(J)::Value));
       });
-      ret_vector.push_back(std::move(tp));
+      RetVector.push_back(std::move(Tp));
     }
-    PQclear(res_);
-    return ret_vector;
+    PQclear(Res);
+    return RetVector;
   }
 
-  template <typename Ty>
-  constexpr std::enable_if_t<!is_reflection<Ty>::value, std::vector<Ty>>
-  execute(const std::string &sql) {
-    std::vector<Ty> ret_vector;
-    LOG_DEBUG << "query: " << sql;
-    res_ = PQexec(conn_, sql.c_str());
-    if (PQresultStatus(res_) != PGRES_TUPLES_OK) {
-      LOG_ERROR << PQresultErrorMessage(res_);
-      PQclear(res_);
-      return ret_vector;
+  template <typename _Ty>
+  constexpr std::enable_if_t<!is_reflection<_Ty>::Value, std::vector<_Ty>>
+  execute(const std::string &Sql) {
+    std::vector<_Ty> RetVector;
+    LOG_DEBUG << "query: " << Sql;
+    Res = PQexec(Conn, Sql.c_str());
+    if (PQresultStatus(Res) != PGRES_TUPLES_OK) {
+      LOG_ERROR << PQresultErrorMessage(Res);
+      PQclear(Res);
+      return RetVector;
     }
-    size_t ntuples = PQntuples(res_);
-    for (size_t i = 0; i < ntuples; i++) {
-      Ty tp = {};
-      int index = 0;
-      forEach(tp, [this, &i, &index](auto &item, auto j) {
-        if constexpr (is_reflection_v<std::decay_t<decltype(item)>>) {
-          std::decay_t<decltype(item)> t = {};
-          forEach(t, [this, &index, &t](auto elem, auto field, auto j) {
-            assignValue(t.*elem, j, index++);
+    size_t Ntuples = PQntuples(Res);
+    for (size_t I = 0; I < Ntuples; I++) {
+      _Ty Tp = {};
+      int Index = 0;
+      forEach(Tp, [this, &I, &Index](auto &Item, auto J) {
+        if constexpr (is_reflection_v<std::decay_t<decltype(Item)>>) {
+          std::decay_t<decltype(Item)> T = {};
+          forEach(T, [this, &Index, &T](auto Elem, auto Field, auto J) {
+            assignValue(T.*Elem, J, Index++);
           });
-          item = std::move(t);
+          Item = std::move(T);
         } else {
-          assignValue(item, static_cast<int>(i), index++);
+          assignValue(Item, static_cast<int>(I), Index++);
         }
       });
-      ret_vector.push_back(tp);
+      RetVector.push_back(Tp);
     }
-    PQclear(res_);
-    return ret_vector;
+    PQclear(Res);
+    return RetVector;
   }
 
-  template <typename... Args>
-  inline QueryWrapper<std::tuple<Args...>, ID>
-  newQuery(std::tuple<Args...> &&queryResult) {
-    return QueryWrapper<std::tuple<Args...>, ID>(
-        conn_, table_name_, queryResult, select_sql_, where_sql_, group_by_sql_,
-        having_sql_, order_by_sql_, limit_sql_, offset_sql_);
+  template <typename... ArgTys>
+  inline QueryWrapper<std::tuple<ArgTys...>, ID>
+  newQuery(std::tuple<ArgTys...> &&QueryRes) {
+    return QueryWrapper<std::tuple<ArgTys...>, ID>(
+        Conn, TableName, QueryRes, SelectSql, WhereSql, GroupBySql, HavingSql,
+        OrderBySql, LimitSql, OffsetSql);
   }
 
-  template <typename... Args>
-  inline void selectImpl(std::string &sql, Args &&...args) {
-    constexpr auto size = sizeof...(Args);
-    auto tp = std::make_tuple(std::forward<Args>(args)...);
-    forEach(tp, [&](auto arg, auto i) {
-      if constexpr (std::is_same_v<decltype(arg),
-                                   Selectable<decltype(arg.return_type)>>) {
-        bool same_table = arg.tableName() == table_name_;
-        assert(same_table);
-        (void)same_table;
-        table_name_ = arg.tableName();
-        sql += arg.toString();
-        if (i != size - 1) {
-          sql += ", ";
+  template <typename... ArgTys>
+  inline void selectImpl(std::string &Sql, ArgTys &&...Args) {
+    constexpr auto Size = sizeof...(ArgTys);
+    auto Tp = std::make_tuple(std::forward<ArgTys>(Args)...);
+    forEach(Tp, [&](auto Arg, auto I) {
+      if constexpr (std::is_same_v<decltype(Arg),
+                                   Selectable<decltype(Arg.return_type)>>) {
+        bool SameTable = Arg.tableName() == TableName;
+        assert(SameTable);
+        (void)SameTable;
+        TableName = Arg.tableName();
+        Sql += Arg.toString();
+        if (I != Size - 1) {
+          Sql += ", ";
         }
       }
     });
   }
 
-  template <typename Ty>
-  constexpr void assignValue(Ty &&value, int row, int col) {
-    using U = std::remove_const_t<std::remove_reference_t<Ty>>;
-    if constexpr (std::is_integral<U>::value &&
-                  !(std::is_same<U, int64_t>::value ||
-                    std::is_same<U, uint64_t>::value)) {
-      value = atoi(PQgetvalue(res_, row, col));
+  template <typename _Ty>
+  constexpr void assignValue(_Ty &&Value, int Row, int Col) {
+    using U = std::remove_const_t<std::remove_reference_t<_Ty>>;
+    if constexpr (std::is_integral<U>::Value &&
+                  !(std::is_same<U, int64_t>::Value ||
+                    std::is_same<U, uint64_t>::Value)) {
+      Value = atoi(PQgetvalue(Res, Row, Col));
     } else if constexpr (std::is_enum_v<U>) {
-      value = static_cast<U>(atoi(PQgetvalue(res_, row, col)));
-    } else if constexpr (std::is_floating_point<U>::value) {
-      value = atof(PQgetvalue(res_, row, col));
-    } else if constexpr (std::is_same<U, int64_t>::value ||
-                         std::is_same<U, uint64_t>::value) {
-      value = atoll(PQgetvalue(res_, row, col));
-    } else if constexpr (std::is_same<U, std::string>::value) {
-      value = PQgetvalue(res_, row, col);
-    } else if constexpr (std::is_array<U>::value &&
+      Value = static_cast<U>(atoi(PQgetvalue(Res, Row, Col)));
+    } else if constexpr (std::is_floating_point<U>::Value) {
+      Value = atof(PQgetvalue(Res, Row, Col));
+    } else if constexpr (std::is_same<U, int64_t>::Value ||
+                         std::is_same<U, uint64_t>::Value) {
+      Value = atoll(PQgetvalue(Res, Row, Col));
+    } else if constexpr (std::is_same<U, std::string>::Value) {
+      Value = PQgetvalue(Res, Row, Col);
+    } else if constexpr (std::is_array<U>::Value &&
                          std::is_same<char, std::remove_pointer_t<
-                                                std::decay_t<U>>>::value) {
-      auto ptr = PQgetvalue(res_, row, col);
-      memcpy(value, ptr, sizeof(U));
+                                                std::decay_t<U>>>::Value) {
+      auto *Ptr = PQgetvalue(Res, Row, Col);
+      memcpy(Value, Ptr, sizeof(U));
     } else {
-      LOG_ERROR << "unsupported type:" << std::is_array<U>::value;
+      LOG_ERROR << "unsupported type:" << std::is_array<U>::Value;
     }
   }
 
-  PGconn *conn_;
-  PGresult *res_;
+  PGconn *Conn;
+  PGresult *Res;
 
-  std::string table_name_;
+  std::string TableName;
 
-  T query_result_;
+  Ty QueryResult;
 
-  std::string select_sql_;
-  std::string where_sql_;
-  std::string group_by_sql_;
-  std::string having_sql_;
-  std::string order_by_sql_;
-  std::string limit_sql_;
-  std::string offset_sql_;
+  std::string SelectSql;
+  std::string WhereSql;
+  std::string GroupBySql;
+  std::string HavingSql;
+  std::string OrderBySql;
+  std::string LimitSql;
+  std::string OffsetSql;
 };
 
-template <typename T, typename ID> class UpdateWrapper {
+template <typename Ty, typename ID> class UpdateWrapper {
 public:
-  UpdateWrapper(PGconn *conn, std::string_view tableName,
-                const std::string &updateSql = std::string("update"))
-      : conn_(conn), table_name_(tableName),
-        update_sql_(updateSql + " " + std::string(tableName)) {}
+  UpdateWrapper(PGconn *Conn, std::string_view TableName,
+                const std::string &UpdateSql = std::string("update"))
+      : Conn(Conn), TableName(TableName),
+        UpdateSql(UpdateSql + " " + std::string(TableName)) {}
 
-  UpdateWrapper(PGconn *conn, std::string_view tableName,
-                const std::string &updateSql, const std::string &setSql,
-                const std::string &whereSql)
-      : conn_(conn), table_name_(tableName), update_sql_(updateSql),
-        set_sql_(setSql), where_sql_(whereSql) {}
+  UpdateWrapper(PGconn *Conn, std::string_view TableName,
+                const std::string &UpdateSql, const std::string &SetSql,
+                const std::string &WhereSql)
+      : Conn(Conn), TableName(TableName), UpdateSql(UpdateSql), SetSql(SetSql),
+        WhereSql(WhereSql) {}
 
-  inline UpdateWrapper &&set(const Expr &expr) {
-    table_name_ = expr.tableName();
-    (*this).set_sql_ = " set " + expr.toString();
+  inline UpdateWrapper &&set(const Expr &Expr) {
+    TableName = Expr.tableName();
+    (*this).set_sql_ = " set " + Expr.toString();
     return std::move(*this);
   }
 
-  inline UpdateWrapper &&set(T &&t) {
-    std::string sql;
-    size_t size = getValue<T>();
-    forEach(t, [&](auto &item, auto field, auto j) {
-      sql += std::string(field) + " = $" + std::to_string(++idx_);
-      if (j != size - 1) {
-        sql += ", ";
+  inline UpdateWrapper &&set(Ty &&T) {
+    std::string Sql;
+    size_t Size = getValue<Ty>();
+    forEach(T, [&](auto &Item, auto Field, auto J) {
+      Sql += std::string(Field) + " = $" + std::to_string(++Idx);
+      if (J != Size - 1) {
+        Sql += ", ";
       }
-      detail::setParamValue(param_values_, t.*item);
+      detail::setParamValue(ParamValues, T.*Item);
     });
-    (*this).set_sql_ = " set " + sql;
+    (*this).set_sql_ = " set " + Sql;
     return std::move(*this);
   }
 
-  inline UpdateWrapper &&where(const Expr &expr) {
-    table_name_ = expr.tableName();
-    (*this).where_sql_ = " where (" + expr.toString() + ")";
+  inline UpdateWrapper &&where(const Expr &Expr) {
+    TableName = Expr.tableName();
+    (*this).where_sql_ = " where (" + Expr.toString() + ")";
     return std::move(*this);
   }
 
-  inline UpdateWrapper &&where(ID id) {
-    detail::setParamValue(param_values_, id);
-    (*this).where_sql_ = " where (" + std::string(getAutoKey<T>()) + " = $" +
-                         std::to_string(++idx_) + ")";
-    return std::move(*this);
-  }
-
-  bool execute() {
-    std::string sql = toString();
-    LOG_TRACE << "update prepare: " << sql;
-    if (!this->prepare(sql)) {
-      return false;
-    }
-    return updateImpl(sql);
-  }
-
-  std::string toString() { return update_sql_ + set_sql_ + where_sql_ + ";"; }
-
-private:
-  bool prepare(const std::string &sql) {
-    res_ = PQprepare(conn_, "", sql.data(), static_cast<int>(getValue<T>()),
-                     nullptr);
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQerrorMessage(conn_);
-      return false;
-    }
-    PQclear(res_);
-    return true;
-  }
-
-  bool updateImpl(std::string &sql) {
-    if (param_values_.empty()) {
-      return false;
-    }
-    std::vector<const char *> param_values_buf;
-    param_values_buf.reserve(param_values_.size());
-    for (auto &item : param_values_) {
-      param_values_buf.push_back(item.data());
-    }
-
-    // For debug
-    std::stringstream ss;
-    ss << "params: ";
-    for (size_t i = 0; i < param_values_buf.size(); i++) {
-      ss << (i + 1) << " = " << *(param_values_buf.data() + i) << ", ";
-    }
-    LOG_DEBUG << ss.str();
-
-    res_ = PQexecPrepared(conn_, "", static_cast<int>(param_values_.size()),
-                          param_values_buf.data(), nullptr, nullptr, 0);
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQresultErrorMessage(res_);
-      PQclear(res_);
-      return false;
-    }
-    PQclear(res_);
-    return true;
-  }
-
-  PGconn *conn_;
-  PGresult *res_;
-
-  std::string table_name_;
-  std::string update_sql_;
-  std::string where_sql_;
-  std::string set_sql_;
-
-  std::vector<std::vector<char>> param_values_;
-  size_t idx_ = 0;
-};
-
-template <typename T, typename ID> class DeleteWrapper {
-public:
-  DeleteWrapper(PGconn *conn, std::string_view tableName,
-                const std::string &deleteSql = std::string("delete"))
-      : conn_(conn), table_name_(tableName),
-        delete_sql_(deleteSql + " from " + std::string(tableName)) {}
-
-  DeleteWrapper(PGconn *conn, std::string_view tableName,
-                const std::string &deleteSql, const std::string &whereSql)
-      : conn_(conn), table_name_(tableName), delete_sql_(deleteSql),
-        where_sql_(whereSql) {}
-
-  inline DeleteWrapper &&where(const Expr &expr) {
-    table_name_ = expr.tableName();
-    (*this).where_sql_ = " where (" + expr.toString() + ")";
-    return std::move(*this);
-  }
-
-  inline DeleteWrapper &&where(ID id) {
-    detail::setParamValue(param_values_, id);
-    (*this).where_sql_ = " where (" + std::string(getAutoKey<T>()) + " = $" +
-                         std::to_string(++idx_) + ")";
+  inline UpdateWrapper &&where(ID Id) {
+    detail::setParamValue(ParamValues, Id);
+    (*this).where_sql_ = " where (" + std::string(getAutoKey<Ty>()) + " = $" +
+                         std::to_string(++Idx) + ")";
     return std::move(*this);
   }
 
   bool execute() {
-    std::string sql = toString();
-    LOG_TRACE << "delete prepare: " << sql;
-    if (!this->prepare(sql)) {
+    std::string Sql = toString();
+    LOG_TRACE << "update prepare: " << Sql;
+    if (!this->prepare(Sql)) {
       return false;
     }
-    return deleteImpl(sql);
+    return updateImpl(Sql);
   }
 
-  std::string toString() { return delete_sql_ + where_sql_ + ";"; }
+  std::string toString() { return UpdateSql + SetSql + WhereSql + ";"; }
 
 private:
-  bool prepare(const std::string &sql) {
-    res_ = PQprepare(conn_, "", sql.data(), static_cast<int>(getValue<T>()),
-                     nullptr);
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQerrorMessage(conn_);
+  bool prepare(const std::string &Sql) {
+    Res = PQprepare(Conn, "", Sql.data(), static_cast<int>(getValue<Ty>()),
+                    nullptr);
+    if (PQresultStatus(Res) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQerrorMessage(Conn);
       return false;
     }
-    PQclear(res_);
+    PQclear(Res);
     return true;
   }
 
-  bool deleteImpl(std::string &sql) {
-    if (param_values_.empty()) {
+  bool updateImpl(std::string &Sql) {
+    if (ParamValues.empty()) {
       return false;
     }
-    std::vector<const char *> param_values_buf;
-    param_values_buf.reserve(param_values_.size());
-    for (auto &item : param_values_) {
-      param_values_buf.push_back(item.data());
+    std::vector<const char *> ParamValuesBuf;
+    ParamValuesBuf.reserve(ParamValues.size());
+    for (auto &Item : ParamValues) {
+      ParamValuesBuf.push_back(Item.data());
     }
 
     // For debug
-    std::stringstream ss;
-    ss << "params: ";
-    for (size_t i = 0; i < param_values_buf.size(); i++) {
-      ss << (i + 1) << " = " << *(param_values_buf.data() + i) << ", ";
+    std::stringstream SS;
+    SS << "params: ";
+    for (size_t I = 0; I < ParamValuesBuf.size(); I++) {
+      SS << (I + 1) << " = " << *(ParamValuesBuf.data() + I) << ", ";
     }
-    LOG_DEBUG << ss.str();
+    LOG_DEBUG << SS.str();
 
-    res_ = PQexecPrepared(conn_, "", static_cast<int>(param_values_.size()),
-                          param_values_buf.data(), nullptr, nullptr, 0);
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQresultErrorMessage(res_);
-      PQclear(res_);
+    Res = PQexecPrepared(Conn, "", static_cast<int>(ParamValues.size()),
+                         ParamValuesBuf.data(), nullptr, nullptr, 0);
+    if (PQresultStatus(Res) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQresultErrorMessage(Res);
+      PQclear(Res);
       return false;
     }
-    PQclear(res_);
+    PQclear(Res);
     return true;
   }
 
-  PGconn *conn_;
-  PGresult *res_;
+  PGconn *Conn;
+  PGresult *Res;
 
-  std::string table_name_;
-  std::string delete_sql_;
-  std::string where_sql_;
+  std::string TableName;
+  std::string UpdateSql;
+  std::string WhereSql;
+  std::string SetSql;
 
-  std::vector<std::vector<char>> param_values_;
-  size_t idx_ = 0;
+  std::vector<std::vector<char>> ParamValues;
+  size_t Idx = 0;
 };
 
-template <typename T> class InsertWrapper {
+template <typename Ty, typename ID> class DeleteWrapper {
 public:
-  InsertWrapper(PGconn *conn, std::string_view tableName)
-      : conn_(conn), table_name_(tableName) {}
+  DeleteWrapper(PGconn *Conn, std::string_view TableName,
+                const std::string &DeleteSql = std::string("delete"))
+      : Conn(Conn), TableName(TableName),
+        DeleteSql(DeleteSql + " from " + std::string(TableName)) {}
 
-  int insert(T &t) {
-    std::string sql = generateInsertSql();
-    LOG_TRACE << " insert prepare: " << sql;
-    if (!prepare(sql)) {
-      return 0;
-    }
-    return insertImpl(sql, t);
+  DeleteWrapper(PGconn *Conn, std::string_view TableName,
+                const std::string &DeleteSql, const std::string &WhereSql)
+      : Conn(Conn), TableName(TableName), DeleteSql(DeleteSql),
+        WhereSql(WhereSql) {}
+
+  inline DeleteWrapper &&where(const Expr &Expr) {
+    TableName = Expr.tableName();
+    (*this).where_sql_ = " where (" + Expr.toString() + ")";
+    return std::move(*this);
   }
 
-  int insert(std::vector<T> &t) {
-    std::string sql = generateInsertSql();
-    LOG_TRACE << " insert prepare: " << sql;
-    if (!prepare(sql)) {
+  inline DeleteWrapper &&where(ID Id) {
+    detail::setParamValue(ParamValues, Id);
+    (*this).where_sql_ = " where (" + std::string(getAutoKey<Ty>()) + " = $" +
+                         std::to_string(++Idx) + ")";
+    return std::move(*this);
+  }
+
+  bool execute() {
+    std::string Sql = toString();
+    LOG_TRACE << "delete prepare: " << Sql;
+    if (!this->prepare(Sql)) {
+      return false;
+    }
+    return deleteImpl(Sql);
+  }
+
+  std::string toString() { return DeleteSql + WhereSql + ";"; }
+
+private:
+  bool prepare(const std::string &Sql) {
+    Res = PQprepare(Conn, "", Sql.data(), static_cast<int>(getValue<Ty>()),
+                    nullptr);
+    if (PQresultStatus(Res) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQerrorMessage(Conn);
+      return false;
+    }
+    PQclear(Res);
+    return true;
+  }
+
+  bool deleteImpl(std::string &Sql) {
+    if (ParamValues.empty()) {
+      return false;
+    }
+    std::vector<const char *> ParamValuesBuf;
+    ParamValuesBuf.reserve(ParamValues.size());
+    for (auto &Item : ParamValues) {
+      ParamValuesBuf.push_back(Item.data());
+    }
+
+    // For debug
+    std::stringstream SS;
+    SS << "params: ";
+    for (size_t I = 0; I < ParamValuesBuf.size(); I++) {
+      SS << (I + 1) << " = " << *(ParamValuesBuf.data() + I) << ", ";
+    }
+    LOG_DEBUG << SS.str();
+
+    Res = PQexecPrepared(Conn, "", static_cast<int>(ParamValues.size()),
+                         ParamValuesBuf.data(), nullptr, nullptr, 0);
+    if (PQresultStatus(Res) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQresultErrorMessage(Res);
+      PQclear(Res);
+      return false;
+    }
+    PQclear(Res);
+    return true;
+  }
+
+  PGconn *Conn;
+  PGresult *Res;
+
+  std::string TableName;
+  std::string DeleteSql;
+  std::string WhereSql;
+
+  std::vector<std::vector<char>> ParamValues;
+  size_t Idx = 0;
+};
+
+template <typename Ty> class InsertWrapper {
+public:
+  InsertWrapper(PGconn *Conn, std::string_view TableName)
+      : Conn(Conn), TableName(TableName) {}
+
+  int insert(Ty &T) {
+    std::string Sql = generateInsertSql();
+    LOG_TRACE << " insert prepare: " << Sql;
+    if (!prepare(Sql)) {
+      return 0;
+    }
+    return insertImpl(Sql, T);
+  }
+
+  int insert(std::vector<Ty> &T) {
+    std::string Sql = generateInsertSql();
+    LOG_TRACE << " insert prepare: " << Sql;
+    if (!prepare(Sql)) {
       return 0;
     }
 
-    for (auto &item : t) {
-      if (!insertImpl(sql, item)) {
+    for (auto &Item : T) {
+      if (!insertImpl(Sql, Item)) {
         execute("rollback;");
         return 0;
       }
@@ -620,146 +620,146 @@ public:
     if (!execute("commit;")) {
       return 0;
     }
-    return t.size();
+    return T.Size();
   }
 
 private:
-  bool execute(const std::string &sql) {
-    LOG_DEBUG << "exec: " << sql;
-    res_ = PQexec(conn_, sql.data());
-    bool ret = PQresultStatus(res_) == PGRES_COMMAND_OK;
-    PQclear(res_);
-    return ret;
+  bool execute(const std::string &Sql) {
+    LOG_DEBUG << "exec: " << Sql;
+    Res = PQexec(Conn, Sql.data());
+    bool Ret = PQresultStatus(Res) == PGRES_COMMAND_OK;
+    PQclear(Res);
+    return Ret;
   }
 
-  bool insertImpl(std::string &sql, T &t) {
-    std::vector<std::vector<char>> param_values;
-    forEach(t, [&](auto &item, auto field, auto j) {
-      if (!isAutoKey<T>(getName<T>(j).data())) {
-        detail::setParamValue(param_values, t.*item);
+  bool insertImpl(std::string &Sql, Ty &T) {
+    std::vector<std::vector<char>> ParamValues;
+    forEach(T, [&](auto &Item, auto Field, auto J) {
+      if (!isAutoKey<Ty>(getName<Ty>(J).data())) {
+        detail::setParamValue(ParamValues, T.*Item);
       }
     });
-    if (param_values.empty()) {
+    if (ParamValues.empty()) {
       return false;
     }
 
-    std::vector<const char *> param_values_buf;
-    param_values_buf.reserve(param_values.size());
-    for (auto &item : param_values) {
-      param_values_buf.push_back(item.data());
+    std::vector<const char *> ParamValuesBuf;
+    ParamValuesBuf.reserve(ParamValues.size());
+    for (auto &Item : ParamValues) {
+      ParamValuesBuf.push_back(Item.data());
     }
 
     // For debugging
-    std::stringstream ss;
-    ss << "params: ";
-    for (size_t i = 0; i < param_values_buf.size(); i++) {
-      ss << i << "=" << *(param_values_buf.data() + i) << ", ";
+    std::stringstream SS;
+    SS << "params: ";
+    for (size_t I = 0; I < ParamValuesBuf.size(); I++) {
+      SS << I << "=" << *(ParamValuesBuf.data() + I) << ", ";
     }
-    LOG_DEBUG << ss.str();
+    LOG_DEBUG << SS.str();
 
-    res_ = PQexecPrepared(conn_, "", static_cast<int>(param_values.size()),
-                          param_values_buf.data(), nullptr, nullptr, 0);
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQresultErrorMessage(res_);
-      PQclear(res_);
+    Res = PQexecPrepared(Conn, "", static_cast<int>(ParamValues.size()),
+                         ParamValuesBuf.data(), nullptr, nullptr, 0);
+    if (PQresultStatus(Res) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQresultErrorMessage(Res);
+      PQclear(Res);
       return false;
     }
-    PQclear(res_);
+    PQclear(Res);
     return true;
   }
 
   constexpr auto generateInsertSql() {
-    std::string table_name = getName<T>().data();
-    std::string sql = "insert into " + table_name + "(";
+    std::string TblName = getName<Ty>().data();
+    std::string Sql = "insert into " + TblName + "(";
 
-    auto field_names = getArray<T>();
-    constexpr auto field_size = getValue<T>();
-    for (size_t i = 0; i < field_size; i++) {
-      std::string field_name = field_names[i].data();
+    auto FieldNames = getArray<Ty>();
+    constexpr auto FieldSize = getValue<Ty>();
+    for (size_t I = 0; I < FieldSize; I++) {
+      std::string FieldName = FieldNames[I].data();
       /// Skip if is auto key
-      if (isAutoKey<T>(field_name)) {
+      if (isAutoKey<Ty>(FieldName)) {
         continue;
       }
-      sql += field_name;
-      if (i != field_size - 1) {
-        sql += ", ";
+      Sql += FieldName;
+      if (I != FieldSize - 1) {
+        Sql += ", ";
       }
     }
-    sql += ") values(";
+    Sql += ") values(";
 
-    int idx = 0;
-    for (size_t i = 0; i < field_size; i++) {
-      std::string field_name = getName<T>(i).data();
+    int Idx = 0;
+    for (size_t I = 0; I < FieldSize; I++) {
+      std::string FieldName = getName<Ty>(I).data();
       /// Skip if is auto key
-      if (isAutoKey<T>(field_name)) {
+      if (isAutoKey<Ty>(FieldName)) {
         continue;
       }
-      sql += "$" + std::to_string(++idx);
-      if (i != field_size - 1) {
-        sql += ", ";
+      Sql += "$" + std::to_string(++Idx);
+      if (I != FieldSize - 1) {
+        Sql += ", ";
       }
     }
-    sql += ");";
-    return sql;
+    Sql += ");";
+    return Sql;
   }
 
-  bool prepare(const std::string &sql) {
-    res_ = PQprepare(conn_, "", sql.data(), static_cast<int>(getValue<T>()),
-                     nullptr);
-    if (PQresultStatus(res_) != PGRES_COMMAND_OK) {
-      LOG_ERROR << PQerrorMessage(conn_);
+  bool prepare(const std::string &Sql) {
+    Res = PQprepare(Conn, "", Sql.data(), static_cast<int>(getValue<Ty>()),
+                    nullptr);
+    if (PQresultStatus(Res) != PGRES_COMMAND_OK) {
+      LOG_ERROR << PQerrorMessage(Conn);
       return false;
     }
-    PQclear(res_);
+    PQclear(Res);
     return true;
   }
 
-  PGconn *conn_;
-  PGresult *res_;
+  PGconn *Conn;
+  PGresult *Res;
 
-  std::string table_name_;
+  std::string TableName;
 };
 
-template <typename T> struct FieldAttribute;
+template <typename Ty> struct FieldAttribute;
 
-template <typename T, typename U> struct FieldAttribute<U T::*> {
-  using type = T;
+template <typename Ty, typename U> struct FieldAttribute<U Ty::*> {
+  using type = Ty;
   using return_type = U;
 };
 
 template <typename U>
-constexpr std::string_view getFieldName(std::string_view fullName) {
-  using T = typename FieldAttribute<U>::type;
-  return fullName.substr(getName<T>().length() + 2, fullName.length());
+constexpr std::string_view getFieldName(std::string_view FullName) {
+  using Ty = typename FieldAttribute<U>::type;
+  return FullName.substr(getName<Ty>().length() + 2, FullName.length());
 }
 
 template <typename U>
-constexpr std::string_view getTableName(std::string_view fullName) {
-  using T = typename FieldAttribute<U>::type;
-  return getName<T>();
+constexpr std::string_view getTableName(std::string_view FullName) {
+  using Ty = typename FieldAttribute<U>::type;
+  return getName<Ty>();
 }
 
-#define VALUE(field)                                                           \
-  lynx::Expr(lynx::getFieldName<decltype(&(field))>(std::string_view(#field)), \
-             lynx::getTableName<decltype(&(field))>(std::string_view(#field)))
+#define VALUE(Field)                                                           \
+  lynx::Expr(lynx::getFieldName<decltype(&(Field))>(std::string_view(#Field)), \
+             lynx::getTableName<decltype(&(Field))>(std::string_view(#Field)))
 
-#define ORM_AGG(field, op, type)                                               \
+#define ORM_AGG(Field, op, type)                                               \
   lynx::Selectable<type>(                                                      \
-      lynx::getFieldName<decltype(&(field))>(std::string_view(#field)),        \
-      lynx::getTableName<decltype(&(field))>(std::string_view(#field)), op)
+      lynx::getFieldName<decltype(&(Field))>(std::string_view(#Field)),        \
+      lynx::getTableName<decltype(&(Field))>(std::string_view(#Field)), op)
 
-#define FIELD(field)                                                           \
-  ORM_AGG(field, "", lynx::FieldAttribute<decltype(&(field))>::return_type)
+#define FIELD(Field)                                                           \
+  ORM_AGG(Field, "", lynx::FieldAttribute<decltype(&(Field))>::return_type)
 
-#define ORM_COUNT(field) ORM_AGG(field, "count", std::size_t)
-#define ORM_SUM(field)                                                         \
-  ORM_AGG(field, "sum", lynx::FieldAttribute<decltype(&(field))>::return_type)
-#define ORM_AVG(field)                                                         \
-  ORM_AGG(field, "avg", lynx::FieldAttribute<decltype(&(field))>::return_type)
-#define ORM_MAX(field)                                                         \
-  ORM_AGG(field, "max", lynx::FieldAttribute<decltype(&(field))>::return_type)
-#define ORM_MIN(field)                                                         \
-  ORM_AGG(field, "min", lynx::FieldAttribute<decltype(&(field))>::return_type)
+#define ORM_COUNT(Field) ORM_AGG(Field, "count", std::size_t)
+#define ORM_SUM(Field)                                                         \
+  ORM_AGG(Field, "sum", lynx::FieldAttribute<decltype(&(Field))>::return_type)
+#define ORM_AVG(Field)                                                         \
+  ORM_AGG(Field, "avg", lynx::FieldAttribute<decltype(&(Field))>::return_type)
+#define ORM_MAX(Field)                                                         \
+  ORM_AGG(Field, "max", lynx::FieldAttribute<decltype(&(Field))>::return_type)
+#define ORM_MIN(Field)                                                         \
+  ORM_AGG(Field, "min", lynx::FieldAttribute<decltype(&(Field))>::return_type)
 
 } // namespace lynx
 

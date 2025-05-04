@@ -299,16 +299,17 @@ namespace lynx {
   MACRO_CONCAT(MAKE_ARG_LIST, N)(op, arg, __VA_ARGS__)
 
 /**
- * @brief A macro used to define the reflection members of a class.
+ * @brief ArrTy macro used to define the reflection members of a class.
  *
  * @param class_name The name of the class whose members are being reflected.
- * @param ... A variadic parameter pack representing the members of the class.
+ * @param ... ArrTy variadic parameter pack representing the members of the
+ * class.
  *
- * @return A struct containing the reflection members of the class.
+ * @return ArrTy struct containing the reflection members of the class.
  *
  * The struct contains the following members:
  * - `applyImpl`: Returns a tuple of the class members.
- * - `size_type`: A type alias representing the number of members.
+ * - `size_type`: ArrTy type alias representing the number of members.
  * - `name`: Returns the name of the class as a string view.
  * - `struct_name`: Returns the name of the class as a string view.
  * - `fields`: Returns the field names of the class as a string view.
@@ -342,7 +343,7 @@ namespace lynx {
  * @brief This macro is used to define metadata for a class.
  *
  * @param class_name The name of the class.
- * @param table_name A string representing the table name, used for metadata
+ * @param table_name ArrTy string representing the table name, used for metadata
  * purposes.
  * @param N The number of class members.
  * @param ... Variadic arguments representing the class members.
@@ -357,15 +358,15 @@ namespace lynx {
 
 /**
  * @brief This macro defines a function named `to_json` which takes a
- * `nlohmann::json` object and a constant reference to an object of type `T`.
+ * `nlohmann::json` object and a constant reference to an object of type `Ty`.
  *
- * It serializes the data members of `T` into the `json` object.
+ * It serializes the data members of `Ty` into the `json` object.
  *
- * @param T The type of object to serialize.
+ * @param Ty The type of object to serialize.
  */
-#define TO_JSON(T)                                                             \
+#define TO_JSON(Ty)                                                            \
   /* NOLINTNEXTLINE */                                                         \
-  void to_json(lynx::json &j, const T &t) {                                    \
+  void to_json(lynx::json &j, const Ty &t) {                                   \
     lynx::forEach(                                                             \
         t, [&t, &j](auto item, auto field, auto i) { j[field] = t.*item; });   \
   }
@@ -373,23 +374,23 @@ namespace lynx {
 /**
  * @brief This macro defines a function named `from_json` which takes a
  * constant reference to a `nlohmann::json` object and a non-constant reference
- * to an object of type `T`.
+ * to an object of type `Ty`.
  *
- * It deserializes the data members of `T` from the `json` object.
+ * It deserializes the data members of `Ty` from the `json` object.
  *
- * @param T The type of object to deserialize.
+ * @param Ty The type of object to deserialize.
  */
-#define FROM_JSON(T)                                                           \
+#define FROM_JSON(Ty)                                                          \
   /* NOLINTNEXTLINE */                                                         \
-  void from_json(const lynx::json &j, T &t) {                                  \
+  void from_json(const lynx::json &j, Ty &t) {                                 \
     lynx::forEach(t, [&t, &j](auto item, auto field, auto i) {                 \
       j.at(field).get_to(t.*item);                                             \
     });                                                                        \
   }
 
-#define JSON_SERIALIZE(T)                                                      \
-  TO_JSON(T);                                                                  \
-  FROM_JSON(T);
+#define JSON_SERIALIZE(Ty)                                                     \
+  TO_JSON(Ty);                                                                 \
+  FROM_JSON(Ty);
 
 #define REFLECTION_TEMPLATE(class_name, ...)                                   \
   MAKE_META_DATA(class_name, #class_name, MACRO_ARGS_SIZE(__VA_ARGS__),        \
@@ -401,64 +402,64 @@ namespace lynx {
                  __VA_ARGS__)                                                  \
   JSON_SERIALIZE(class_name)
 
-template <typename T>
-using reflect_members = decltype(reflectMembersFunc(std::declval<T>()));
+template <typename Ty>
+using reflect_members = decltype(reflectMembersFunc(std::declval<Ty>()));
 
 /**
  * @brief Trait class to check if a type has reflection capabilities.
  *
- * This class template is used to determine if a type `T` has reflection
+ * This class template is used to determine if a type `Ty` has reflection
  * capabilities. It provides a static member constant `value` which is of type
- * `bool` and is `true` if `T` is considered reflective, and `false` otherwise.
+ * `bool` and is `true` if `Ty` is considered reflective, and `false` otherwise.
  *
- * @tparam T The type to check for reflection capabilities.
- * @tparam Enable A placeholder template parameter. It is not used in the class
- * definition but is used to enable partial specialization.
+ * @tparam Ty The type to check for reflection capabilities.
+ * @tparam Enable ArrTy placeholder template parameter. It is not used in the
+ * class definition but is used to enable partial specialization.
  */
-template <typename T, typename = void>
+template <typename Ty, typename = void>
 struct is_reflection : std::false_type {}; // NOLINT
 
 /**
- * @brief Partial specialization of `is_reflection` for types `T` that have
+ * @brief Partial specialization of `is_reflection` for types `Ty` that have
  * reflection capabilities.
  *
  * This specialization of `is_reflection` uses
- * `std::void_t<decltype(reflect_members<T>::arr())>` as the second template
+ * `std::void_t<decltype(reflect_members<Ty>::arr())>` as the second template
  * parameter. `std::void_t` is a helper template that converts any valid type
  * expression into `void`.
  *
- * If `decltype(reflect_members<T>::arr())` is valid, `std::void_t` converts it
+ * If `decltype(reflect_members<Ty>::arr())` is valid, `std::void_t` converts it
  * into `void`, making the specialization applicable, indicating that the type
- * `T` is considered reflective.
+ * `Ty` is considered reflective.
  *
- * @tparam T The type to check for reflection capabilities.
+ * @tparam Ty The type to check for reflection capabilities.
  */
-template <typename T>
-struct is_reflection<T, std::void_t<decltype(reflect_members<T>::arr())>>
+template <typename Ty>
+struct is_reflection<Ty, std::void_t<decltype(reflect_members<Ty>::arr())>>
     : std::true_type {};
 
 /**
- * @brief Trait class template to check if a given type `T` is an instantiation
+ * @brief Trait class template to check if a given type `Ty` is an instantiation
  * of a template class `U`.
  *
- * This trait class template is used to check if a type `T` is an instantiation
+ * This trait class template is used to check if a type `Ty` is an instantiation
  * of a template class `U`. It provides a static member constant `value` of type
- * `bool`, which is `true` if `T` is an instantiation of `U`, and `false`
+ * `bool`, which is `true` if `Ty` is an instantiation of `U`, and `false`
  * otherwise.
  *
  * @tparam U The template class to check against.
- * @tparam T The type to check for instantiation.
+ * @tparam Ty The type to check for instantiation.
  */
-template <template <typename...> class U, typename T>
+template <template <typename...> class U, typename Ty>
 struct is_template_instant_of : std::false_type {}; // NOLINT
 
 /**
- * @brief Partial specialization of `is_template_instant_of` for types `T` that
+ * @brief Partial specialization of `is_template_instant_of` for types `Ty` that
  * are an instantiation of `U`.
  *
  * This partial specialization of `is_template_instant_of` is used to check if a
- * type `T` is an instantiation of the template class `U`. It defines `value` as
- * `true` for the given specialization.
+ * type `Ty` is an instantiation of the template class `U`. It defines `value`
+ * as `true` for the given specialization.
  *
  * @tparam U The template class to check against.
  * @tparam args... The variadic template parameter pack representing the
@@ -467,14 +468,14 @@ struct is_template_instant_of : std::false_type {}; // NOLINT
 template <template <typename...> class U, typename... args>
 struct is_template_instant_of<U, U<args...>> : std::true_type {};
 
-template <typename T>
-struct is_stdstring : is_template_instant_of<std::basic_string, T> {}; // NOLINT
+template <typename Ty> // NOLINTNEXTLINE
+struct is_stdstring : is_template_instant_of<std::basic_string, Ty> {};
 
-template <typename T>
-struct is_tuple : is_template_instant_of<std::tuple, T> {}; // NOLINT
+template <typename Ty>
+struct is_tuple : is_template_instant_of<std::tuple, Ty> {}; // NOLINT
 
-template <typename T>
-inline constexpr bool is_reflection_v = is_reflection<T>::value; // NOLINT
+template <typename Ty>
+inline constexpr bool is_reflection_v = is_reflection<Ty>::value; // NOLINT
 
 /**
  * @brief `forEach` function with array
@@ -484,21 +485,21 @@ inline constexpr bool is_reflection_v = is_reflection<T>::value; // NOLINT
  *
  * @tparam Args variadic template parameters representing the types of the
  * elements of the tuple.
- * @tparam A the type of the array.
- * @tparam F the type of the callable.
+ * @tparam ArrTy the type of the array.
+ * @tparam Fn the type of the callable.
  * @tparam Idx the index sequence.
  * @param t the tuple to iterate over.
  * @param arr the array to iterate over.
  * @param f the callable to apply to each element.
  * @param unused unused parameter, used to disambiguate the function.
  */
-template <typename... Args, typename A, typename F, std::size_t... Idx>
-constexpr void forEach(const std::tuple<Args...> &t, const A &arr, F &&f,
+template <typename... Args, typename ArrTy, typename Fn, std::size_t... Idx>
+constexpr void forEach(const std::tuple<Args...> &T, const ArrTy &Arr, Fn &&F,
                        std::index_sequence<Idx...> /*unused*/) {
   /// Apply the callable `f` to each element of the tuple and each corresponding
   /// element of the array.
-  (std::forward<F>(f)(std::get<Idx>(t), arr[Idx],
-                      std::integral_constant<size_t, Idx>{}),
+  (std::forward<Fn>(F)(std::get<Idx>(T), Arr[Idx],
+                       std::integral_constant<size_t, Idx>{}),
    ...);
 }
 
@@ -509,17 +510,17 @@ constexpr void forEach(const std::tuple<Args...> &t, const A &arr, F &&f,
  *
  * @tparam Args variadic template parameters representing the types of the
  * elements of the tuple.
- * @tparam F the type of the callable.
+ * @tparam Fn the type of the callable.
  * @tparam Idx the index sequence.
  * @param t the tuple to iterate over.
  * @param f the callable to apply to each element.
  * @param unused unused parameter, used to disambiguate the function.
  */
-template <typename... Args, typename F, std::size_t... Idx>
-constexpr void forEach(std::tuple<Args...> &t, F &&f,
+template <typename... Args, typename Fn, std::size_t... Idx>
+constexpr void forEach(std::tuple<Args...> &T, Fn &&F,
                        std::index_sequence<Idx...> /*unused*/) {
   /// Apply the callable `f` to each element of the tuple.
-  (std::forward<F>(f)(std::get<Idx>(t), std::integral_constant<size_t, Idx>{}),
+  (std::forward<Fn>(F)(std::get<Idx>(T), std::integral_constant<size_t, Idx>{}),
    ...);
 }
 
@@ -530,16 +531,16 @@ constexpr void forEach(std::tuple<Args...> &t, F &&f,
  * from `reflectMembersFunc(t)` and each corresponding element of the array
  * resulting from `M::arr()`.
  *
- * @tparam T the type to check for reflections.
- * @tparam F the type of the callable.
+ * @tparam Ty the type to check for reflections.
+ * @tparam Fn the type of the callable.
  */
-template <typename T, typename F>
-constexpr std::enable_if_t<is_reflection<T>::value> forEach(T &&t, F &&f) {
-  using M = decltype(reflectMembersFunc(std::forward<T>(t)));
+template <typename Ty, typename Fn>
+constexpr std::enable_if_t<is_reflection<Ty>::value> forEach(Ty &&T, Fn &&F) {
+  using M = decltype(reflectMembersFunc(std::forward<Ty>(T)));
   /// Apply the callable `f` to each element of the tuple resulting from
   /// `reflectMembersFunc(t)` and each corresponding element of the array
   /// resulting from `M::arr()`.
-  forEach(M::applyImpl(), M::arr(), std::forward<F>(f),
+  forEach(M::applyImpl(), M::arr(), std::forward<Fn>(F),
           std::make_index_sequence<M::value()>{});
 }
 
@@ -548,96 +549,96 @@ constexpr std::enable_if_t<is_reflection<T>::value> forEach(T &&t, F &&f) {
  *
  * This function applies the callable `f` to each element of the tuple `t`.
  *
- * @tparam T the type of the tuple.
- * @tparam F the type of the callable.
+ * @tparam Ty the type of the tuple.
+ * @tparam Fn the type of the callable.
  */
-template <typename T, typename F>
-constexpr std::enable_if_t<!is_reflection<T>::value &&
-                           is_tuple<std::decay_t<T>>::value>
-forEach(T &&t, F &&f) {
+template <typename Ty, typename Fn>
+constexpr std::enable_if_t<!is_reflection<Ty>::value &&
+                           is_tuple<std::decay_t<Ty>>::value>
+forEach(Ty &&T, Fn &&F) {
   /// Apply the callable `f` to each element of the tuple `t`.
-  forEach(std::forward<T>(t), std::forward<F>(f),
-          std::make_index_sequence<std::tuple_size_v<std::decay_t<T>>>{});
+  forEach(std::forward<Ty>(T), std::forward<Fn>(F),
+          std::make_index_sequence<std::tuple_size_v<std::decay_t<Ty>>>{});
 }
 
-template <typename T>
-constexpr void setParamValues(std::ostream &os, const std::string_view &field,
-                              T &&value, size_t /*idx*/) {
-  os << field << ":" << value << " ";
+template <typename Ty>
+constexpr void setParamValues(std::ostream &OS, const std::string_view &Field,
+                              Ty &&Value, size_t /*idx*/) {
+  OS << Field << ":" << Value << " ";
 }
 
-template <typename T> std::string serialize(T &t) {
-  std::stringstream ss;
-  forEach(t, [&t, &ss](auto item, auto field, auto i) {
-    setParamValues(ss, field, t.*item, i);
+template <typename Ty> std::string serialize(Ty &T) {
+  std::stringstream Ss;
+  forEach(T, [&T, &Ss](auto Item, auto Field, auto I) {
+    setParamValues(Ss, Field, T.*Item, I);
   });
-  return ss.str();
+  return Ss.str();
 }
 
-template <typename T>
-constexpr typename std::enable_if<!is_reflection<T>::value, std::size_t>::type
+template <typename Ty>
+constexpr typename std::enable_if<!is_reflection<Ty>::value, std::size_t>::type
 getValue() {
   return 0;
 }
 
-template <typename T>
-constexpr typename std::enable_if<is_reflection<T>::value, std::size_t>::type
+template <typename Ty>
+constexpr typename std::enable_if<is_reflection<Ty>::value, std::size_t>::type
 getValue() {
-  using M = decltype(reflectMembersFunc(std::declval<T>()));
+  using M = decltype(reflectMembersFunc(std::declval<Ty>()));
   return M::value();
 }
 
-template <typename T> constexpr std::size_t getIndex(std::string_view field) {
-  using M = decltype(reflectMembersFunc(std::declval<T>()));
-  auto arr = M::arr();
-  auto it = std::find_if(arr.begin(), arr.end(), [&field](auto f) {
-    return std::string_view(f) == field;
+template <typename Ty> constexpr std::size_t getIndex(std::string_view Field) {
+  using M = decltype(reflectMembersFunc(std::declval<Ty>()));
+  auto Arr = M::arr();
+  auto It = std::find_if(Arr.begin(), Arr.end(), [&Field](auto F) {
+    return std::string_view(F) == Field;
   });
-  return std::distance(arr.begin(), it);
+  return std::distance(Arr.begin(), It);
 }
 
-template <typename T> constexpr auto getArray() {
-  using M = decltype(reflectMembersFunc(std::declval<T>()));
+template <typename Ty> constexpr auto getArray() {
+  using M = decltype(reflectMembersFunc(std::declval<Ty>()));
   return M::arr();
 }
 
-template <typename T> constexpr std::string_view getField() {
-  using M = decltype(reflectMembersFunc(std::declval<T>()));
+template <typename Ty> constexpr std::string_view getField() {
+  using M = decltype(reflectMembersFunc(std::declval<Ty>()));
   return M::fields();
 }
 
-template <typename T> constexpr auto getName() {
-  using M = decltype(reflectMembersFunc(std::declval<T>()));
+template <typename Ty> constexpr auto getName() {
+  using M = decltype(reflectMembersFunc(std::declval<Ty>()));
   return M::name();
 }
 
-template <typename T> constexpr auto getName(size_t idx) {
-  using M = decltype(reflectMembersFunc(std::declval<T>()));
-  return M::arr()[idx];
+template <typename Ty> constexpr auto getName(size_t Idx) {
+  using M = decltype(reflectMembersFunc(std::declval<Ty>()));
+  return M::arr()[Idx];
 }
 
-template <typename T, std::size_t I> constexpr auto getName() {
-  using M = decltype(reflectMembersFunc(std::declval<T>()));
+template <typename Ty, std::size_t I> constexpr auto getName() {
+  using M = decltype(reflectMembersFunc(std::declval<Ty>()));
   static_assert(I < M::value(), "index out of range");
   return M::arr()[I];
 }
 
-template <typename T> std::string_view getNameImpl(const T &t, std::size_t i) {
-  return getName<T>(i);
+template <typename Ty>
+std::string_view getNameImpl(const Ty &T, std::size_t I) {
+  return getName<Ty>(I);
 }
 
-template <size_t I, typename T> constexpr decltype(auto) get(T &&t) {
-  using M = decltype(reflectMembersFunc(std::forward<T>(t)));
-  using U = decltype(std::forward<T>(t).*(std::get<I>(M::applyImpl())));
+template <size_t I, typename Ty> constexpr decltype(auto) get(Ty &&T) {
+  using M = decltype(reflectMembersFunc(std::forward<Ty>(T)));
+  using U = decltype(std::forward<Ty>(T).*(std::get<I>(M::applyImpl())));
 
   if constexpr (std::is_array_v<U>) {
-    auto s = std::forward<T>(t).*(std::get<I>(M::applyImpl()));
-    std::array<char, sizeof(U)> arr;
-    memcpy(arr.data(), s, arr.size());
-    return arr;
-  } else {
-    return std::forward<T>(t).*(std::get<I>(M::applyImpl()));
+    auto S = std::forward<Ty>(T).*(std::get<I>(M::applyImpl()));
+    std::array<char, sizeof(U)> Arr;
+    memcpy(Arr.data(), S, Arr.size());
+    return Arr;
   }
+  return std::forward<Ty>(T).*(std::get<I>(M::applyImpl()));
 }
 
 } // namespace lynx
