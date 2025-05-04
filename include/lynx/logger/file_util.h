@@ -1,8 +1,6 @@
 #ifndef LYNX_LOGGER_FILE_UTIL_H
 #define LYNX_LOGGER_FILE_UTIL_H
 
-#include "lynx/base/noncopyable.h"
-
 #include <string>
 
 namespace lynx::util {
@@ -17,7 +15,7 @@ namespace lynx::util {
  *
  * @note Instances of AppendFile should not be copied or assigned.
  */
-class AppendFile : Noncopyable {
+class AppendFile {
 public:
   explicit AppendFile(std::string filename);
   ~AppendFile();

@@ -20,7 +20,7 @@ using HttpHandler = std::function<void(const HttpRequest &, HttpResponse *)>;
  * This class mainly contains a route table for registering http handler and
  * automatically recognizing handler by http request method and path.
  */
-class Application : Noncopyable {
+class Application {
 public:
   /**
    * @brief Constructor for the Application class.

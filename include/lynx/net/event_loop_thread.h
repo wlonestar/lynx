@@ -16,7 +16,7 @@ class EventLoop;
  * The EventLoopThread class is responsible for creating and managing a thread
  * that runs an EventLoop. This allows for handling events in a separate thread.
  */
-class EventLoopThread : Noncopyable {
+class EventLoopThread {
 public:
   using ThreadInitCallback = std::function<void(EventLoop *)>;
 

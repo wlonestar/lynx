@@ -16,7 +16,7 @@ namespace lynx {
  * parallel. It provides methods to start and stop the pool, submit tasks, and
  * configure pool properties.
  */
-class ThreadPool : Noncopyable {
+class ThreadPool {
 public:
   using Task = std::function<void()>;
 

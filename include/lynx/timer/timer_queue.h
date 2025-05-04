@@ -21,7 +21,7 @@ class TimerId;
  * It uses a timerfd to handle the underlying timer events and dispatches
  * callbacks to the appropriate timers.
  */
-class TimerQueue : Noncopyable {
+class TimerQueue {
 public:
   /**
    * @brief Constructs a TimerQueue object.

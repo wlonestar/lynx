@@ -1,8 +1,6 @@
 #ifndef LYNX_BASE_THREAD_H
 #define LYNX_BASE_THREAD_H
 
-#include "lynx/base/noncopyable.h"
-
 #include <atomic>
 #include <functional>
 #include <latch>
@@ -18,7 +16,7 @@ namespace lynx {
  * This class encapsulates a thread of execution. It provides a way to create
  * and manage threads in a program.
  */
-class Thread : Noncopyable {
+class Thread {
 public:
   using ThreadFunc = std::function<void()>;
 

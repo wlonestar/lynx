@@ -17,7 +17,7 @@ namespace lynx {
  * It uses a background thread to perform the actual writing to disk, ensuring
  * that the logging operations is non-blocking.
  */
-class AsyncLogging : Noncopyable {
+class AsyncLogging {
 public:
   /**
    * @brief Constructs an AsyncLogging object.

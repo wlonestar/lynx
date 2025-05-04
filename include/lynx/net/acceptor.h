@@ -17,7 +17,7 @@ class InetAddress;
  * on a specified address and port, and notifying the server when a new
  * connection is established.
  */
-class Acceptor : Noncopyable {
+class Acceptor {
 public:
   using NewConnectionCallback = std::function<void(int, const InetAddress &)>;
 

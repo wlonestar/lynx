@@ -1,7 +1,6 @@
 #ifndef LYNX_NET_CHANNEL_H
 #define LYNX_NET_CHANNEL_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/base/timestamp.h"
 
 #include <functional>
@@ -29,7 +28,7 @@ class EventLoop;
  * - Can be tied to a shared object to prevent the object from being destructed
  * while the Channel is active.
  */
-class Channel : Noncopyable {
+class Channel {
 public:
   using EventCallback = std::function<void()>;
   using ReadEventCallback = std::function<void(Timestamp)>;

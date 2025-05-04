@@ -2,7 +2,6 @@
 #define LYNX_NET_EVENT_LOOP_H
 
 #include "lynx/base/current_thread.h"
-#include "lynx/base/noncopyable.h"
 #include "lynx/base/timestamp.h"
 #include "lynx/timer/timer_id.h"
 
@@ -23,7 +22,7 @@ class TimerQueue;
  * The EventLoop class is responsible for handling I/O events, timers, and other
  * callbacks in a single-threaded event-driven programming model.
  */
-class EventLoop : Noncopyable {
+class EventLoop {
 public:
   using Functor = std::function<void()>;
 

@@ -18,7 +18,7 @@ class Channel;
  * using the epoll API. It monitors multiple file descriptors to see if I/O
  * operations can be performed on any of them.
  */
-class Epoller : Noncopyable {
+class Epoller {
 public:
   using ChannelList = std::vector<Channel *>;
 

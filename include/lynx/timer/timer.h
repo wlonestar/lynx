@@ -1,7 +1,6 @@
 #ifndef LYNX_TIMER_TIMER_H
 #define LYNX_TIMER_TIMER_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/base/timestamp.h"
 #include "lynx/timer/timer_id.h"
 
@@ -19,7 +18,7 @@ namespace lynx {
  * executed, the time at which it should be executed, and the interval at which
  * it should be repeated.
  */
-class Timer : Noncopyable {
+class Timer {
 public:
   /**
    * @brief Constructs a Timer object.

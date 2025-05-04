@@ -1,8 +1,6 @@
 #ifndef LYNX_LOGGER_LOG_STREAM_H
 #define LYNX_LOGGER_LOG_STREAM_H
 
-#include "lynx/base/noncopyable.h"
-
 #include <cstring>
 #include <string>
 
@@ -23,7 +21,7 @@ const int K_LARGE_BUFFER = 4000 * 1000;
  * used to accumulate log messages or any other data that needs to be
  * stored in a fixed-size buffer.
  */
-template <int SIZE> class FixedBuffer : Noncopyable {
+template <int SIZE> class FixedBuffer {
 public:
   /**
    * @brief Constructs a FixedBuffer object with the current write position set
@@ -93,7 +91,7 @@ private:
  * It provides overloaded insertion operators for various data types to
  * facilitate easy logging.
  */
-class LogStream : Noncopyable {
+class LogStream {
 public:
   using Buffer = detail::FixedBuffer<detail::K_SMALL_BUFFER>;
 

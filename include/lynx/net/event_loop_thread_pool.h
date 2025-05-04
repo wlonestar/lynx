@@ -1,8 +1,6 @@
 #ifndef LYNX_NET_EVENT_LOOP_THREAD_POOL_H
 #define LYNX_NET_EVENT_LOOP_THREAD_POOL_H
 
-#include "lynx/base/noncopyable.h"
-
 #include <functional>
 #include <memory>
 
@@ -19,7 +17,7 @@ class EventLoopThread;
  * a pool of EventLoop threads. This allows for handling events in multiple
  * threads, distributing the load and improving performance.
  */
-class EventLoopThreadPool : Noncopyable {
+class EventLoopThreadPool {
 public:
   using ThreadInitCallback = std::function<void(EventLoop *)>;
 

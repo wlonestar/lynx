@@ -9,7 +9,7 @@
 #include <mutex>
 #include <sys/wait.h>
 
-template <typename T> class BlockingQueue : lynx::Noncopyable {
+template <typename T> class BlockingQueue {
 public:
   using queue_type = std::deque<T>;
 

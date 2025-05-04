@@ -1,7 +1,6 @@
 #ifndef LYNX_NET_TCP_CONNECTION_H
 #define LYNX_NET_TCP_CONNECTION_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/base/timestamp.h"
 #include "lynx/net/buffer.h"
 #include "lynx/net/inet_address.h"
@@ -35,8 +34,7 @@ using MessageCallback =
  * for reading, writing, and handling connection events. It integrates with the
  * EventLoop to handle events and callbacks efficiently.
  */
-class TcpConnection : Noncopyable,
-                      public std::enable_shared_from_this<TcpConnection> {
+class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 public:
   /**
    * @brief Constructs a TcpConnection with the given parameters.

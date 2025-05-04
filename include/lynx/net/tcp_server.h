@@ -20,7 +20,7 @@ class EventLoopThreadPool;
  * The TcpServer class is responsible for managing incoming connections,
  * distributing them to threads, and handling connection events.
  */
-class TcpServer : Noncopyable {
+class TcpServer {
 public:
   using ThreadInitCallback = std::function<void(EventLoop *)>;
 

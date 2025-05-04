@@ -1,7 +1,6 @@
 #ifndef LYNX_HTTP_HTTP_SERVER_H
 #define LYNX_HTTP_HTTP_SERVER_H
 
-#include "lynx/base/noncopyable.h"
 #include "lynx/net/event_loop.h"
 #include "lynx/net/inet_address.h"
 #include "lynx/net/tcp_server.h"
@@ -19,7 +18,7 @@ class HttpResponse;
  *
  * It provides methods for setting up event loops, handling HTTP requests.
  */
-class HttpServer : Noncopyable {
+class HttpServer {
 public:
   using HttpCallback = std::function<void(const HttpRequest &, HttpResponse *)>;
 

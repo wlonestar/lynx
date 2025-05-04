@@ -15,7 +15,7 @@ namespace lynx {
  * It uses a unique file name for each rolled log file based on a base name
  * and a timestamp.
  */
-class LogFile : Noncopyable {
+class LogFile {
 public:
   /**
    * @brief Construct a LogFile object.

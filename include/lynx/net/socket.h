@@ -1,8 +1,6 @@
 #ifndef LYNX_NET_SOCKET_H
 #define LYNX_NET_SOCKET_H
 
-#include "lynx/base/noncopyable.h"
-
 #include <netinet/tcp.h>
 
 namespace lynx {
@@ -18,7 +16,7 @@ class InetAddress;
  * descriptor, offering various methods to manipulate socket options and perform
  * network operations.
  */
-class Socket : Noncopyable {
+class Socket {
 public:
   /**
    * @brief Constructs a Socket with a given file descriptor.

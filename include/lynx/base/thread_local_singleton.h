@@ -1,8 +1,6 @@
 #ifndef LYNX_BASE_THREAD_LOCAL_SINGLETON_H
 #define LYNX_BASE_THREAD_LOCAL_SINGLETON_H
 
-#include "lynx/base/noncopyable.h"
-
 #include <cassert>
 #include <thread>
 
@@ -18,7 +16,7 @@ namespace lynx {
  *
  * @tparam T The type of the singleton instance.
  */
-template <typename T> class ThreadLocalSingleton : Noncopyable {
+template <typename T> class ThreadLocalSingleton {
 public:
   ThreadLocalSingleton() = delete;
   ~ThreadLocalSingleton() = delete;
