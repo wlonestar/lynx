@@ -1,4 +1,4 @@
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/net/inet_address.h"
 
 #define BOOST_TEST_MAIN

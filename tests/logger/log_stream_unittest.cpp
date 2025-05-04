@@ -1,4 +1,4 @@
-#include "lynx/logger/log_stream.h"
+#include "lynx/logger/LogStream.h"
 
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
@@ -6,7 +6,7 @@
 
 BOOST_AUTO_TEST_CASE(testLogStreamBooleans) {
   lynx::LogStream os;
-  const lynx::LogStream::Buffer &buf = os.buffer();
+  const lynx::LogStream::BufferTy &buf = os.buffer();
   BOOST_CHECK_EQUAL(buf.toString(), std::string(""));
   os << true;
   BOOST_CHECK_EQUAL(buf.toString(), std::string("true"));
@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(testLogStreamBooleans) {
 
 BOOST_AUTO_TEST_CASE(testLogStreamIntegers) {
   lynx::LogStream os;
-  const lynx::LogStream::Buffer &buf = os.buffer();
+  const lynx::LogStream::BufferTy &buf = os.buffer();
   BOOST_CHECK_EQUAL(buf.toString(), std::string(""));
   os << 1;
   BOOST_CHECK_EQUAL(buf.toString(), std::string("1"));
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testLogStreamIntegers) {
 
 BOOST_AUTO_TEST_CASE(testLogStreamIntegerLimits) {
   lynx::LogStream os;
-  const lynx::LogStream::Buffer &buf = os.buffer();
+  const lynx::LogStream::BufferTy &buf = os.buffer();
   os << -2147483647;
   BOOST_CHECK_EQUAL(buf.toString(), std::string("-2147483647"));
   os << static_cast<int>(-2147483647 - 1);
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(testLogStreamIntegerLimits) {
 
 BOOST_AUTO_TEST_CASE(testLogStreamFloats) {
   lynx::LogStream os;
-  const lynx::LogStream::Buffer &buf = os.buffer();
+  const lynx::LogStream::BufferTy &buf = os.buffer();
 
   os << 0.0;
   BOOST_CHECK_EQUAL(buf.toString(), std::string("0"));
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(testLogStreamFloats) {
 
 BOOST_AUTO_TEST_CASE(testLogStreamVoid) {
   lynx::LogStream os;
-  const lynx::LogStream::Buffer &buf = os.buffer();
+  const lynx::LogStream::BufferTy &buf = os.buffer();
 
   os << static_cast<void *>(nullptr);
   BOOST_CHECK_EQUAL(buf.toString(), std::string("0x0"));
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(testLogStreamVoid) {
 
 BOOST_AUTO_TEST_CASE(testLogStreamStrings) {
   lynx::LogStream os;
-  const lynx::LogStream::Buffer &buf = os.buffer();
+  const lynx::LogStream::BufferTy &buf = os.buffer();
 
   os << "Hello ";
   BOOST_CHECK_EQUAL(buf.toString(), std::string("Hello "));
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(testLogStreamStrings) {
 
 BOOST_AUTO_TEST_CASE(testLogStreamLong) {
   lynx::LogStream os;
-  const lynx::LogStream::Buffer &buf = os.buffer();
+  const lynx::LogStream::BufferTy &buf = os.buffer();
   for (int i = 0; i < 399; ++i) {
     os << "123456789 ";
     BOOST_CHECK_EQUAL(buf.length(), 10 * (i + 1));

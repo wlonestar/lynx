@@ -2,7 +2,7 @@
 #define LYNX_TIMER_TIMER_H
 
 #include "lynx/base/Timestamp.h"
-#include "lynx/timer/timer_id.h"
+#include "lynx/net/timer_id.h"
 
 #include <atomic>
 #include <functional>
@@ -29,39 +29,38 @@ public:
    * repeated. If the interval is non-positive, the timer will be a one-shot
    * timer.
    */
-  Timer(TimerCallback cb, Timestamp when, double interval)
-      : callback_(std::move(cb)), expiration_(when), interval_(interval),
-        repeat_(interval > 0.0), sequence_(num_created.fetch_add(1)) {}
+  Timer(TimerCallback Cb, Timestamp When, double Interval)
+      : Callback(std::move(Cb)), Expiration(When), Interval(Interval),
+        Repeat(Interval > 0.0), Sequence(NumCreated.fetch_add(1)) {}
 
   /// Executes the callback function associated with this timer.
-  void run() const { callback_(); }
+  void run() const { Callback(); }
 
   /// Returns the time at which this timer is scheduled to execute.
-  Timestamp expiration() const { return expiration_; }
+  Timestamp expiration() const { return Expiration; }
 
   /// Returns whether this timer is a repeating timer.
-  bool repeat() const { return repeat_; }
+  bool repeat() const { return Repeat; }
 
   /// Returns the sequence number of this timer.
-  int64_t sequence() const { return sequence_; }
+  int64_t sequence() const { return Sequence; }
 
   /// Restarts the timer with a new expiration time.
-  void restart(Timestamp now);
+  void restart(Timestamp Now);
 
   /// Returns the total number of Timer objects created.
-  static int64_t numCreated() { return num_created; }
+  static int64_t numCreated() { return NumCreated; }
 
 private:
-  const TimerCallback callback_; /// The callback function to be executed when
-                                 /// the timer expires.
-  Timestamp expiration_;         /// The time at which the timer should expire.
-  const double
-      interval_;      /// The interval at which the timer should be repeated.
-  const bool repeat_; /// Whether this timer is a repeating timer.
-  const int64_t sequence_; /// The sequence number of the timer.
+  const TimerCallback Callback; /// The callback function to be executed when
+                                /// the timer expires.
+  Timestamp Expiration;         /// The time at which the timer should expire.
+  const double Interval; /// The interval at which the timer should be repeated.
+  const bool Repeat;     /// Whether this timer is a repeating timer.
+  const int64_t Sequence; /// The sequence number of the timer.
 
   // The atomic counter for generating unique sequence numbers for each timer.
-  static std::atomic_int64_t num_created;
+  static std::atomic_int64_t NumCreated;
 };
 
 } // namespace lynx

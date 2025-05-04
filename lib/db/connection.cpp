@@ -1,5 +1,5 @@
 #include "lynx/db/connection.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 
 #include <chrono>
 #include <sstream>

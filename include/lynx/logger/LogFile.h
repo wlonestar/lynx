@@ -1,7 +1,7 @@
 #ifndef LYNX_LOGGER_LOG_FILE_H
 #define LYNX_LOGGER_LOG_FILE_H
 
-#include "lynx/logger/file_util.h"
+#include "lynx/logger/FileUtil.h"
 
 #include <memory>
 
@@ -28,8 +28,8 @@ public:
    * @param checkEveryN The number of log lines after which to check for
    * rolling/flushing.
    */
-  LogFile(const std::string &basename, off_t rollSize, bool threadSafe = true,
-          int flushInterval = 3, int checkEveryN = 1024);
+  LogFile(const std::string &Basename, off_t RollSize, bool ThreadSafe = true,
+          int FlushInterval = 3, int CheckEveryN = 1024);
   ~LogFile();
 
   /**
@@ -38,7 +38,7 @@ public:
    * @param logline The log line to append.
    * @param len The length of the log line.
    */
-  void append(const char *logline, int len);
+  void append(const char *Logline, int Len);
 
   /// Flush the log file to disk.
   void flush();
@@ -60,7 +60,7 @@ private:
    * @param logline The log line to append.
    * @param len The length of the log line.
    */
-  void appendUnlocked(const char *logline, int len);
+  void appendUnlocked(const char *Logline, int Len);
 
   /**
    * @brief Generate the log file name based on the base name and the current
@@ -70,24 +70,24 @@ private:
    * @param now A pointer to the current time.
    * @return The generated log file name.
    */
-  static std::string getLogFileName(const std::string &basename, time_t *now);
+  static std::string getLogFileName(const std::string &Basename, time_t *Now);
 
-  const std::string basename_; /// The base name of the log file.
-  const off_t roll_size_;    /// The maximum size of a log file before rolling.
-  const int flush_interval_; /// The interval (in seconds) at which to flush the
-                             /// log file.
-  const int check_every_n_; /// The number of log lines after which to check for
-                            /// rolling/flushing.
+  const std::string Basename; /// The base name of the log file.
+  const off_t RollSize;       /// The maximum size of a log file before rolling.
+  const int FlushInterval; /// The interval (in seconds) at which to flush the
+                           /// log file.
+  const int CheckEveryN;   /// The number of log lines after which to check for
+                           /// rolling/flushing.
 
-  int count_;                         /// The number of log lines appended.
-  std::unique_ptr<std::mutex> mutex_; /// The mutex for thread safety.
-  time_t start_of_period_; /// The start time of the current time period.
-  time_t last_roll_;       /// The time of the last file roll.
-  time_t last_flush_;      /// The time of the last log file flush.
-  std::unique_ptr<util::AppendFile> file_; /// The appended file.
+  int Count;                         /// The number of log lines appended.
+  std::unique_ptr<std::mutex> Mutex; /// The mutex for thread safety.
+  time_t StartOfPeriod; /// The start time of the current time period.
+  time_t LastRoll;      /// The time of the last file roll.
+  time_t LastFlush;     /// The time of the last log file flush.
+  std::unique_ptr<util::AppendFile> File; /// The appended file.
 
   /// The number of seconds in a day.
-  const static int K_ROLL_PER_SECONDS = 60 * 60 * 24;
+  const static int KRollPerSeconds = 60 * 60 * 24;
 };
 
 } // namespace lynx

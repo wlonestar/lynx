@@ -1,4 +1,4 @@
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/orm/reflection.h"
 #include "lynx/web/base_controller.h"
 #include "lynx/web/base_repository.h"

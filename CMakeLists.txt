@@ -102,9 +102,9 @@ set(NET_HEADERS
   include/lynx/net/inet_address.h
   include/lynx/net/tcp_connection.h
   include/lynx/net/tcp_server.h
+  include/lynx/net/timer_id.h
   )
 FILE(GLOB ORM_HEADERS include/lynx/orm/*.h)
-set(TIMER_HEADERS include/lynx/timer/timer_id.h)
 FILE(GLOB WEB_HEADERS include/lynx/web/*.h)
 
 install(FILES ${BASE_HEADERS}   DESTINATION include/lynx/base)
@@ -113,7 +113,6 @@ install(FILES ${HTTP_HEADERS}   DESTINATION include/lynx/http)
 install(FILES ${LOGGER_HEADERS} DESTINATION include/lynx/logger)
 install(FILES ${NET_HEADERS}    DESTINATION include/lynx/net)
 install(FILES ${ORM_HEADERS}    DESTINATION include/lynx/orm)
-install(FILES ${TIMER_HEADERS}  DESTINATION include/lynx/timer)
 install(FILES ${WEB_HEADERS}    DESTINATION include/lynx/web)
 
 # Install exported config file

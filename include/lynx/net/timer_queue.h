@@ -3,7 +3,7 @@
 
 #include "lynx/base/Timestamp.h"
 #include "lynx/net/channel.h"
-#include "lynx/timer/timer_id.h"
+#include "lynx/net/timer_id.h"
 
 #include <set>
 
@@ -28,7 +28,7 @@ public:
    *
    * @param loop The event loop associated with this timer queue.
    */
-  explicit TimerQueue(EventLoop *loop);
+  explicit TimerQueue(EventLoop *Loop);
   ~TimerQueue();
 
   /**
@@ -40,14 +40,14 @@ public:
    *
    * @return The TimerId of the added timer.
    */
-  TimerId addTimer(TimerCallback cb, Timestamp when, double interval);
+  TimerId addTimer(TimerCallback Cb, Timestamp When, double Interval);
 
   /**
    * @brief Cancels a timer.
    *
    * @param timerId The TimerId of the timer to be cancelled.
    */
-  void cancel(TimerId timerId);
+  void cancel(TimerId TimerId);
 
 private:
   using Entry = std::pair<Timestamp, Timer *>;
@@ -60,14 +60,14 @@ private:
    *
    * @param timer The timer to be added.
    */
-  void addTimerInLoop(Timer *timer);
+  void addTimerInLoop(Timer *Timer);
 
   /**
    * @brief Cancels a timer.
    *
    * @param timerId The TimerId of the timer to be cancelled.
    */
-  void cancelInLoop(TimerId timerId);
+  void cancelInLoop(TimerId TimerId);
 
   /// Handles the read event of the timerfd.
   void handleRead();
@@ -79,7 +79,7 @@ private:
    *
    * @return The vector of expired timers.
    */
-  std::vector<Entry> getExpired(Timestamp now);
+  std::vector<Entry> getExpired(Timestamp Now);
 
   /**
    * @brief Resets the expired timers.
@@ -87,7 +87,7 @@ private:
    * @param expired The vector of expired timers.
    * @param now The current time.
    */
-  void reset(const std::vector<Entry> &expired, Timestamp now);
+  void reset(const std::vector<Entry> &Expired, Timestamp Now);
 
   /**
    * @brief Inserts a timer into the timer list.
@@ -96,16 +96,16 @@ private:
    *
    * @return True if the insertion is successful, false otherwise.
    */
-  bool insert(Timer *timer);
+  bool insert(Timer *Timer);
 
-  EventLoop *loop_;         /// The event loop associated with this timer queue.
-  const int timerfd_;       /// The file descriptor of the timerfd.
-  Channel timerfd_channel_; /// The channel associated with the timerfd.
-  TimerList timers_;        /// The timer list.
-  ActiveTimerSet active_timers_; /// The set of active timers.
-  bool calling_expired_timers_;  /// Indicates whether expired timers are being
-                                 /// called.
-  ActiveTimerSet canceling_timers_; /// The set of cancelling timers.
+  EventLoop *Loop;        /// The event loop associated with this timer queue.
+  const int Timerfd;      /// The file descriptor of the timerfd.
+  Channel TimerfdChannel; /// The channel associated with the timerfd.
+  TimerList Timers;       /// The timer list.
+  ActiveTimerSet ActiveTimers;    /// The set of active timers.
+  bool CallingExpiredTimers;      /// Indicates whether expired timers are being
+                                  /// called.
+  ActiveTimerSet CancelingTimers; /// The set of cancelling timers.
 };
 
 } // namespace lynx

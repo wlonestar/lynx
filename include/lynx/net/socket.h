@@ -23,7 +23,7 @@ public:
    *
    * @param sockfd The file descriptor for the socket.
    */
-  explicit Socket(int sockfd) : sockfd_(sockfd) {}
+  explicit Socket(int Sockfd) : Sockfd(Sockfd) {}
 
   /**
    * @brief Destructor for Socket.
@@ -33,17 +33,17 @@ public:
   ~Socket();
 
   /// Gets the file descriptor of the socket.
-  int fd() const { return sockfd_; }
+  int fd() const { return Sockfd; }
 
   bool getTcpInfo(struct tcp_info *) const;
-  bool getTcpInfoString(char *buf, int len) const;
+  bool getTcpInfoString(char *Buf, int Len) const;
 
   /**
    * @brief Binds the socket to a local address.
    *
    * @param localaddr The local address to bind the socket to.
    */
-  void bindAddress(const InetAddress &localaddr);
+  void bindAddress(const InetAddress &Localaddr);
 
   /**
    * @brief Puts the socket into listening mode.
@@ -59,18 +59,18 @@ public:
    *
    * @return The file descriptor for the accepted connection.
    */
-  int accept(InetAddress *peeraddr);
+  int accept(InetAddress *Peeraddr);
 
   /// Shuts down the writing side of the socket.
   void shutdownWrite();
 
-  void setTcpNoDelay(bool on);
-  void setReuseAddr(bool on);
-  void setReusePort(bool on);
-  void setKeepAlive(bool on);
+  void setTcpNoDelay(bool On);
+  void setReuseAddr(bool On);
+  void setReusePort(bool On);
+  void setKeepAlive(bool On);
 
 private:
-  const int sockfd_; /// The file descriptor for the socket.
+  const int Sockfd; /// The file descriptor for the socket.
 };
 
 } // namespace lynx

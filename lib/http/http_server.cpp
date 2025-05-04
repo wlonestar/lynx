@@ -2,7 +2,7 @@
 #include "lynx/http/http_context.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 
 #include <memory>
 

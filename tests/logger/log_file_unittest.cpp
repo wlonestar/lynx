@@ -1,6 +1,6 @@
 #include "lynx/base/Thread.h"
-#include "lynx/logger/log_file.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/LogFile.h"
+#include "lynx/logger/Logging.h"
 
 std::unique_ptr<lynx::LogFile> g_log_file;
 

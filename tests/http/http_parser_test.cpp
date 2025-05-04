@@ -1,7 +1,7 @@
 #include "lynx/http/http_context.h"
 #include "lynx/http/http_parser.h"
 #include "lynx/http/http_request.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/net/buffer.h"
 
 void testParseRequestAllInOne() {

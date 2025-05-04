@@ -1,5 +1,5 @@
 #include "lynx/http/http_context.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 
 namespace lynx {
 

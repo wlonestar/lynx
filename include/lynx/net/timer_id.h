@@ -23,7 +23,7 @@ public:
    * @brief Constructs a TimerId object with a null timer pointer and a sequence
    * number of 0.
    */
-  TimerId() : timer_(nullptr), sequence_(0) {}
+  TimerId() : Timer(nullptr), Sequence(0) {}
 
   /**
    * @brief Constructs a TimerId object with a pointer to a Timer object and a
@@ -32,7 +32,7 @@ public:
    * @param timer Pointer to the Timer object.
    * @param seq Sequence number.
    */
-  TimerId(Timer *timer, int64_t seq) : timer_(timer), sequence_(seq) {}
+  TimerId(Timer *Timer, int64_t Seq) : Timer(Timer), Sequence(Seq) {}
 
   /**
    * @brief Friend declaration for TimerQueue class.
@@ -43,8 +43,8 @@ public:
   friend class TimerQueue;
 
 private:
-  Timer *timer_;     /// Pointer to the Timer object.
-  int64_t sequence_; /// Sequence number of the TimerId object.
+  Timer *Timer;     /// Pointer to the Timer object.
+  int64_t Sequence; /// Sequence number of the TimerId object.
 };
 
 } // namespace lynx

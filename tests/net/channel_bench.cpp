@@ -1,4 +1,4 @@
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/net/channel.h"
 #include "lynx/net/event_loop.h"
 

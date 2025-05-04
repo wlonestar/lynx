@@ -2,7 +2,7 @@
 #include "lynx/base/ThreadPool.h"
 #include "lynx/db/connection.h"
 #include "lynx/db/connection_pool.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/net/event_loop.h"
 #include "lynx/orm/reflection.h"
 

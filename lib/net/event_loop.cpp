@@ -1,9 +1,9 @@
 #include "lynx/net/event_loop.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/net/channel.h"
 #include "lynx/net/epoller.h"
 
-#include "lynx/timer/timer_queue.h"
+#include "lynx/net/timer_queue.h"
 
 #include <cassert>
 #include <csignal>

@@ -1,7 +1,7 @@
 #ifndef LYNX_ORM_PG_QUERY_WRAPPER_H
 #define LYNX_ORM_PG_QUERY_WRAPPER_H
 
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/orm/key_util.h"
 #include "lynx/orm/traits_util.h"
 

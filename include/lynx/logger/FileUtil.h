@@ -3,7 +3,9 @@
 
 #include <string>
 
-namespace lynx::util {
+namespace lynx {
+
+namespace util {
 
 /**
  * @class AppendFile
@@ -17,7 +19,7 @@ namespace lynx::util {
  */
 class AppendFile {
 public:
-  explicit AppendFile(std::string filename);
+  explicit AppendFile(std::string Filename);
   ~AppendFile();
 
   /**
@@ -26,7 +28,7 @@ public:
    * @param logline The log line to append.
    * @param len The length of the log line.
    */
-  void append(const char *logline, size_t len);
+  void append(const char *Logline, size_t Len);
 
   /// Flushes any remaining data in the buffer to the file.
   void flush();
@@ -36,7 +38,7 @@ public:
    *
    * @return The number of bytes written to the file.
    */
-  off_t writtenBytes() const { return written_bytes_; }
+  off_t writtenBytes() const { return WrittenBytes; }
 
 private:
   /**
@@ -47,13 +49,15 @@ private:
    *
    * @return The number of bytes written to the file.
    */
-  size_t write(const char *logline, size_t len);
+  size_t write(const char *Logline, size_t Len);
 
-  FILE *fp_;               /// The file pointer.
-  char buffer_[64 * 1024]; /// The internal buffer.
-  off_t written_bytes_;    /// The number of bytes written to the file.
+  FILE *Fp;               /// The file pointer.
+  char Buffer[64 * 1024]; /// The internal buffer.
+  off_t WrittenBytes;     /// The number of bytes written to the file.
 };
 
-} // namespace lynx::util
+} // namespace util
+
+} // namespace lynx
 
 #endif

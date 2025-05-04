@@ -1,8 +1,8 @@
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
 #include "lynx/http/http_server.h"
-#include "lynx/logger/async_logging.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/AsyncLogging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/net/event_loop.h"
 
 #include <cstring>

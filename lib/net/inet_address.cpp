@@ -1,5 +1,5 @@
 #include "lynx/net/inet_address.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 
 #include <arpa/inet.h>
 #include <cassert>
@@ -8,42 +8,41 @@
 
 namespace lynx {
 
-static const in_addr_t K_INADDR_ANY = INADDR_ANY;
-static const in_addr_t K_INADDR_LOOPBACK = INADDR_LOOPBACK;
+static const in_addr_t KInaddrAny = INADDR_ANY;
+static const in_addr_t KInaddrLoopback = INADDR_LOOPBACK;
 
-InetAddress::InetAddress(uint16_t port, bool loopbackOnly) {
-  static_assert(offsetof(InetAddress, addr_) == 0, "addr_ offset 0");
-  memset(&addr_, 0, sizeof(addr_));
-  addr_.sin_family = AF_INET;
-  in_addr_t ip = loopbackOnly ? K_INADDR_LOOPBACK : K_INADDR_ANY;
-  addr_.sin_addr.s_addr = htobe32(ip);
-  addr_.sin_port = htobe16(port);
+InetAddress::InetAddress(uint16_t Port, bool LoopbackOnly) {
+  static_assert(offsetof(InetAddress, Addr) == 0, "addr_ offset 0");
+  memset(&Addr, 0, sizeof(Addr));
+  Addr.sin_family = AF_INET;
+  in_addr_t Ip = LoopbackOnly ? KInaddrLoopback : KInaddrAny;
+  Addr.sin_addr.s_addr = htobe32(Ip);
+  Addr.sin_port = htobe16(Port);
 }
 
-InetAddress::InetAddress(std::string ip, uint16_t port) {
-  memset(&addr_, 0, sizeof(addr_));
-  addr_.sin_family = AF_INET;
-  addr_.sin_port = htobe16(port);
-  if (::inet_pton(AF_INET, ip.c_str(), &addr_.sin_addr) <= 0) {
+InetAddress::InetAddress(std::string Ip, uint16_t Port) {
+  memset(&Addr, 0, sizeof(Addr));
+  Addr.sin_family = AF_INET;
+  Addr.sin_port = htobe16(Port);
+  if (::inet_pton(AF_INET, Ip.c_str(), &Addr.sin_addr) <= 0)
     LOG_SYSERR << "fromIpPort";
-  }
 }
 
 std::string InetAddress::toIpPort() const {
-  char buf[64] = "";
-  ::inet_ntop(AF_INET, &addr_.sin_addr, buf, sizeof(buf));
-  size_t end = ::strlen(buf);
-  uint16_t port = ::ntohs(addr_.sin_port);
-  snprintf(buf + end, sizeof(buf) - end, ":%u", port);
-  return buf;
+  char Buf[64] = "";
+  ::inet_ntop(AF_INET, &Addr.sin_addr, Buf, sizeof(Buf));
+  size_t End = ::strlen(Buf);
+  uint16_t Port = ::ntohs(Addr.sin_port);
+  snprintf(Buf + End, sizeof(Buf) - End, ":%u", Port);
+  return Buf;
 }
 
 std::string InetAddress::toIp() const {
-  char buf[64] = "";
-  ::inet_ntop(AF_INET, &addr_.sin_addr, buf, sizeof(buf));
-  return buf;
+  char Buf[64] = "";
+  ::inet_ntop(AF_INET, &Addr.sin_addr, Buf, sizeof(Buf));
+  return Buf;
 }
 
-uint16_t InetAddress::port() const { return ::ntohs(addr_.sin_port); }
+uint16_t InetAddress::port() const { return ::ntohs(Addr.sin_port); }
 
 } // namespace lynx

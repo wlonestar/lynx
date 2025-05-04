@@ -16,9 +16,9 @@ namespace lynx {
  */
 class InetAddress {
 public:
-  explicit InetAddress(uint16_t port = 0, bool loopbackOnly = false);
-  InetAddress(std::string ip, uint16_t port);
-  explicit InetAddress(const struct sockaddr_in &addr) : addr_(addr) {}
+  explicit InetAddress(uint16_t Port = 0, bool LoopbackOnly = false);
+  InetAddress(std::string Ip, uint16_t Port);
+  explicit InetAddress(const struct sockaddr_in &Addr) : Addr(Addr) {}
 
   /**
    * @brief Converts the address to a string representation of the IP address.
@@ -40,12 +40,12 @@ public:
 
   const struct sockaddr *getSockAddr() const {
     return static_cast<const struct sockaddr *>(
-        static_cast<const void *>(&addr_));
+        static_cast<const void *>(&Addr));
   }
-  void setSockAddr(const struct sockaddr_in &addr) { addr_ = addr; }
+  void setSockAddr(const struct sockaddr_in &Address) { Addr = Address; }
 
 private:
-  struct sockaddr_in addr_; /// The underlying sockaddr_in structure.
+  struct sockaddr_in Addr; /// The underlying sockaddr_in structure.
 };
 
 } // namespace lynx

@@ -1,7 +1,7 @@
 #include "lynx/base/Thread.h"
 #include "lynx/base/Timestamp.h"
-#include "lynx/logger/log_file.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/LogFile.h"
+#include "lynx/logger/Logging.h"
 
 int g_total;
 FILE *g_file;
@@ -71,7 +71,7 @@ int main() {
   LOG_ERROR << "Error";
   LOG_INFO << sizeof(lynx::Logger);
   LOG_INFO << sizeof(lynx::LogStream);
-  LOG_INFO << sizeof(lynx::LogStream::Buffer);
+  LOG_INFO << sizeof(lynx::LogStream::BufferTy);
 
   sleep(1);
   bench("nop");

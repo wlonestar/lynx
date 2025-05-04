@@ -1,7 +1,7 @@
 #ifndef LYNX_DB_CONNECTION_H
 #define LYNX_DB_CONNECTION_H
 
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/orm/key_util.h"
 #include "lynx/orm/pg_query_wrapper.h"
 #include "lynx/orm/traits_util.h"

@@ -2,7 +2,7 @@
 #define LYNX_LOGGER_ASYNC_LOGGING_H
 
 #include "lynx/base/Thread.h"
-#include "lynx/logger/log_stream.h"
+#include "lynx/logger/LogStream.h"
 
 #include <condition_variable>
 
@@ -27,8 +27,8 @@ public:
    * @param flushInterval The interval (in seconds) at which the background
    * thread should check if it needs to flush buffers to disk. Default is 3.
    */
-  AsyncLogging(const std::string &basename, off_t rollSize,
-               int flushInterval = 3);
+  AsyncLogging(const std::string &Basename, off_t RollSize,
+               int FlushInterval = 3);
 
   /**
    * @brief Destructs the AsyncLogging object and stops the background thread.
@@ -48,7 +48,7 @@ public:
    * @param logline The log line to be appended.
    * @param len The length of the log line.
    */
-  void append(const char *logline, size_t len);
+  void append(const char *Logline, size_t Len);
 
   /**
    * @brief Starts the background thread if it's not already running.
@@ -70,26 +70,26 @@ private:
    */
   void threadFunc();
 
-  using Buffer = detail::FixedBuffer<detail::K_LARGE_BUFFER>;
+  using Buffer = detail::FixedBuffer<detail::KLargeBuffer>;
   using BufferVector = std::vector<std::unique_ptr<Buffer>>;
   using BufferPtr = BufferVector::value_type;
 
-  const int flush_interval_;   /// Interval (in seconds) at which the background
-                               /// thread should check if it needs to flush
-                               /// buffers to disk.
-  std::atomic_bool running_;   /// Flag indicating whether the background thread
-                               /// is running.
-  const std::string basename_; /// The base name of the log file.
-  const off_t roll_size_; /// The maximum size of a log file before rolling.
+  const int FlushInterval;    /// Interval (in seconds) at which the background
+                              /// thread should check if it needs to flush
+                              /// buffers to disk.
+  std::atomic_bool Running;   /// Flag indicating whether the background thread
+                              /// is running.
+  const std::string Basename; /// The base name of the log file.
+  const off_t RollSize;       /// The maximum size of a log file before rolling.
 
-  Thread thread_; /// The background thread for flushing buffers to disk.
-  std::latch latch_;
-  mutable std::mutex mutex_;     /// Mutex for thread-safe access.
-  std::condition_variable cond_; /// Used to notify the background thread when
-                                 /// a new buffer is ready to be flushed.
-  BufferPtr current_buffer_;     /// The current buffer.
-  BufferPtr next_buffer_;        /// The preparing buffer.
-  BufferVector buffers_; /// Filled buffers waiting for writing into file.
+  Thread Thread; /// The background thread for flushing buffers to disk.
+  std::latch Latch;
+  mutable std::mutex Mutex;     /// Mutex for thread-safe access.
+  std::condition_variable Cond; /// Used to notify the background thread when
+                                /// a new buffer is ready to be flushed.
+  BufferPtr CurrentBuffer;      /// The current buffer.
+  BufferPtr NextBuffer;         /// The preparing buffer.
+  BufferVector Buffers; /// Filled buffers waiting for writing into file.
 };
 
 } // namespace lynx

@@ -1,6 +1,6 @@
 #include "lynx/base/CurrentThread.h"
 #include "lynx/base/ThreadPool.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 
 void print() { printf("tid=%d\n", lynx::current_thread::tid()); }
 

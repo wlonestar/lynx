@@ -2,7 +2,7 @@
 #define LYNX_LOGGER_LOGGING_H
 
 #include "lynx/base/Timestamp.h"
-#include "lynx/logger/log_stream.h"
+#include "lynx/logger/LogStream.h"
 
 #include <functional>
 
@@ -54,12 +54,11 @@ public:
      *
      * @param arr C-style string array
      */
-    template <int N>
-    SourceFile(const char (&arr)[N]) : data_(arr), size_(N - 1) {
-      const char *slash = strrchr(data_, '/');
-      if (slash != nullptr) {
-        data_ = slash + 1;
-        size_ -= static_cast<int>(data_ - arr);
+    template <int N> SourceFile(const char (&Arr)[N]) : Data(Arr), Size(N - 1) {
+      const char *Slash = strrchr(Data, '/');
+      if (Slash != nullptr) {
+        Data = Slash + 1;
+        Size -= static_cast<int>(Data - Arr);
       }
     }
 
@@ -68,28 +67,28 @@ public:
      *
      * @param filename Raw C-style string pointer
      */
-    explicit SourceFile(const char *filename) : data_(filename) {
-      const char *slash = strrchr(filename, '/');
-      if (slash != nullptr) {
-        data_ = slash + 1;
+    explicit SourceFile(const char *Filename) : Data(Filename) {
+      const char *Slash = strrchr(Filename, '/');
+      if (Slash != nullptr) {
+        Data = Slash + 1;
       }
-      size_ = static_cast<int>(strlen(data_));
+      Size = static_cast<int>(strlen(Data));
     }
 
-    const char *data_; /// Pointer to the file name data
-    int size_;         /// Size of the file name data
+    const char *Data; /// Pointer to the file name data
+    int Size;         /// Size of the file name data
   };
 
-  Logger(SourceFile file, int line);
-  Logger(SourceFile file, int line, LogLevel level);
-  Logger(SourceFile file, int line, LogLevel level, const char *func);
-  Logger(SourceFile file, int line, bool toAbort);
+  Logger(SourceFile File, int Line);
+  Logger(SourceFile File, int Line, LogLevel Level);
+  Logger(SourceFile File, int Line, LogLevel Level, const char *Func);
+  Logger(SourceFile File, int Line, bool ToAbort);
   ~Logger();
 
-  LogStream &stream() { return impl_.stream_; }
+  LogStream &stream() { return Impl.Stream; }
 
   static LogLevel logLevel();
-  static void setLogLevel(LogLevel level);
+  static void setLogLevel(LogLevel Level);
 
   using OutputFunc = std::function<void(const char *, int)>;
   using FlushFunc = std::function<void()>;
@@ -116,7 +115,7 @@ private:
      * @param file Source file
      * @param line Line number
      */
-    Impl(LogLevel level, int oldErrno, const SourceFile &file, int line);
+    Impl(LogLevel Level, int OldErrno, const SourceFile &File, int Line);
 
     /**
      * @brief Formats the timestamp of the log message.
@@ -140,18 +139,18 @@ private:
      */
     void finish();
 
-    Timestamp time_;      /// Timestamp
-    LogStream stream_;    /// Log stream
-    LogLevel level_;      /// Log level
-    int line_;            /// Line number
-    SourceFile basename_; /// Source file basename
+    Timestamp Time;      /// Timestamp
+    LogStream Stream;    /// Log stream
+    LogLevel Level;      /// Log level
+    int Line;            /// Line number
+    SourceFile Basename; /// Source file basename
   };
 
-  Impl impl_; /// Logging implementation
+  Impl Impl; /// Logging implementation
 };
 
-extern Logger::LogLevel g_log_level;
-inline Logger::LogLevel Logger::logLevel() { return g_log_level; }
+extern Logger::LogLevel GLogLevel;
+inline Logger::LogLevel Logger::logLevel() { return GLogLevel; }
 
 #define LOG_TRACE                                                              \
   if (lynx::Logger::logLevel() <= lynx::Logger::TRACE)                         \
@@ -169,11 +168,11 @@ inline Logger::LogLevel Logger::logLevel() { return g_log_level; }
 #define LOG_SYSFATAL lynx::Logger(__FILE__, __LINE__, true).stream()
 
 template <typename T>
-T *checkNotNull(Logger::SourceFile file, int line, const char *names, T *ptr) {
-  if (ptr == NULL) {
-    Logger(file, line, Logger::FATAL).stream() << names;
+T *checkNotNull(Logger::SourceFile File, int Line, const char *Names, T *Ptr) {
+  if (Ptr == NULL) {
+    Logger(File, Line, Logger::FATAL).stream() << Names;
   }
-  return ptr;
+  return Ptr;
 }
 
 #define CHECK_NOTNULL(val)                                                     \

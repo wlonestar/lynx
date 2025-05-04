@@ -2,7 +2,7 @@
 #define LYNX_WEB_BASE_CONTROLLER_H
 
 #include "lynx/app/application.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 
 namespace lynx {
 

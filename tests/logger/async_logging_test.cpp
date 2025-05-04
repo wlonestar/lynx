@@ -1,6 +1,6 @@
 #include "lynx/base/Timestamp.h"
-#include "lynx/logger/async_logging.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/AsyncLogging.h"
+#include "lynx/logger/Logging.h"
 
 off_t roll_size = 500 * 1000 * 1000;
 lynx::AsyncLogging *g_async_log = nullptr;

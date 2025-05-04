@@ -1,5 +1,5 @@
 #include "lynx/net/epoller.h"
-#include "lynx/logger/logging.h"
+#include "lynx/logger/Logging.h"
 #include "lynx/net/channel.h"
 
 #include <cassert>

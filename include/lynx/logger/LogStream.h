@@ -8,8 +8,8 @@ namespace lynx {
 
 namespace detail {
 
-const int K_SMALL_BUFFER = 4000;
-const int K_LARGE_BUFFER = 4000 * 1000;
+constexpr int KSmallBuffer = 4000;
+constexpr int KLargeBuffer = 4000 * 1000;
 
 /**
  * @class FixedBuffer
@@ -27,7 +27,7 @@ public:
    * @brief Constructs a FixedBuffer object with the current write position set
    * to the beginning of the buffer.
    */
-  FixedBuffer() : cur_(data_) {}
+  FixedBuffer() : Cur(Data) {}
   ~FixedBuffer() = default;
 
   /**
@@ -36,49 +36,49 @@ public:
    * @param buf The buffer to append.
    * @param len The number of bytes to append.
    */
-  void append(const char *buf, size_t len) {
+  void append(const char *Buf, size_t Len) {
     // If the available space in the buffer is greater than the length of the
     // buffer to be appended, append the buffer to the end of the fixed buffer.
-    if (static_cast<size_t>(avail()) > len) {
-      memcpy(cur_, buf, len);
-      cur_ += len;
+    if (static_cast<size_t>(avail()) > Len) {
+      ::memcpy(Cur, Buf, Len);
+      Cur += Len;
     }
   }
 
   /// Returns a pointer to the beginning of the fixed buffer.
-  const char *data() const { return data_; }
+  const char *data() const { return Data; }
 
   /// Returns the length of the data in the fixed buffer.
-  int length() const { return static_cast<int>(cur_ - data_); }
+  int length() const { return static_cast<int>(Cur - Data); }
 
   /// Returns a pointer to the current write position in the fixed buffer.
-  char *current() { return cur_; }
+  char *current() { return Cur; }
 
   /// Returns the number of bytes available in the fixed buffer.
-  int avail() const { return static_cast<int>(end() - cur_); }
+  int avail() const { return static_cast<int>(end() - Cur); }
 
   /**
    * @brief Moves the current write position forward by a given number of bytes.
    *
    * @param len The number of bytes to move the write position forward.
    */
-  void add(size_t len) { cur_ += len; }
+  void add(size_t Len) { Cur += Len; }
 
   /// Sets the current write position to the beginning of the fixed buffer.
-  void reset() { cur_ = data_; }
+  void reset() { Cur = Data; }
 
   /// Sets all bytes in the fixed buffer to zero.
-  void bzero() { ::memset(data_, 0, sizeof(data_)); }
+  void bzero() { ::memset(Data, 0, sizeof(Data)); }
 
   /// Returns the contents of the fixed buffer as a string.
-  std::string toString() const { return std::string(data_, length()); }
+  std::string toString() const { return std::string(Data, length()); }
 
 private:
   /// Returns a pointer to the end of the fixed buffer.
-  const char *end() const { return data_ + sizeof(data_); }
+  const char *end() const { return Data + sizeof(Data); }
 
-  char data_[SIZE]; /// The fixed-size buffer.
-  char *cur_;       // The current write position in the fixed buffer.
+  char Data[SIZE]; /// The fixed-size buffer.
+  char *Cur;       // The current write position in the fixed buffer.
 };
 
 } // namespace detail
@@ -93,7 +93,7 @@ private:
  */
 class LogStream {
 public:
-  using Buffer = detail::FixedBuffer<detail::K_SMALL_BUFFER>;
+  using BufferTy = detail::FixedBuffer<detail::KSmallBuffer>;
 
   LogStream &operator<<(bool);
   LogStream &operator<<(int16_t);
@@ -109,7 +109,7 @@ public:
   LogStream &operator<<(const char *);
   LogStream &operator<<(const unsigned char *);
   LogStream &operator<<(const std::string &);
-  LogStream &operator<<(const Buffer &);
+  LogStream &operator<<(const BufferTy &);
 
   /**
    * @brief Appends a C-style string to the LogStream buffer
@@ -117,13 +117,13 @@ public:
    * @param data The C-style string to append
    * @param len The length of the string to append
    */
-  void append(const char *data, size_t len) { buffer_.append(data, len); }
+  void append(const char *Data, size_t Len) { Buffer.append(Data, Len); }
 
   /// Returns a const reference to the LogStream buffer
-  const Buffer &buffer() const { return buffer_; }
+  const BufferTy &buffer() const { return Buffer; }
 
   /// @brief Resets the LogStream buffer to its initial state
-  void resetBuffer() { buffer_.reset(); }
+  void resetBuffer() { Buffer.reset(); }
 
 private:
   /**
@@ -132,12 +132,12 @@ private:
    * @tparam T The integer type to format
    * @param v The integer value to format and append
    */
-  template <typename T> void formatInteger(T v);
+  template <typename T> void formatInteger(T V);
 
-  Buffer buffer_; /// The fixed-size buffer used by LogStream
+  BufferTy Buffer; /// The fixed-size buffer used by LogStream
 
   /// The maximum size of a numeric value
-  static const int K_MAX_NUMERIC_SIZE = 48;
+  static constexpr int KMaxNumericSize = 48;
 };
 
 } // namespace lynx
