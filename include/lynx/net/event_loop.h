@@ -1,8 +1,8 @@
 #ifndef LYNX_NET_EVENT_LOOP_H
 #define LYNX_NET_EVENT_LOOP_H
 
-#include "lynx/base/current_thread.h"
-#include "lynx/base/timestamp.h"
+#include "lynx/base/CurrentThread.h"
+#include "lynx/base/Timestamp.h"
 #include "lynx/timer/timer_id.h"
 
 #include <atomic>

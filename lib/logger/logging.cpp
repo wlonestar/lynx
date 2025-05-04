@@ -1,6 +1,6 @@
 #include "lynx/logger/logging.h"
-#include "lynx/base/current_thread.h"
-#include "lynx/base/timestamp.h"
+#include "lynx/base/CurrentThread.h"
+#include "lynx/base/Timestamp.h"
 
 namespace lynx {
 

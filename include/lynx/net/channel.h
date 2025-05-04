@@ -1,7 +1,7 @@
 #ifndef LYNX_NET_CHANNEL_H
 #define LYNX_NET_CHANNEL_H
 
-#include "lynx/base/timestamp.h"
+#include "lynx/base/Timestamp.h"
 
 #include <functional>
 #include <memory>

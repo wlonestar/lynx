@@ -1,7 +1,7 @@
 #ifndef LYNX_LOGGER_ASYNC_LOGGING_H
 #define LYNX_LOGGER_ASYNC_LOGGING_H
 
-#include "lynx/base/thread.h"
+#include "lynx/base/Thread.h"
 #include "lynx/logger/log_stream.h"
 
 #include <condition_variable>

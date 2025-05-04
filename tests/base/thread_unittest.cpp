@@ -1,5 +1,5 @@
-#include "lynx/base/current_thread.h"
-#include "lynx/base/thread.h"
+#include "lynx/base/CurrentThread.h"
+#include "lynx/base/Thread.h"
 
 void mysleep(int seconds) {
   timespec t = {seconds, 0};

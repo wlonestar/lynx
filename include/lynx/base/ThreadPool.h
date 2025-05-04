@@ -1,7 +1,7 @@
 #ifndef LYNX_BASE_THREAD_POOL_H
 #define LYNX_BASE_THREAD_POOL_H
 
-#include "lynx/base/thread.h"
+#include "lynx/base/Thread.h"
 
 #include <condition_variable>
 #include <deque>
@@ -20,7 +20,7 @@ class ThreadPool {
 public:
   using Task = std::function<void()>;
 
-  explicit ThreadPool(const std::string &name = std::string("ThreadPool"));
+  explicit ThreadPool(const std::string &Name = "ThreadPool");
   ~ThreadPool();
 
   /**
@@ -32,7 +32,7 @@ public:
    *
    * @param numThreads The number of threads to create in the pool.
    */
-  void start(int numThreads);
+  void start(int NumThreads);
 
   /// Stops the thread pool.
   void stop();
@@ -42,14 +42,14 @@ public:
    *
    * @param maxSize The maximum size of the task queue.
    */
-  void setMaxQueueSize(int maxSize) { max_queue_size_ = maxSize; }
+  void setMaxQueueSize(int MaxSize) { MaxQueueSize = MaxSize; }
 
   /// Sets the callback to be executed by each thread before it starts
   /// processing tasks.
-  void setThreadInitCallback(const Task &cb) { thread_init_callback_ = cb; }
+  void setThreadInitCallback(const Task &Cb) { ThreadInitCallback = Cb; }
 
   /// Returns the name of the thread pool.
-  const std::string &name() const { return name_; }
+  const std::string &name() const { return Name; }
 
   /// Returns the current size of the task queue.
   size_t queueSize() const;
@@ -67,7 +67,7 @@ public:
    *
    * @param task The task to be run in the thread pool.
    */
-  void run(Task task);
+  void run(Task Task);
 
 private:
   /// Checks if the task queue is full.
@@ -98,20 +98,20 @@ private:
    */
   Task take();
 
-  mutable std::mutex mutex_;
-  std::condition_variable not_empty_;
-  std::condition_variable not_full_;
+  mutable std::mutex Mutex;
+  std::condition_variable NotEmpty;
+  std::condition_variable NotFull;
 
-  std::string name_; /// The name of the thread pool.
+  std::string Name; /// The name of the thread pool.
 
   /// Callback that will be executed by each thread before it starts processing
   /// tasks.
-  Task thread_init_callback_;
+  Task ThreadInitCallback;
 
-  std::vector<std::unique_ptr<Thread>> threads_; /// The threads in the pool.
-  std::deque<Task> queue_;                       /// The task queue.
-  size_t max_queue_size_; /// The maximum size of the task queue.
-  bool running_;          /// Flag to indicate if the thread pool is running.
+  std::vector<std::unique_ptr<Thread>> Threads; /// The threads in the pool.
+  std::deque<Task> Queue;                       /// The task queue.
+  size_t MaxQueueSize; /// The maximum size of the task queue.
+  bool Running;        /// Flag to indicate if the thread pool is running.
 };
 
 } // namespace lynx

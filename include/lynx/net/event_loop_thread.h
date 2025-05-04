@@ -1,7 +1,7 @@
 #ifndef LYNX_NET_EVENT_LOOP_THREAD_H
 #define LYNX_NET_EVENT_LOOP_THREAD_H
 
-#include "lynx/base/thread.h"
+#include "lynx/base/Thread.h"
 
 #include <condition_variable>
 

@@ -1,5 +1,5 @@
 #include "lynx/logger/async_logging.h"
-#include "lynx/base/timestamp.h"
+#include "lynx/base/Timestamp.h"
 #include "lynx/logger/log_file.h"
 
 #include <cassert>

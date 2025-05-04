@@ -1,5 +1,5 @@
-#include "lynx/base/thread.h"
-#include "lynx/base/thread_pool.h"
+#include "lynx/base/Thread.h"
+#include "lynx/base/ThreadPool.h"
 #include "lynx/db/connection.h"
 #include "lynx/db/connection_pool.h"
 #include "lynx/logger/logging.h"

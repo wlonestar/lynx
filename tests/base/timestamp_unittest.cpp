@@ -1,4 +1,4 @@
-#include "lynx/base/timestamp.h"
+#include "lynx/base/Timestamp.h"
 
 #include <vector>
 

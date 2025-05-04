@@ -1,6 +1,6 @@
-#include "lynx/base/current_thread.h"
-#include "lynx/base/thread.h"
-#include "lynx/base/timestamp.h"
+#include "lynx/base/CurrentThread.h"
+#include "lynx/base/Thread.h"
+#include "lynx/base/Timestamp.h"
 
 #include <cassert>
 #include <condition_variable>

@@ -1,7 +1,7 @@
 #ifndef LYNX_LOGGER_LOGGING_H
 #define LYNX_LOGGER_LOGGING_H
 
-#include "lynx/base/timestamp.h"
+#include "lynx/base/Timestamp.h"
 #include "lynx/logger/log_stream.h"
 
 #include <functional>

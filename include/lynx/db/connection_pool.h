@@ -1,7 +1,7 @@
 #ifndef LYNX_DB_CONNECTION_POOL_H
 #define LYNX_DB_CONNECTION_POOL_H
 
-#include "lynx/base/thread.h"
+#include "lynx/base/Thread.h"
 #include "lynx/db/connection.h"
 #include "lynx/net/event_loop.h"
 

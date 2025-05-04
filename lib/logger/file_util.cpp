@@ -1,5 +1,5 @@
 #include "lynx/logger/file_util.h"
-#include "lynx/base/current_thread.h"
+#include "lynx/base/CurrentThread.h"
 
 #include <cassert>
 

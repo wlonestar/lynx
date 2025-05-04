@@ -1,7 +1,7 @@
 #ifndef LYNX_HTTP_HTTP_REQUEST_H
 #define LYNX_HTTP_HTTP_REQUEST_H
 
-#include "lynx/base/timestamp.h"
+#include "lynx/base/Timestamp.h"
 #include "lynx/http/http_status.h"
 
 #include <cassert>

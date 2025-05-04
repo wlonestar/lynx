@@ -1,5 +1,5 @@
-#include "lynx/base/thread.h"
-#include "lynx/base/timestamp.h"
+#include "lynx/base/Thread.h"
+#include "lynx/base/Timestamp.h"
 #include "lynx/logger/log_file.h"
 #include "lynx/logger/logging.h"
 

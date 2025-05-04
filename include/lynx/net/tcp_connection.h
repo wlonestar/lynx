@@ -1,7 +1,7 @@
 #ifndef LYNX_NET_TCP_CONNECTION_H
 #define LYNX_NET_TCP_CONNECTION_H
 
-#include "lynx/base/timestamp.h"
+#include "lynx/base/Timestamp.h"
 #include "lynx/net/buffer.h"
 #include "lynx/net/inet_address.h"
 

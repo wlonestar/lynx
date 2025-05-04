@@ -26,7 +26,7 @@ public:
    * @param func The function to run in the new thread.
    * @param name An optional name for the thread.
    */
-  explicit Thread(ThreadFunc func, const std::string &name = std::string());
+  explicit Thread(ThreadFunc Func, const std::string &Name = std::string());
 
   /**
    * @brief Destructs the Thread object.
@@ -51,29 +51,29 @@ public:
   void join();
 
   /// Returns whether the thread has started.
-  bool started() const { return started_; }
+  bool started() const { return Started; }
 
-  pid_t tid() const { return tid_; }
-  const std::string &name() const { return name_; }
+  pid_t tid() const { return Tid; }
+  const std::string &name() const { return Name; }
 
   /// Returns the total number of Thread objects created.
-  static int numCreated() { return num_created; }
+  static int numCreated() { return NumCreated; }
 
 private:
   /// Sets the default name for the thread.
   void setDefaultName();
 
-  bool started_; /// Indicates whether the thread has started.
-  bool joined_;  /// Indicates whether the thread has joined.
+  bool Started; /// Indicates whether the thread has started.
+  bool Joined;  /// Indicates whether the thread has joined.
 
-  std::shared_ptr<std::thread> thread_; /// The shared pointer to thread object.
-  pid_t tid_;                           /// The thread ID.
-  ThreadFunc func_;  /// The function to be executed in the thread.
-  std::string name_; /// The name of the thread.
-  std::latch latch_; /// The latch used for synchronization.
+  std::shared_ptr<std::thread> Thred; /// The shared pointer to thread object.
+  pid_t Tid;                          /// The thread ID.
+  ThreadFunc Func;  /// The function to be executed in the thread.
+  std::string Name; /// The name of the thread.
+  std::latch Latch; /// The latch used for synchronization.
 
   /// The atomic counter for the number of Thread objects created.
-  static std::atomic_int32_t num_created;
+  static std::atomic_int32_t NumCreated;
 };
 
 } // namespace lynx

@@ -1,4 +1,4 @@
-#include "lynx/base/thread.h"
+#include "lynx/base/Thread.h"
 #include "lynx/net/event_loop.h"
 #include "lynx/net/event_loop_thread_pool.h"
 

@@ -1,7 +1,7 @@
 #ifndef LYNX_TIMER_TIMER_QUEUE_H
 #define LYNX_TIMER_TIMER_QUEUE_H
 
-#include "lynx/base/timestamp.h"
+#include "lynx/base/Timestamp.h"
 #include "lynx/net/channel.h"
 #include "lynx/timer/timer_id.h"
 
