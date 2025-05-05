@@ -2,9 +2,9 @@
 #define LYNX_DB_CONNECTION_H
 
 #include "lynx/logger/Logging.h"
-#include "lynx/orm/key_util.h"
-#include "lynx/orm/pg_query_wrapper.h"
-#include "lynx/orm/traits_util.h"
+#include "lynx/orm/KeyUtil.h"
+#include "lynx/orm/PGQueryWrapper.h"
+#include "lynx/orm/TraitsUtil.h"
 
 #include <atomic>
 #include <chrono>

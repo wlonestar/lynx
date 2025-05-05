@@ -1,6 +1,6 @@
 #include "lynx/db/connection.h"
 #include "lynx/logger/Logging.h"
-#include "lynx/orm/key_util.h"
+#include "lynx/orm/KeyUtil.h"
 
 #include <cstdlib>
 #include <tuple>

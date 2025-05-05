@@ -1,7 +1,7 @@
 #ifndef LYNX_ORM_REFLECTION_H
 #define LYNX_ORM_REFLECTION_H
 
-#include "lynx/orm/json.h"
+#include "lynx/orm/Json.h"
 
 #include <algorithm>
 #include <array>
@@ -365,10 +365,9 @@ namespace lynx {
  * @param Ty The type of object to serialize.
  */
 #define TO_JSON(Ty)                                                            \
-  /* NOLINTNEXTLINE */                                                         \
-  void to_json(lynx::json &j, const Ty &t) {                                   \
+  void to_json(lynx::json &J, const Ty &T) {                                   \
     lynx::forEach(                                                             \
-        t, [&t, &j](auto item, auto field, auto i) { j[field] = t.*item; });   \
+        T, [&T, &J](auto item, auto field, auto i) { J[field] = T.*item; });   \
   }
 
 /**
@@ -381,16 +380,15 @@ namespace lynx {
  * @param Ty The type of object to deserialize.
  */
 #define FROM_JSON(Ty)                                                          \
-  /* NOLINTNEXTLINE */                                                         \
-  void from_json(const lynx::json &j, Ty &t) {                                 \
-    lynx::forEach(t, [&t, &j](auto item, auto field, auto i) {                 \
-      j.at(field).get_to(t.*item);                                             \
+  void from_json(const lynx::json &J, Ty &T) {                                 \
+    lynx::forEach(T, [&T, &J](auto item, auto field, auto i) {                 \
+      J.at(field).get_to(T.*item);                                             \
     });                                                                        \
   }
 
 #define JSON_SERIALIZE(Ty)                                                     \
-  TO_JSON(Ty);                                                                 \
-  FROM_JSON(Ty);
+  TO_JSON(Ty)                                                                  \
+  FROM_JSON(Ty)
 
 #define REFLECTION_TEMPLATE(class_name, ...)                                   \
   MAKE_META_DATA(class_name, #class_name, MACRO_ARGS_SIZE(__VA_ARGS__),        \
@@ -416,8 +414,8 @@ using reflect_members = decltype(reflectMembersFunc(std::declval<Ty>()));
  * @tparam Enable ArrTy placeholder template parameter. It is not used in the
  * class definition but is used to enable partial specialization.
  */
-template <typename Ty, typename = void>
-struct is_reflection : std::false_type {}; // NOLINT
+template <typename Ty, typename = void> // NOLINTNEXTLINE
+struct is_reflection : std::false_type {};
 
 /**
  * @brief Partial specialization of `is_reflection` for types `Ty` that have
@@ -434,7 +432,7 @@ struct is_reflection : std::false_type {}; // NOLINT
  *
  * @tparam Ty The type to check for reflection capabilities.
  */
-template <typename Ty>
+template <typename Ty> // NOLINTNEXTLINE
 struct is_reflection<Ty, std::void_t<decltype(reflect_members<Ty>::arr())>>
     : std::true_type {};
 
@@ -450,8 +448,8 @@ struct is_reflection<Ty, std::void_t<decltype(reflect_members<Ty>::arr())>>
  * @tparam U The template class to check against.
  * @tparam Ty The type to check for instantiation.
  */
-template <template <typename...> class U, typename Ty>
-struct is_template_instant_of : std::false_type {}; // NOLINT
+template <template <typename...> class U, typename Ty> // NOLINTNEXTLINE
+struct is_template_instant_of : std::false_type {};
 
 /**
  * @brief Partial specialization of `is_template_instant_of` for types `Ty` that
@@ -465,22 +463,22 @@ struct is_template_instant_of : std::false_type {}; // NOLINT
  * @tparam args... The variadic template parameter pack representing the
  * argument(s) of the template class.
  */
-template <template <typename...> class U, typename... args>
+template <template <typename...> class U, typename... args> // NOLINTNEXTLINE
 struct is_template_instant_of<U, U<args...>> : std::true_type {};
 
 template <typename Ty> // NOLINTNEXTLINE
 struct is_stdstring : is_template_instant_of<std::basic_string, Ty> {};
 
-template <typename Ty>
-struct is_tuple : is_template_instant_of<std::tuple, Ty> {}; // NOLINT
+template <typename Ty> // NOLINTNEXTLINE
+struct is_tuple : is_template_instant_of<std::tuple, Ty> {};
 
-template <typename Ty>
-inline constexpr bool is_reflection_v = is_reflection<Ty>::value; // NOLINT
+template <typename Ty> // NOLINTNEXTLINE
+inline constexpr bool is_reflection_v = is_reflection<Ty>::value;
 
 /**
  * @brief `forEach` function with array
  *
- * This function applies the callable `f` to each element of the tuple `t` and
+ * This function applies the callable `f` to each element of the tuple `T` and
  * each corresponding element of the array `arr`.
  *
  * @tparam Args variadic template parameters representing the types of the
@@ -488,7 +486,7 @@ inline constexpr bool is_reflection_v = is_reflection<Ty>::value; // NOLINT
  * @tparam ArrTy the type of the array.
  * @tparam Fn the type of the callable.
  * @tparam Idx the index sequence.
- * @param t the tuple to iterate over.
+ * @param T the tuple to iterate over.
  * @param arr the array to iterate over.
  * @param f the callable to apply to each element.
  * @param unused unused parameter, used to disambiguate the function.
@@ -506,13 +504,13 @@ constexpr void forEach(const std::tuple<Args...> &T, const ArrTy &Arr, Fn &&F,
 /**
  * @brief `forEach` function without array
  *
- * This function applies the callable `f` to each element of the tuple `t`.
+ * This function applies the callable `f` to each element of the tuple `T`.
  *
  * @tparam Args variadic template parameters representing the types of the
  * elements of the tuple.
  * @tparam Fn the type of the callable.
  * @tparam Idx the index sequence.
- * @param t the tuple to iterate over.
+ * @param T the tuple to iterate over.
  * @param f the callable to apply to each element.
  * @param unused unused parameter, used to disambiguate the function.
  */
@@ -528,7 +526,7 @@ constexpr void forEach(std::tuple<Args...> &T, Fn &&F,
  * @brief `forEach` function for reflective types
  *
  * This function applies the callable `f` to each element of the tuple resulting
- * from `reflectMembersFunc(t)` and each corresponding element of the array
+ * from `reflectMembersFunc(T)` and each corresponding element of the array
  * resulting from `M::arr()`.
  *
  * @tparam Ty the type to check for reflections.
@@ -538,7 +536,7 @@ template <typename Ty, typename Fn>
 constexpr std::enable_if_t<is_reflection<Ty>::value> forEach(Ty &&T, Fn &&F) {
   using M = decltype(reflectMembersFunc(std::forward<Ty>(T)));
   /// Apply the callable `f` to each element of the tuple resulting from
-  /// `reflectMembersFunc(t)` and each corresponding element of the array
+  /// `reflectMembersFunc(T)` and each corresponding element of the array
   /// resulting from `M::arr()`.
   forEach(M::applyImpl(), M::arr(), std::forward<Fn>(F),
           std::make_index_sequence<M::value()>{});
@@ -547,7 +545,7 @@ constexpr std::enable_if_t<is_reflection<Ty>::value> forEach(Ty &&T, Fn &&F) {
 /**
  * @brief `forEach` function for tuple
  *
- * This function applies the callable `f` to each element of the tuple `t`.
+ * This function applies the callable `f` to each element of the tuple `T`.
  *
  * @tparam Ty the type of the tuple.
  * @tparam Fn the type of the callable.
@@ -556,7 +554,7 @@ template <typename Ty, typename Fn>
 constexpr std::enable_if_t<!is_reflection<Ty>::value &&
                            is_tuple<std::decay_t<Ty>>::value>
 forEach(Ty &&T, Fn &&F) {
-  /// Apply the callable `f` to each element of the tuple `t`.
+  /// Apply the callable `f` to each element of the tuple `T`.
   forEach(std::forward<Ty>(T), std::forward<Fn>(F),
           std::make_index_sequence<std::tuple_size_v<std::decay_t<Ty>>>{});
 }

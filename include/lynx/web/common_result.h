@@ -1,7 +1,7 @@
 #ifndef LYNX_WEB_COMMON_RESULT_H
 #define LYNX_WEB_COMMON_RESULT_H
 
-#include "lynx/orm/json.h"
+#include "lynx/orm/Json.h"
 
 namespace lynx {
 
