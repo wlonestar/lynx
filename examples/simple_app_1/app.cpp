@@ -1,56 +1,56 @@
 #include "lynx/app/Application.h"
 #include "lynx/logger/AsyncLogging.h"
 
-extern unsigned char favicon_jpg[];
-extern unsigned int favicon_jpg_len;
+extern unsigned char FaviconJpg[];
+extern unsigned int FaviconJpgLen;
 
-void handleIndex(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
-  resp->setStatusCode(lynx::HttpStatus::OK);
-  resp->setContentType("text/html");
-  resp->addHeader("Server", "lynx");
-  std::string now = lynx::Timestamp::now().toFormattedString(true);
-  resp->setBody("<html><head><title>This is title</title></head>"
+void handleIndex(const lynx::HttpRequest &Req, lynx::HttpResponse *Resp) {
+  Resp->setStatusCode(lynx::HttpStatus::OK);
+  Resp->setContentType("text/html");
+  Resp->addHeader("Server", "lynx");
+  std::string Now = lynx::Timestamp::now().toFormattedString(true);
+  Resp->setBody("<html><head><title>This is title</title></head>"
                 "<body><h1>Hello</h1>Now is " +
-                now + "</body></html>");
+                Now + "</body></html>");
 }
 
-void handleFavicon(const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
-  resp->setStatusCode(lynx::HttpStatus::OK);
-  resp->setContentType("image/png");
-  resp->setBody(
-      std::string(reinterpret_cast<char *>(favicon_jpg), favicon_jpg_len));
+void handleFavicon(const lynx::HttpRequest &Req, lynx::HttpResponse *Resp) {
+  Resp->setStatusCode(lynx::HttpStatus::OK);
+  Resp->setContentType("image/png");
+  Resp->setBody(
+      std::string(reinterpret_cast<char *>(FaviconJpg), FaviconJpgLen));
 }
 
 int main(int argc, char *argv[]) {
   /// Init Async logger.
-  off_t roll_size = 500 * 1000 * 1000;
-  char name[256] = {'\0'};
-  strncpy(name, argv[0], sizeof(name) - 1);
-  lynx::AsyncLogging log(::basename(name), roll_size);
-  log.start();
+  off_t RollSize = 500 * 1000 * 1000;
+  char Name[256] = {'\0'};
+  strncpy(Name, argv[0], sizeof(Name) - 1);
+  lynx::AsyncLogging Log(::basename(Name), RollSize);
+  Log.start();
   lynx::Logger::setOutput(
-      [&](const char *msg, int len) { log.append(msg, len); });
+      [&](const char *Msg, int Len) { Log.append(Msg, Len); });
 
   /// Create app by reading from config file.
-  lynx::Application app("simple_config_1.yml");
+  lynx::Application App("simple_config_1.yml");
   /// Init app.
-  app.start();
+  App.start();
 
   /// Add route.
-  app.addRoute("GET", "/", handleIndex);
-  app.addRoute("GET", "/favicon.ico", handleFavicon);
-  app.addRoute("GET", "/hello\\?name=(\\w+)",
-               [](const lynx::HttpRequest &req, lynx::HttpResponse *resp) {
-                 auto name = req.getParam("name");
+  App.addRoute("GET", "/", handleIndex);
+  App.addRoute("GET", "/favicon.ico", handleFavicon);
+  App.addRoute("GET", "/hello\\?name=(\\w+)",
+               [](const lynx::HttpRequest &Req, lynx::HttpResponse *Resp) {
+                 auto Name = Req.getParam("name");
 
-                 resp->setStatusCode(lynx::HttpStatus::OK);
-                 resp->setContentType("text/html");
-                 resp->addHeader("Server", "lynx");
-                 std::string now =
+                 Resp->setStatusCode(lynx::HttpStatus::OK);
+                 Resp->setContentType("text/html");
+                 Resp->addHeader("Server", "lynx");
+                 std::string Now =
                      lynx::Timestamp::now().toFormattedString(true);
-                 resp->setBody("<h1>Hello " + name + "!</h1>");
+                 Resp->setBody("<h1>Hello " + Name + "!</h1>");
                });
 
   /// Start listening.
-  app.listen();
+  App.listen();
 }

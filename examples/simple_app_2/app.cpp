@@ -18,57 +18,57 @@ REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
                               major, gpa);
 REGISTER_AUTO_KEY(Student, id);
 
-void initDb(lynx::ConnectionPool &pool) {
-  auto conn = pool.acquire();
+void initDb(lynx::ConnectionPool &Pool) {
+  auto Conn = Pool.acquire();
   /// Create table (drop if table already exists)
-  conn->execute("drop table student; drop sequence student_id_seq;");
-  lynx::AutoKeyMap key_map{"id"};
-  lynx::NotNullMap not_null_map;
-  not_null_map.fields = {"id", "name", "gender", "entry_year"};
-  bool flag = conn->createTable<Student>(key_map, not_null_map);
-  if (!flag) {
+  Conn->execute("drop table student; drop sequence student_id_seq;");
+  lynx::AutoKeyMap KeyMap{"id"};
+  lynx::NotNullMap NotNullMap;
+  NotNullMap.fields = {"id", "name", "gender", "entry_year"};
+  bool Flag = Conn->createTable<Student>(KeyMap, NotNullMap);
+  if (!Flag) {
     abort();
   }
   /// Insert data
-  std::vector<Student> students;
-  for (int i = 0; i < 20; i++) {
-    Student s;
-    s.id = 5 + i;
-    s.name = "Che hen " + std::to_string(i);
-    s.gender = rand() % 2 == 0 ? Gender::Female : Gender::Male;
-    s.entry_year = 2023;
-    s.major = rand() % 2 == 0 ? "CS" : "SE";
-    s.gpa = 3.5 + (rand() % 10) * 0.05;
-    students.push_back(s);
+  std::vector<Student> Students;
+  for (int I = 0; I < 20; I++) {
+    Student S;
+    S.id = 5 + I;
+    S.name = "Che hen " + std::to_string(I);
+    S.gender = rand() % 2 == 0 ? Gender::Female : Gender::Male;
+    S.entry_year = 2023;
+    S.major = rand() % 2 == 0 ? "CS" : "SE";
+    S.gpa = 3.5 + (rand() % 10) * 0.05;
+    Students.push_back(S);
   }
-  conn->insert(students);
+  Conn->insert(Students);
 }
 
 int main() {
   /// Create app by reading from config file.
-  lynx::Application app("simple_config_2.yml");
+  lynx::Application App("simple_config_2.yml");
   /// Init app.
-  app.start();
+  App.start();
 
   /// Init database
-  initDb(app.pool());
+  initDb(App.pool());
 
   /// Add route.
-  app.addRoute("GET", "/student", [&](auto &req, lynx::HttpResponse *resp) {
-    auto conn = app.pool().acquire();
+  App.addRoute("GET", "/student", [&](auto &Req, auto *Resp) {
+    auto Conn = App.pool().acquire();
     // Auto convert to json
-    auto data = conn->query<Student, uint64_t>().toVector();
-    lynx::json result;
-    result["status"] = 200;
-    result["message"] = "query succes";
-    result["data"] = data;
+    auto Data = Conn->query<Student, uint64_t>().toVector();
+    lynx::json Result;
+    Result["status"] = 200;
+    Result["message"] = "query succes";
+    Result["data"] = Data;
 
-    resp->setStatusCode(lynx::HttpStatus::OK);
-    resp->setContentType("application/json");
-    resp->addHeader("Server", "lynx");
-    resp->setBody(result.dump()); /// json to string
+    Resp->setStatusCode(lynx::HttpStatus::OK);
+    Resp->setContentType("application/json");
+    Resp->addHeader("Server", "lynx");
+    Resp->setBody(Result.dump()); /// json to string
   });
 
   /// Start listening.
-  app.listen();
+  App.listen();
 }

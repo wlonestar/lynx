@@ -2,9 +2,9 @@
 
 int main() {
   /// Create app.
-  lynx::Application app;
+  lynx::Application App;
   /// Init app.
-  app.start();
+  App.start();
   /// Start listening.
-  app.listen();
+  App.listen();
 }

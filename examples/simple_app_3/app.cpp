@@ -21,169 +21,169 @@ REFLECTION_TEMPLATE_WITH_NAME(Student, "student", id, name, gender, entry_year,
                               major, gpa);
 REGISTER_AUTO_KEY(Student, id);
 
-void initDb(lynx::ConnectionPool &pool) {
-  auto conn = pool.acquire();
+void initDb(lynx::ConnectionPool &Pool) {
+  auto Conn = Pool.acquire();
   /// Create table (drop if table already exists)
-  conn->execute("drop table student; drop sequence student_id_seq;");
-  lynx::AutoKeyMap key_map{"id"};
-  lynx::NotNullMap not_null_map;
-  not_null_map.fields = {"id", "name", "gender", "entry_year"};
-  bool flag = conn->createTable<Student>(key_map, not_null_map);
-  if (!flag) {
+  Conn->execute("drop table student; drop sequence student_id_seq;");
+  lynx::AutoKeyMap KeyMap{"id"};
+  lynx::NotNullMap NotNullMap;
+  NotNullMap.fields = {"id", "name", "gender", "entry_year"};
+  bool Flag = Conn->createTable<Student>(KeyMap, NotNullMap);
+  if (!Flag) {
     abort();
   }
   /// Insert data
-  std::vector<Student> students;
-  for (int i = 0; i < 20; i++) {
-    Student s;
-    s.id = 5 + i;
-    s.name = "Che hen " + std::to_string(i);
-    s.gender = rand() % 2 == 0 ? Gender::Female : Gender::Male;
-    s.entry_year = 2023;
-    s.major = rand() % 2 == 0 ? "CS" : "SE";
-    s.gpa = 3.5 + (rand() % 10) * 0.05;
-    students.push_back(s);
+  std::vector<Student> Students;
+  for (int I = 0; I < 20; I++) {
+    Student S;
+    S.id = 5 + I;
+    S.name = "Che hen " + std::to_string(I);
+    S.gender = rand() % 2 == 0 ? Gender::Female : Gender::Male;
+    S.entry_year = 2023;
+    S.major = rand() % 2 == 0 ? "CS" : "SE";
+    S.gpa = 3.5 + (rand() % 10) * 0.05;
+    Students.push_back(S);
   }
-  conn->insert(students);
+  Conn->insert(Students);
 }
 
 class StudentRepository : public lynx::BaseRepository<Student, uint64_t> {
 public:
-  explicit StudentRepository(lynx::ConnectionPool &pool)
-      : lynx::BaseRepository<Student, uint64_t>(pool) {}
+  explicit StudentRepository(lynx::ConnectionPool &Pool)
+      : lynx::BaseRepository<Student, uint64_t>(Pool) {}
 
   std::vector<Student> selectAll() {
-    auto conn = Pool.acquire();
-    auto students = conn->query<Student, uint64_t>().toVector();
-    return students;
+    auto Conn = Pool.acquire();
+    auto Students = Conn->query<Student, uint64_t>().toVector();
+    return Students;
   }
 };
 
 class StudentService {
 public:
-  explicit StudentService(const StudentRepository &repository)
-      : repository_(repository) {}
+  explicit StudentService(const StudentRepository &Repository)
+      : Repository(Repository) {}
 
-  std::vector<Student> selectTop100() { return repository_.selectTop100(); }
-  std::vector<Student> selectAll() { return repository_.selectAll(); }
+  std::vector<Student> selectTop100() { return Repository.selectTop100(); }
+  std::vector<Student> selectAll() { return Repository.selectAll(); }
 
-  std::vector<Student> selectByPage(size_t page, size_t size) {
-    return repository_.selectByPage(page, size);
+  std::vector<Student> selectByPage(size_t Page, size_t Size) {
+    return Repository.selectByPage(Page, Size);
   }
 
-  std::optional<Student> selectById(uint64_t id) {
-    return repository_.selectById(id);
+  std::optional<Student> selectById(uint64_t Id) {
+    return Repository.selectById(Id);
   }
 
-  bool insert(Student student) { return repository_.insert(student) == 1; }
+  bool insert(Student Student) { return Repository.insert(Student) == 1; }
 
-  int insert(std::vector<Student> students) {
-    return repository_.insert(students);
+  int insert(std::vector<Student> Students) {
+    return Repository.insert(Students);
   }
 
-  bool updateById(uint64_t id, Student &&student) {
-    return repository_.updateById(id, std::move(student));
+  bool updateById(uint64_t Id, Student &&Student) {
+    return Repository.updateById(Id, std::move(Student));
   }
 
-  bool deleteById(uint64_t id) { return repository_.delById(id); }
+  bool deleteById(uint64_t Id) { return Repository.delById(Id); }
 
 private:
-  StudentRepository repository_;
+  StudentRepository Repository;
 };
 
-const static std::string ID_REX = R"(\d+)";
+const static std::string IdRex = R"(\d+)";
 
 class StudentController : public lynx::BaseController {
 public:
-  static void init(lynx::ConnectionPool &pool) {
-    service = std::make_unique<StudentService>(StudentRepository(pool));
+  static void init(lynx::ConnectionPool &Pool) {
+    Service = std::make_unique<StudentService>(StudentRepository(Pool));
   }
 
   explicit StudentController() {
-    if (service == nullptr) {
+    if (Service == nullptr) {
       LOG_FATAL << "Please init controller first";
       return;
     }
     requestMapping("GET", "/student100", selectTop100);
     requestMapping("GET", "/student", selectAll);
-    requestMapping("GET", "/student\\?page=" + ID_REX + "&size=" + ID_REX,
+    requestMapping("GET", "/student\\?page=" + IdRex + "&size=" + IdRex,
                    selectByPage, lynx::RequestParam<size_t>("page"),
                    lynx::RequestParam<size_t>("size"));
-    requestMapping("GET", "/student/" + ID_REX, selectById,
+    requestMapping("GET", "/student/" + IdRex, selectById,
                    lynx::PathVariable<uint64_t>());
     requestMapping("POST", "/student", insert, lynx::RequestBody<Student>());
-    requestMapping("PUT", "/student/" + ID_REX, updateById,
+    requestMapping("PUT", "/student/" + IdRex, updateById,
                    lynx::PathVariable<uint64_t>(),
                    lynx::RequestBody<Student>());
-    requestMapping("DELETE", "/student/" + ID_REX, deleteById,
+    requestMapping("DELETE", "/student/" + IdRex, deleteById,
                    lynx::PathVariable<uint64_t>());
   }
 
   /// "GET" "/student100"
   static lynx::json selectTop100() {
-    return lynx::makeOkResult("query success", service->selectTop100());
+    return lynx::makeOkResult("query success", Service->selectTop100());
   }
 
   /// "GET" "/student"
   static lynx::json selectAll() {
-    return lynx::makeOkResult("query success", service->selectAll());
+    return lynx::makeOkResult("query success", Service->selectAll());
   }
 
   /// "GET" "/student?page={page}&size={size}"
-  static lynx::json selectByPage(size_t page, size_t size) {
+  static lynx::json selectByPage(size_t Page, size_t Size) {
     return lynx::makeOkResult("query success",
-                              service->selectByPage(page, size));
+                              Service->selectByPage(Page, Size));
   }
 
   /// "GET" "/student/{id}"
-  static lynx::json selectById(uint64_t id) {
-    if (auto data = service->selectById(id)) {
-      return lynx::makeOkResult("query success", *data);
+  static lynx::json selectById(uint64_t Id) {
+    if (auto Data = Service->selectById(Id)) {
+      return lynx::makeOkResult("query success", *Data);
     }
     return lynx::makeErrorResult("query fail", "id not exists");
   }
 
   /// "POST" "/student",
-  static lynx::json insert(Student student) {
-    if (service->insert(student)) {
-      return lynx::makeOkResult("insert success", student);
+  static lynx::json insert(Student Student) {
+    if (Service->insert(Student)) {
+      return lynx::makeOkResult("insert success", Student);
     }
     return lynx::makeErrorResult("insert fail", "id not exists");
   }
 
   /// "PUT" "/student/{id}"
-  static lynx::json updateById(uint64_t id, Student &student) {
-    if (service->updateById(id, std::move(student))) {
+  static lynx::json updateById(uint64_t Id, Student &Student) {
+    if (Service->updateById(Id, std::move(Student))) {
       return lynx::makeOkResult<std::string>("update success", "success");
     }
     return lynx::makeErrorResult("update fail", "id not exists");
   }
 
   /// "DELETE" "/student/{id}"
-  static lynx::json deleteById(uint64_t id) {
-    if (service->deleteById(id)) {
+  static lynx::json deleteById(uint64_t Id) {
+    if (Service->deleteById(Id)) {
       return lynx::makeOkResult<std::string>("delete success", "success");
     }
     return lynx::makeErrorResult("delete fail", "id not exists");
   }
 
 private:
-  static std::unique_ptr<StudentService> service;
+  static std::unique_ptr<StudentService> Service;
 };
 
-std::unique_ptr<StudentService> StudentController::service;
+std::unique_ptr<StudentService> StudentController::Service;
 
 int main() {
   /// Create app by reading from config file.
-  lynx::Application app("simple_config_3.yml");
+  lynx::Application App("simple_config_3.yml");
   /// Init app.
-  app.start();
+  App.start();
 
   /// Register handlers.
-  StudentController::init(app.pool());
-  StudentController controller;
-  controller.registerHandler(app);
+  StudentController::init(App.pool());
+  StudentController Controller;
+  Controller.registerHandler(App);
 
   /// Start listening.
-  app.listen();
+  App.listen();
 }
