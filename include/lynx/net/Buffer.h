@@ -28,38 +28,38 @@ namespace lynx {
  */
 class Buffer {
 public:
-  static const size_t K_CHEAP_PREPEND = 8;
-  static const size_t K_INITIAL_SIZE = 1024;
+  static const size_t KCheapPrepend = 8;
+  static const size_t KInitialSize = 1024;
 
   /**
    * @brief Constructs a Buffer with an initial size.
    *
    * @param initialSize The initial size of the buffer.
    */
-  explicit Buffer(size_t initialSize = K_INITIAL_SIZE)
-      : buffer_(K_CHEAP_PREPEND + initialSize), reader_index_(K_CHEAP_PREPEND),
-        writer_index_(K_CHEAP_PREPEND) {
+  explicit Buffer(size_t InitialSize = KInitialSize)
+      : Buf(KCheapPrepend + InitialSize), ReaderIndex(KCheapPrepend),
+        WriterIndex(KCheapPrepend) {
     assert(readableBytes() == 0);
-    assert(writableBytes() == initialSize);
-    assert(prependableBytes() == K_CHEAP_PREPEND);
+    assert(writableBytes() == InitialSize);
+    assert(prependableBytes() == KCheapPrepend);
   }
 
-  void swap(Buffer &rhs) {
-    buffer_.swap(rhs.buffer_);
-    std::swap(reader_index_, rhs.reader_index_);
-    std::swap(writer_index_, rhs.writer_index_);
+  void swap(Buffer &Rhs) {
+    Buf.swap(Rhs.Buf);
+    std::swap(ReaderIndex, Rhs.ReaderIndex);
+    std::swap(WriterIndex, Rhs.WriterIndex);
   }
 
-  size_t readableBytes() const { return writer_index_ - reader_index_; }
-  size_t writableBytes() const { return buffer_.size() - writer_index_; }
-  size_t prependableBytes() const { return reader_index_; }
+  size_t readableBytes() const { return WriterIndex - ReaderIndex; }
+  size_t writableBytes() const { return Buf.size() - WriterIndex; }
+  size_t prependableBytes() const { return ReaderIndex; }
 
   /**
    * @brief Returns a pointer to the beginning of readable data.
    *
    * @return A pointer to the readable data.
    */
-  const char *peek() const { return begin() + reader_index_; }
+  const char *peek() const { return begin() + ReaderIndex; }
 
   /**
    * @brief Finds the first occurrence of CRLF in the readable data.
@@ -67,8 +67,8 @@ public:
    * @return A pointer to the CRLF if found, otherwise nullptr.
    */
   const char *findCRLF() const {
-    const char *crlf = std::search(peek(), beginWrite(), K_CRLF, K_CRLF + 2);
-    return crlf == beginWrite() ? nullptr : crlf;
+    const char *Crlf = std::search(peek(), beginWrite(), KCRLF, KCRLF + 2);
+    return Crlf == beginWrite() ? nullptr : Crlf;
   }
 
   /**
@@ -78,11 +78,11 @@ public:
    *
    * @return A pointer to the CRLF if found, otherwise nullptr.
    */
-  const char *findCRLF(const char *start) const {
-    assert(peek() <= start);
-    assert(start <= beginWrite());
-    const char *crlf = std::search(start, beginWrite(), K_CRLF, K_CRLF + 2);
-    return crlf == beginWrite() ? nullptr : crlf;
+  const char *findCRLF(const char *Start) const {
+    assert(peek() <= Start);
+    assert(Start <= beginWrite());
+    const char *Crlf = std::search(Start, beginWrite(), KCRLF, KCRLF + 2);
+    return Crlf == beginWrite() ? nullptr : Crlf;
   }
 
   /**
@@ -91,8 +91,8 @@ public:
    * @return A pointer to the EOL if found, otherwise nullptr.
    */
   const char *findEOL() const {
-    const void *eol = memchr(peek(), '\n', readableBytes());
-    return static_cast<const char *>(eol);
+    const void *Eol = memchr(peek(), '\n', readableBytes());
+    return static_cast<const char *>(Eol);
   }
 
   /**
@@ -102,11 +102,11 @@ public:
    *
    * @return A pointer to the EOL if found, otherwise nullptr.
    */
-  const char *findEOL(const char *start) const {
-    assert(peek() <= start);
-    assert(start <= beginWrite());
-    const void *eol = memchr(start, '\n', beginWrite() - start);
-    return static_cast<const char *>(eol);
+  const char *findEOL(const char *Start) const {
+    assert(peek() <= Start);
+    assert(Start <= beginWrite());
+    const void *Eol = memchr(Start, '\n', beginWrite() - Start);
+    return static_cast<const char *>(Eol);
   }
 
   /**
@@ -114,10 +114,10 @@ public:
    *
    * @param len The number of bytes to retrieve.
    */
-  void retrieve(size_t len) {
-    assert(len <= readableBytes());
-    if (len < readableBytes()) {
-      reader_index_ += len;
+  void retrieve(size_t Len) {
+    assert(Len <= readableBytes());
+    if (Len < readableBytes()) {
+      ReaderIndex += Len;
     } else {
       retrieveAll();
     }
@@ -128,16 +128,16 @@ public:
    *
    * @param end The end position.
    */
-  void retrieveUntil(const char *end) {
-    assert(peek() <= end);
-    assert(end <= beginWrite());
-    retrieve(end - peek());
+  void retrieveUntil(const char *End) {
+    assert(peek() <= End);
+    assert(End <= beginWrite());
+    retrieve(End - peek());
   }
 
   /// Retrieves all readable data from the buffer.
   void retrieveAll() {
-    reader_index_ = K_CHEAP_PREPEND;
-    writer_index_ = K_CHEAP_PREPEND;
+    ReaderIndex = KCheapPrepend;
+    WriterIndex = KCheapPrepend;
   }
 
   /**
@@ -156,11 +156,11 @@ public:
    *
    * @return A string containing the retrieved data.
    */
-  std::string retrieveAsString(size_t len) {
-    assert(len <= readableBytes());
-    std::string result(peek(), len);
-    retrieve(len);
-    return result;
+  std::string retrieveAsString(size_t Len) {
+    assert(Len <= readableBytes());
+    std::string Result(peek(), Len);
+    retrieve(Len);
+    return Result;
   }
 
   /**
@@ -175,7 +175,7 @@ public:
    *
    * @param str The string to append.
    */
-  void append(const std::string &str) { append(str.data(), str.size()); }
+  void append(const std::string &Str) { append(Str.data(), Str.size()); }
 
   /**
    * @brief Appends data to the buffer.
@@ -183,10 +183,10 @@ public:
    * @param data A pointer to the data to append.
    * @param len The length of the data.
    */
-  void append(const char *data, size_t len) {
-    ensureWritableBytes(len);
-    std::copy(data, data + len, beginWrite());
-    hasWritten(len);
+  void append(const char *Data, size_t Len) {
+    ensureWritableBytes(Len);
+    std::copy(Data, Data + Len, beginWrite());
+    hasWritten(Len);
   }
 
   /**
@@ -195,8 +195,8 @@ public:
    * @param data A pointer to the data to append.
    * @param len The length of the data.
    */
-  void append(const void *data, size_t len) {
-    append(static_cast<const char *>(data), len);
+  void append(const void *Data, size_t Len) {
+    append(static_cast<const char *>(Data), Len);
   }
 
   /**
@@ -204,11 +204,11 @@ public:
    *
    * @param len The number of writable bytes required.
    */
-  void ensureWritableBytes(size_t len) {
-    if (writableBytes() < len) {
-      makeSpace(len);
-    }
-    assert(writableBytes() >= len);
+  void ensureWritableBytes(size_t Len) {
+    if (writableBytes() < Len)
+      makeSpace(Len);
+
+    assert(writableBytes() >= Len);
   }
 
   /**
@@ -216,17 +216,17 @@ public:
    *
    * @return A pointer to the writable data.
    */
-  char *beginWrite() { return begin() + writer_index_; }
-  const char *beginWrite() const { return begin() + writer_index_; }
+  char *beginWrite() { return begin() + WriterIndex; }
+  const char *beginWrite() const { return begin() + WriterIndex; }
 
   /**
    * @brief Updates the write index after writing data.
    *
    * @param len The number of bytes written.
    */
-  void hasWritten(size_t len) {
-    assert(len <= writableBytes());
-    writer_index_ += len;
+  void hasWritten(size_t Len) {
+    assert(Len <= writableBytes());
+    WriterIndex += Len;
   }
 
   /**
@@ -234,9 +234,9 @@ public:
    *
    * @param len The number of bytes to unwrite.
    */
-  void unwrite(size_t len) {
-    assert(len <= readableBytes());
-    writer_index_ -= len;
+  void unwrite(size_t Len) {
+    assert(Len <= readableBytes());
+    WriterIndex -= Len;
   }
 
   /**
@@ -245,11 +245,11 @@ public:
    * @param data A pointer to the data to prepend.
    * @param len The length of the data.
    */
-  void prepend(const void *data, size_t len) {
-    assert(len <= prependableBytes());
-    reader_index_ -= len;
-    const char *d = static_cast<const char *>(data);
-    std::copy(d, d + len, begin() + reader_index_);
+  void prepend(const void *Data, size_t Len) {
+    assert(Len <= prependableBytes());
+    ReaderIndex -= Len;
+    const char *D = static_cast<const char *>(Data);
+    std::copy(D, D + Len, begin() + ReaderIndex);
   }
 
   /**
@@ -257,14 +257,14 @@ public:
    *
    * @param reserve The number of bytes to reserve.
    */
-  void shrink(size_t reserve) {
-    Buffer other;
-    other.ensureWritableBytes(readableBytes() + reserve);
-    other.append(toString());
-    swap(other);
+  void shrink(size_t Reserve) {
+    Buffer Other;
+    Other.ensureWritableBytes(readableBytes() + Reserve);
+    Other.append(toString());
+    swap(Other);
   }
 
-  size_t internalCapacity() const { return buffer_.capacity(); }
+  size_t internalCapacity() const { return Buf.capacity(); }
 
   /**
    * @brief Reads data from a file descriptor into the buffer.
@@ -274,36 +274,36 @@ public:
    *
    * @return The number of bytes read, or -1 in case of error.
    */
-  ssize_t readFd(int fd, int *savedErrno);
+  ssize_t readFd(int Fd, int *SavedErrno);
 
 private:
-  char *begin() { return &*buffer_.begin(); }
-  const char *begin() const { return &*buffer_.begin(); }
+  char *begin() { return &*Buf.begin(); }
+  const char *begin() const { return &*Buf.begin(); }
 
   /**
    * @brief Ensures there is enough space to write data.
    *
    * @param len The number of bytes to ensure space for.
    */
-  void makeSpace(size_t len) {
-    if (writableBytes() + prependableBytes() < len + K_CHEAP_PREPEND) {
-      buffer_.resize(writer_index_ + len);
+  void makeSpace(size_t Len) {
+    if (writableBytes() + prependableBytes() < Len + KCheapPrepend) {
+      Buf.resize(WriterIndex + Len);
     } else {
-      assert(K_CHEAP_PREPEND < reader_index_);
-      size_t readable = readableBytes();
-      std::copy(begin() + reader_index_, begin() + writer_index_,
-                begin() + K_CHEAP_PREPEND);
-      reader_index_ = K_CHEAP_PREPEND;
-      writer_index_ = reader_index_ + readable;
-      assert(readable == readableBytes());
+      assert(KCheapPrepend < ReaderIndex);
+      size_t Readable = readableBytes();
+      std::copy(begin() + ReaderIndex, begin() + WriterIndex,
+                begin() + KCheapPrepend);
+      ReaderIndex = KCheapPrepend;
+      WriterIndex = ReaderIndex + Readable;
+      assert(Readable == readableBytes());
     }
   }
 
-  std::vector<char> buffer_;
-  size_t reader_index_;
-  size_t writer_index_;
+  std::vector<char> Buf;
+  size_t ReaderIndex;
+  size_t WriterIndex;
 
-  static const char K_CRLF[];
+  static const char KCRLF[];
 };
 
 } // namespace lynx

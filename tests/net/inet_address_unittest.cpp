@@ -1,5 +1,5 @@
 #include "lynx/logger/Logging.h"
-#include "lynx/net/inet_address.h"
+#include "lynx/net/InetAddress.h"
 
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK

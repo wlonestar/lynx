@@ -28,8 +28,8 @@ public:
    * callback.
    * @param name The name of the thread. Defaults to an empty string.
    */
-  EventLoopThread(const ThreadInitCallback &cb = ThreadInitCallback(),
-                  const std::string &name = std::string());
+  EventLoopThread(const ThreadInitCallback &Cb = ThreadInitCallback(),
+                  const std::string &Name = std::string());
 
   /**
    * @brief Destructs the EventLoopThread.
@@ -54,12 +54,12 @@ private:
    */
   void threadFunc();
 
-  EventLoop *loop_;
-  bool exiting_;
-  Thread thread_;
-  std::mutex mutex_;
-  std::condition_variable cond_;
-  ThreadInitCallback callback_;
+  EventLoop *Loop;
+  bool Exiting;
+  Thread Thread;
+  std::mutex Mutex;
+  std::condition_variable Cond;
+  ThreadInitCallback Callback;
 };
 
 } // namespace lynx

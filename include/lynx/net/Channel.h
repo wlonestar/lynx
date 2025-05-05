@@ -39,7 +39,7 @@ public:
    * @param loop The EventLoop that this Channel belongs to.
    * @param fd The file descriptor that this Channel will manage.
    */
-  Channel(EventLoop *loop, int fd);
+  Channel(EventLoop *Loop, int Fd);
   ~Channel();
 
   /**
@@ -47,11 +47,11 @@ public:
    *
    * @param receiveTime The timestamp when the event was received.
    */
-  void handleEvent(Timestamp receiveTime);
-  void setReadCallback(ReadEventCallback cb) { read_callback_ = std::move(cb); }
-  void setWriteCallback(EventCallback cb) { write_callback_ = std::move(cb); }
-  void setCloseCallback(EventCallback cb) { close_callback_ = std::move(cb); }
-  void setErrorCallback(EventCallback cb) { error_callback_ = std::move(cb); }
+  void handleEvent(Timestamp ReceiveTime);
+  void setReadCallback(ReadEventCallback Cb) { ReadCallback = std::move(Cb); }
+  void setWriteCallback(EventCallback Cb) { WriteCallback = std::move(Cb); }
+  void setCloseCallback(EventCallback Cb) { CloseCallback = std::move(Cb); }
+  void setErrorCallback(EventCallback Cb) { ErrorCallback = std::move(Cb); }
 
   /**
    * @brief Ties this Channel to a shared object to prevent the object from
@@ -59,74 +59,74 @@ public:
    *
    * @param obj The shared object to tie to this Channel.
    */
-  void tie(const std::shared_ptr<void> &obj);
+  void tie(const std::shared_ptr<void> &Obj);
 
-  int fd() const { return fd_; }
-  int events() const { return events_; }
-  void setRevents(int revt) { revents_ = revt; }
-  bool isNoneEvent() const { return events_ == K_NONE_EVENT; }
+  int fd() const { return Fd; }
+  int events() const { return Events; }
+  void setRevents(int Revt) { Revents = Revt; }
+  bool isNoneEvent() const { return Events == KNoneEvent; }
 
   void enableReading() {
-    events_ |= K_READ_EVENT;
+    Events |= KReadEvent;
     update();
   }
   void disableReading() {
-    events_ &= ~K_READ_EVENT;
+    Events &= ~KReadEvent;
     update();
   }
   void enableWriting() {
-    events_ |= K_WRITE_EVENT;
+    Events |= KWriteEvent;
     update();
   }
   void disableWriting() {
-    events_ &= ~K_WRITE_EVENT;
+    Events &= ~KWriteEvent;
     update();
   }
   void disableAll() {
-    events_ = K_NONE_EVENT;
+    Events = KNoneEvent;
     update();
   }
-  bool isWriting() const { return (events_ & K_WRITE_EVENT) != 0; }
-  bool isReading() const { return (events_ & K_READ_EVENT) != 0; }
+  bool isWriting() const { return (Events & KWriteEvent) != 0; }
+  bool isReading() const { return (Events & KReadEvent) != 0; }
 
-  int index() { return index_; }
-  void setIndex(int idx) { index_ = idx; }
+  int index() { return Index; }
+  void setIndex(int Idx) { Index = Idx; }
 
   std::string reventsToString() const;
   std::string eventsToString() const;
 
-  void doNotLogHup() { log_hup_ = false; }
-  EventLoop *ownerLoop() { return loop_; }
+  void doNotLogHup() { LogHup = false; }
+  EventLoop *ownerLoop() { return Loop; }
 
   /// Removes this channel from the EventLoop.
   void remove();
 
 private:
-  static std::string eventsToString(int fd, int ev);
+  static std::string eventsToString(int Fd, int Ev);
 
   // Update the channel's status in the epoller
   void update();
-  void handleEventWithGuard(Timestamp receiveTime);
+  void handleEventWithGuard(Timestamp ReceiveTime);
 
-  static const int K_NONE_EVENT;
-  static const int K_READ_EVENT;
-  static const int K_WRITE_EVENT;
+  static const int KNoneEvent;
+  static const int KReadEvent;
+  static const int KWriteEvent;
 
-  EventLoop *loop_; // Pointer to the EventLoop this channel belongs to
-  const int fd_;    // File descriptor associated with the channel
-  int events_;      // Events that the channel is interested in
-  int revents_;     // Events that are returned after poll
-  int index_;       // Used by Epoller
-  bool log_hup_;    // Flag to control logging of HUP event
+  EventLoop *Loop; // Pointer to the EventLoop this channel belongs to
+  const int Fd;    // File descriptor associated with the channel
+  int Events;      // Events that the channel is interested in
+  int Revents;     // Events that are returned after poll
+  int Index;       // Used by Epoller
+  bool LogHup;    // Flag to control logging of HUP event
 
-  std::weak_ptr<void> tie_; // Weak pointer to tie the channel to an object
-  bool tied_;
-  bool event_handling_;
-  bool added_to_loop_;
-  ReadEventCallback read_callback_;
-  EventCallback write_callback_;
-  EventCallback close_callback_;
-  EventCallback error_callback_;
+  std::weak_ptr<void> Tie; // Weak pointer to tie the channel to an object
+  bool Tied;
+  bool EventHandling;
+  bool AddedToLoop;
+  ReadEventCallback ReadCallback;
+  EventCallback WriteCallback;
+  EventCallback CloseCallback;
+  EventCallback ErrorCallback;
 };
 
 } // namespace lynx

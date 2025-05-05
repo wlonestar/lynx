@@ -1,6 +1,6 @@
-#include "lynx/net/socket.h"
+#include "lynx/net/Socket.h"
 #include "lynx/logger/Logging.h"
-#include "lynx/net/inet_address.h"
+#include "lynx/net/InetAddress.h"
 
 #include <netinet/in.h>
 #include <unistd.h>

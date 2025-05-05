@@ -1,9 +1,9 @@
 #ifndef LYNX_HTTP_HTTP_SERVER_H
 #define LYNX_HTTP_HTTP_SERVER_H
 
-#include "lynx/net/event_loop.h"
-#include "lynx/net/inet_address.h"
-#include "lynx/net/tcp_server.h"
+#include "lynx/net/EventLoop.h"
+#include "lynx/net/InetAddress.h"
+#include "lynx/net/TcpServer.h"
 
 #include <functional>
 

@@ -1,6 +1,6 @@
 #include "lynx/base/Thread.h"
-#include "lynx/net/event_loop.h"
-#include "lynx/net/event_loop_thread.h"
+#include "lynx/net/EventLoop.h"
+#include "lynx/net/EventLoopThread.h"
 
 void print(lynx::EventLoop *p = nullptr) {
   printf("print: pid = %d, tid = %d, loop = %p\n", getpid(),

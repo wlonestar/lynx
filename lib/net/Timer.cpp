@@ -1,4 +1,4 @@
-#include "lynx/net/timer.h"
+#include "lynx/net/Timer.h"
 
 namespace lynx {
 

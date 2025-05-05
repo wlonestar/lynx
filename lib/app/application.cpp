@@ -1,6 +1,6 @@
 #include "lynx/app/application.h"
 #include "lynx/logger/Logging.h"
-#include "lynx/net/event_loop.h"
+#include "lynx/net/EventLoop.h"
 
 #include <yaml-cpp/yaml.h>
 

@@ -1,7 +1,7 @@
-#include "lynx/net/timer_queue.h"
 #include "lynx/logger/Logging.h"
-#include "lynx/net/event_loop.h"
-#include "lynx/net/timer.h"
+#include "lynx/net/EventLoop.h"
+#include "lynx/net/Timer.h"
+#include "lynx/net/TimerQueue.h"
 
 #include <cassert>
 #include <sys/timerfd.h>

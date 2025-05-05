@@ -1,6 +1,6 @@
 #include "lynx/base/Thread.h"
-#include "lynx/net/event_loop.h"
-#include "lynx/net/event_loop_thread.h"
+#include "lynx/net/EventLoop.h"
+#include "lynx/net/EventLoopThread.h"
 
 int cnt = 0;
 lynx::EventLoop *g_loop;

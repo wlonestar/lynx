@@ -1,7 +1,7 @@
 #ifndef LYNX_NET_EPOLLER_H
 #define LYNX_NET_EPOLLER_H
 
-#include "lynx/net/event_loop.h"
+#include "lynx/net/EventLoop.h"
 
 #include <map>
 #include <sys/epoll.h>
@@ -27,7 +27,7 @@ public:
    *
    * @param loop The EventLoop that manages this Epoller.
    */
-  Epoller(EventLoop *loop);
+  Epoller(EventLoop *Loop);
   ~Epoller();
 
   /**
@@ -38,13 +38,13 @@ public:
    *
    * @return The current time when polling returns.
    */
-  Timestamp poll(int timeoutMs, ChannelList *activeChannels);
+  Timestamp poll(int TimeoutMs, ChannelList *ActiveChannels);
 
   /// Updates or adds a channel to the epoll interest list.
-  void updateChannel(Channel *channel);
+  void updateChannel(Channel *Channel);
 
   /// Removes a channel from the epoll interest list.
-  void removeChannel(Channel *channel);
+  void removeChannel(Channel *Channel);
 
   /**
    * @brief Checks if a channel is in the epoll interest list.
@@ -53,14 +53,14 @@ public:
    *
    * @return True if the channel is in the list, otherwise false.
    */
-  bool hasChannel(Channel *channel) const;
+  bool hasChannel(Channel *Channel) const;
 
-  void assertInLoopThread() const { owner_loop_->assertInLoopThread(); }
+  void assertInLoopThread() const { OwnerLoop->assertInLoopThread(); }
 
 private:
-  static const int K_INIT_EVENT_LIST_SIZE = 16;
+  static const int KInitEventListSize = 16;
 
-  static const char *operationToString(int op);
+  static const char *operationToString(int Op);
 
   /**
    * @brief Fills the active channels list based on the number of events.
@@ -68,7 +68,7 @@ private:
    * @param numEvents The number of events.
    * @param activeChannels The list to store active channels.
    */
-  void fillActiveChannels(int numEvents, ChannelList *activeChannels) const;
+  void fillActiveChannels(int NumEvents, ChannelList *ActiveChannels) const;
 
   /**
    * @brief Updates the epoll interest list with a given operation.
@@ -76,15 +76,15 @@ private:
    * @param operation The epoll operation (e.g., EPOLL_CTL_ADD).
    * @param channel The channel to update.
    */
-  void update(int operation, Channel *channel);
+  void update(int Operation, Channel *Channel);
 
   using ChannelMap = std::map<int, Channel *>;
   using EventList = std::vector<struct epoll_event>;
 
-  EventLoop *owner_loop_;
-  int epollfd_;
-  EventList events_;
-  ChannelMap channels_;
+  EventLoop *OwnerLoop;
+  int Epollfd;
+  EventList Events;
+  ChannelMap Channels;
 };
 
 } // namespace lynx

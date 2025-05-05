@@ -3,7 +3,7 @@
 #include "lynx/http/http_server.h"
 #include "lynx/logger/AsyncLogging.h"
 #include "lynx/logger/Logging.h"
-#include "lynx/net/event_loop.h"
+#include "lynx/net/EventLoop.h"
 
 #include <cstring>
 #include <iostream>

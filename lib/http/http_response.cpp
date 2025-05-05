@@ -1,5 +1,5 @@
 #include "lynx/http/http_response.h"
-#include "lynx/net/buffer.h"
+#include "lynx/net/Buffer.h"
 
 #include <cstdio>
 

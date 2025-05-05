@@ -1,6 +1,6 @@
 #include "lynx/http/http_context.h"
 #include "lynx/http/http_request.h"
-#include "lynx/net/buffer.h"
+#include "lynx/net/Buffer.h"
 
 #include <memory>
 

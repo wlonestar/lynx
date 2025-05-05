@@ -27,7 +27,7 @@ public:
    * @param baseLoop The base EventLoop used to initialize the pool.
    * @param name The name of the thread pool.
    */
-  EventLoopThreadPool(EventLoop *baseLoop, const std::string &name);
+  EventLoopThreadPool(EventLoop *BaseLoop, const std::string &Name);
   ~EventLoopThreadPool();
 
   /**
@@ -35,7 +35,7 @@ public:
    *
    * @param numThreads The number of threads to create in the pool.
    */
-  void setThreadNum(int numThreads) { num_threads_ = numThreads; }
+  void setThreadNum(int NumThrds) { NumThreads = NumThrds; }
 
   /**
    * @brief Starts the thread pool with an optional initialization callback.
@@ -43,7 +43,7 @@ public:
    * @param cb The callback to run when each thread starts. Defaults to an empty
    * callback.
    */
-  void start(const ThreadInitCallback &cb = ThreadInitCallback());
+  void start(const ThreadInitCallback &Cb = ThreadInitCallback());
 
   /**
    * @brief Gets the next EventLoop in a round-robin fashion.
@@ -59,17 +59,17 @@ public:
    */
   std::vector<EventLoop *> getAllLoops();
 
-  bool started() const { return started_; }
-  const std::string &name() const { return name_; }
+  bool started() const { return Started; }
+  const std::string &name() const { return Name; }
 
 private:
-  EventLoop *base_loop_;
-  std::string name_;
-  bool started_;
-  int num_threads_;
-  int next_;
-  std::vector<std::unique_ptr<EventLoopThread>> threads_;
-  std::vector<EventLoop *> loops_;
+  EventLoop *BaseLoop;
+  std::string Name;
+  bool Started;
+  int NumThreads;
+  int Next;
+  std::vector<std::unique_ptr<EventLoopThread>> Threads;
+  std::vector<EventLoop *> Loops;
 };
 
 } // namespace lynx

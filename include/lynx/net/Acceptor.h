@@ -1,8 +1,8 @@
 #ifndef LYNX_NET_ACCEPTOR_H
 #define LYNX_NET_ACCEPTOR_H
 
-#include "lynx/net/channel.h"
-#include "lynx/net/socket.h"
+#include "lynx/net/Channel.h"
+#include "lynx/net/Socket.h"
 
 namespace lynx {
 
@@ -28,28 +28,28 @@ public:
    * @param listenAddr The address to listen on.
    * @param reuseport Whether to enable port reuse.
    */
-  Acceptor(EventLoop *loop, const InetAddress &listenAddr, bool reuseport);
+  Acceptor(EventLoop *Loop, const InetAddress &ListenAddr, bool Reuseport);
   ~Acceptor();
 
   /// Starts listening for incoming connections.
   void listen();
 
-  bool listening() const { return listening_; }
+  bool listening() const { return Listening; }
 
-  void setNewConnectionCallback(const NewConnectionCallback &cb) {
-    new_connection_callback_ = cb;
+  void setNewConnectionCallback(const NewConnectionCallback &Cb) {
+    NewConnectionCb = Cb;
   }
 
 private:
   /// Handles incoming connections.
   void handleRead();
 
-  EventLoop *loop_;
-  Socket accept_socket_;
-  Channel accept_channel_;
-  NewConnectionCallback new_connection_callback_;
-  bool listening_;
-  int idle_fd_;
+  EventLoop *Loop;
+  Socket AcceptSocket;
+  Channel AcceptChannel;
+  NewConnectionCallback NewConnectionCb;
+  bool Listening;
+  int IdleFd;
 };
 
 } // namespace lynx

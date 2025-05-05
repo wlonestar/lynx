@@ -3,7 +3,7 @@
 
 #include "lynx/base/Thread.h"
 #include "lynx/db/Connection.h"
-// #include "lynx/net/event_loop.h"
+// #include "lynx/net/EventLoop.h"
 
 #include <cassert>
 #include <condition_variable>

@@ -94,15 +94,15 @@ FILE(GLOB DB_HEADERS include/lynx/db/*.h)
 FILE(GLOB HTTP_HEADERS include/lynx/http/*.h)
 FILE(GLOB LOGGER_HEADERS include/lynx/logger/*.h)
 set(NET_HEADERS
-  include/lynx/net/buffer.h
-  include/lynx/net/channel.h
-  include/lynx/net/event_loop.h
-  include/lynx/net/event_loop_thread.h
-  include/lynx/net/event_loop_thread_pool.h
-  include/lynx/net/inet_address.h
-  include/lynx/net/tcp_connection.h
-  include/lynx/net/tcp_server.h
-  include/lynx/net/timer_id.h
+  include/lynx/net/Buffer.h
+  include/lynx/net/Channel.h
+  include/lynx/net/EventLoop.h
+  include/lynx/net/EventLoopThread.h
+  include/lynx/net/EventLoopThreadPool.h
+  include/lynx/net/InetAddress.h
+  include/lynx/net/TcpConnection.h
+  include/lynx/net/TcpServer.h
+  include/lynx/net/TimerId.h
   )
 FILE(GLOB ORM_HEADERS include/lynx/orm/*.h)
 FILE(GLOB WEB_HEADERS include/lynx/web/*.h)

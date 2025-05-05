@@ -5,8 +5,8 @@
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
 #include "lynx/http/http_server.h"
-#include "lynx/net/event_loop.h"
-#include "lynx/net/inet_address.h"
+#include "lynx/net/EventLoop.h"
+#include "lynx/net/InetAddress.h"
 
 namespace lynx {
 

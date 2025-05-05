@@ -1,6 +1,6 @@
 #include "lynx/base/Thread.h"
-#include "lynx/net/event_loop.h"
-#include "lynx/net/event_loop_thread_pool.h"
+#include "lynx/net/EventLoop.h"
+#include "lynx/net/EventLoopThreadPool.h"
 
 #include <cassert>
 

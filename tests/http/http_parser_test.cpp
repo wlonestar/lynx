@@ -2,7 +2,7 @@
 #include "lynx/http/http_parser.h"
 #include "lynx/http/http_request.h"
 #include "lynx/logger/Logging.h"
-#include "lynx/net/buffer.h"
+#include "lynx/net/Buffer.h"
 
 void testParseRequestAllInOne() {
   lynx::HttpContext context;

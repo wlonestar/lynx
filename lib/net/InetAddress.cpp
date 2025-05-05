@@ -1,5 +1,5 @@
-#include "lynx/net/inet_address.h"
 #include "lynx/logger/Logging.h"
+#include "lynx/net/InetAddress.h"
 
 #include <arpa/inet.h>
 #include <cassert>
