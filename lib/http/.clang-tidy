@@ -1,6 +1,0 @@
-Checks: "
-  -readability-*,
-  -modernize-*,
-  -bugprone-*
-  "
-InheritParentConfig: true

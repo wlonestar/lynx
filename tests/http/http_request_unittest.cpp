@@ -1,5 +1,5 @@
-#include "lynx/http/http_context.h"
-#include "lynx/http/http_request.h"
+#include "lynx/http/HttpContext.h"
+#include "lynx/http/HttpRequest.h"
 #include "lynx/net/Buffer.h"
 
 #include <memory>

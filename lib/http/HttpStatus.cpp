@@ -1,9 +1,9 @@
-#include "lynx/http/http_status.h"
+#include "lynx/http/HttpStatus.h"
 
 namespace lynx {
 
-const char *statusToString(const HttpStatus &s) {
-  switch (s) {
+const char *statusToString(const HttpStatus &S) {
+  switch (S) {
 #define XX(code, name, msg)                                                    \
   case HttpStatus::name:                                                       \
     return #msg;

@@ -60,7 +60,7 @@ add_subdirectory(examples)
 # Set library source files
 file(GLOB_RECURSE LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp)
 # Generate ragel file
-ragelmaker(include/lynx/http/http_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/http)
+ragelmaker(include/lynx/http/HttpParser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lib/http)
 # Set build library
 add_library(lynx STATIC ${LIB_SRC})
 target_link_libraries(lynx PUBLIC

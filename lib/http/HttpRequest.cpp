@@ -1,4 +1,4 @@
-#include "lynx/http/http_request.h"
+#include "lynx/http/HttpRequest.h"
 
 #include <cstring>
 #include <sstream>
@@ -47,21 +47,21 @@ std::string urlDecode(const std::string &str, bool space_as_plus = true) {
       ss->append(1, *c);
     }
   }
-  if (!ss) {
+
+  if (!ss)
     return str;
-  } else {
-    std::string rt = *ss;
-    delete ss;
-    return rt;
-  }
+
+  std::string rt = *ss;
+  delete ss;
+  return rt;
 }
 
 std::string trim(const std::string &str,
                  const std::string &delimit = " \t\r\n") {
   auto begin = str.find_first_not_of(delimit);
-  if (begin == std::string::npos) {
+  if (begin == std::string::npos)
     return "";
-  }
+
   auto end = str.find_last_not_of(delimit);
   return str.substr(begin, end - begin + 1);
 }
@@ -103,93 +103,93 @@ const char *methodToString(const HttpMethod &m) {
 }
 
 HttpRequest::HttpRequest(uint8_t version, bool close)
-    : method_(HttpMethod::GET), version_(version), close_(close),
-      websocket_(false), parser_param_flag_(0), path_("/") {}
+    : Method(HttpMethod::GET), Version(version), Close(close), Websocket(false),
+      ParserParamFlag(0), Path("/") {}
 
 std::string HttpRequest::getHeader(const std::string &key,
                                    const std::string &def) const {
-  auto it = headers_.find(key);
-  return it == headers_.end() ? def : it->second;
+  auto it = Headers.find(key);
+  return it == Headers.end() ? def : it->second;
 }
 
 std::string HttpRequest::getParam(const std::string &key,
                                   const std::string &def) const {
-  auto it = params_.find(key);
-  return it == params_.end() ? def : it->second;
+  auto it = Params.find(key);
+  return it == Params.end() ? def : it->second;
 }
 
 std::string HttpRequest::getCookie(const std::string &key,
                                    const std::string &def) {
-  auto it = cookies_.find(key);
-  return it == cookies_.end() ? def : it->second;
+  auto it = Cookies.find(key);
+  return it == Cookies.end() ? def : it->second;
 }
 
 void HttpRequest::setHeader(const std::string &key, const std::string &val) {
-  headers_[key] = val;
+  Headers[key] = val;
 }
 
 void HttpRequest::setParam(const std::string &key, const std::string &val) {
-  params_[key] = val;
+  Params[key] = val;
 }
 
 void HttpRequest::setCookie(const std::string &key, const std::string &val) {
-  cookies_[key] = val;
+  Cookies[key] = val;
 }
 
-void HttpRequest::delHeader(const std::string &key) { headers_.erase(key); }
-void HttpRequest::delParam(const std::string &key) { params_.erase(key); }
-void HttpRequest::delCookie(const std::string &key) { cookies_.erase(key); }
+void HttpRequest::delHeader(const std::string &key) { Headers.erase(key); }
+void HttpRequest::delParam(const std::string &key) { Params.erase(key); }
+void HttpRequest::delCookie(const std::string &key) { Cookies.erase(key); }
 
 bool HttpRequest::hasHeader(const std::string &key, std::string *val) {
-  auto it = headers_.find(key);
-  if (it == headers_.end()) {
+  auto it = Headers.find(key);
+  if (it == Headers.end())
     return false;
-  }
-  if (val) {
+
+  if (val)
     *val = it->second;
-  }
+
   return true;
 }
 
 bool HttpRequest::hasParam(const std::string &key, std::string *val) {
-  auto it = params_.find(key);
-  if (it == params_.end()) {
+  auto it = Params.find(key);
+  if (it == Params.end())
     return false;
-  }
-  if (val) {
+
+  if (val)
     *val = it->second;
-  }
+
   return true;
 }
 
 bool HttpRequest::hasCookie(const std::string &key, std::string *val) {
-  auto it = cookies_.find(key);
-  if (it == cookies_.end()) {
+  auto it = Cookies.find(key);
+  if (it == Cookies.end())
     return false;
-  }
-  if (val) {
+
+  if (val)
     *val = it->second;
-  }
+
   return true;
 }
 
 std::ostream &HttpRequest::dump(std::ostream &os) const {
-  os << methodToString(method_) << " " << path_ << (query_.empty() ? "" : "?")
-     << query_ << (fragment_.empty() ? "" : "#") << fragment_ << " HTTP/"
-     << (static_cast<uint32_t>(version_ >> 4)) << "."
-     << (static_cast<uint32_t>(version_ & 0x0F)) << "\r\n";
-  if (!websocket_) {
-    os << "connection: " << (close_ ? "close" : "keep-alive") << "\r\n";
-  }
-  for (auto &i : headers_) {
-    if (!websocket_ && strcasecmp(i.first.c_str(), "connection") == 0) {
+  os << methodToString(Method) << " " << Path << (Query.empty() ? "" : "?")
+     << Query << (Fragment.empty() ? "" : "#") << Fragment << " HTTP/"
+     << (static_cast<uint32_t>(Version >> 4)) << "."
+     << (static_cast<uint32_t>(Version & 0x0F)) << "\r\n";
+  if (!Websocket)
+    os << "connection: " << (Close ? "close" : "keep-alive") << "\r\n";
+
+  for (auto &i : Headers) {
+    if (!Websocket && strcasecmp(i.first.c_str(), "connection") == 0)
       continue;
-    }
+
     os << i.first << ": " << i.second << "\r\n";
   }
 
-  if (!body_.empty()) {
-    os << "content-length: " << body_.size() << "\r\n\r\n" << body_;
+  if (!Body.empty()) {
+    os << "content-length: " << Body.size() << "\r\n\r\n" << Body;
   } else {
     os << "\r\n";
   }
@@ -222,38 +222,38 @@ std::string HttpRequest::toString() const {
   } while (true);
 
 void HttpRequest::initQueryParam() {
-  if (parser_param_flag_ & 0x1) {
+  if (ParserParamFlag & 0x1)
     return;
-  }
-  PARSE_PARAM(query_, params_, '&', );
-  parser_param_flag_ |= 0x1;
+
+  PARSE_PARAM(Query, Params, '&', );
+  ParserParamFlag |= 0x1;
 }
 
 void HttpRequest::initBodyParam() {
-  if (parser_param_flag_ & 0x2) {
+  if (ParserParamFlag & 0x2)
     return;
-  }
+
   std::string content_type = getHeader("content-type");
   if (strcasestr(content_type.c_str(), "application/x-www-form-urlencoded") ==
       nullptr) {
-    parser_param_flag_ |= 0x2;
+    ParserParamFlag |= 0x2;
     return;
   }
-  PARSE_PARAM(body_, params_, '&', );
-  parser_param_flag_ |= 0x2;
+  PARSE_PARAM(Body, Params, '&', );
+  ParserParamFlag |= 0x2;
 }
 
 void HttpRequest::initCookies() {
-  if (parser_param_flag_ & 0x4) {
+  if (ParserParamFlag & 0x4)
     return;
-  }
+
   std::string cookie = getHeader("cookie");
   if (cookie.empty()) {
-    parser_param_flag_ |= 0x4;
+    ParserParamFlag |= 0x4;
     return;
   }
-  PARSE_PARAM(cookie, cookies_, ';', lynx::detail::trim);
-  parser_param_flag_ |= 0x4;
+  PARSE_PARAM(cookie, Cookies, ';', lynx::detail::trim);
+  ParserParamFlag |= 0x4;
 }
 
 } // namespace lynx

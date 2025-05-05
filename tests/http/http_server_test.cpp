@@ -1,6 +1,6 @@
-#include "lynx/http/http_request.h"
-#include "lynx/http/http_response.h"
-#include "lynx/http/http_server.h"
+#include "lynx/http/HttpRequest.h"
+#include "lynx/http/HttpResponse.h"
+#include "lynx/http/HttpServer.h"
 #include "lynx/logger/AsyncLogging.h"
 #include "lynx/logger/Logging.h"
 #include "lynx/net/EventLoop.h"
@@ -28,7 +28,7 @@ void setupRoutes();
 
 void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
 
-using HttpHandler = lynx::HttpServer::HttpCallback;
+using HttpHandler = lynx::HttpServer::HttpCallbackTy;
 
 inline std::map<std::pair<lynx::HttpMethod, std::string>, HttpHandler>
     g_route_table;

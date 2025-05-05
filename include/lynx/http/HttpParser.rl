@@ -32,7 +32,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "lynx/http/http_parser.h"
+#include "lynx/http/HttpParser.h"
 
 #include <cstdio>
 #include <cassert>
@@ -56,73 +56,73 @@ using namespace lynx;
   
   machine http_parser;
 
-  action mark { MARK(mark_, fpc); }
+  action mark { MARK(Mark, fpc); }
 
-  action start_field { MARK(field_start_, fpc); }
+  action start_field { MARK(FieldStart, fpc); }
   action write_field { 
-    field_len_ = LEN(field_start_, fpc);
+    FieldLen = LEN(FieldStart, fpc);
   }
 
-  action start_value { MARK(mark_, fpc); }
+  action start_value { MARK(Mark, fpc); }
 
   action write_value {
-    if(http_field_ != NULL) {
-      http_field_(data_, PTR_TO(field_start_), field_len_, PTR_TO(mark_), LEN(mark_, fpc));
+    if(HttpField != NULL) {
+      HttpField(Data, PTR_TO(FieldStart), FieldLen, PTR_TO(Mark), LEN(Mark, fpc));
     }
   }
 
   action request_method { 
-    if(request_method_ != NULL) 
-      request_method_(data_, PTR_TO(mark_), LEN(mark_, fpc));
+    if(RequestMethod != NULL) 
+      RequestMethod(Data, PTR_TO(Mark), LEN(Mark, fpc));
   }
 
   action request_uri { 
-    if(request_uri_ != NULL)
-      request_uri_(data_, PTR_TO(mark_), LEN(mark_, fpc));
+    if(RequestUri != NULL)
+      RequestUri(Data, PTR_TO(Mark), LEN(Mark, fpc));
   }
 
   action fragment {
-    if(fragment_ != NULL)
-      fragment_(data_, PTR_TO(mark_), LEN(mark_, fpc));
+    if(Fragment != NULL)
+      Fragment(Data, PTR_TO(Mark), LEN(Mark, fpc));
   }
 
-  action start_query {MARK(query_start_, fpc); }
+  action start_query {MARK(QueryStart, fpc); }
   action query_string { 
-    if(query_string_ != NULL)
-      query_string_(data_, PTR_TO(query_start_), LEN(query_start_, fpc));
+    if(QueryString != NULL)
+      QueryString(Data, PTR_TO(QueryStart), LEN(QueryStart, fpc));
   }
 
   action http_version {	
-    if(http_version_ != NULL)
-      http_version_(data_, PTR_TO(mark_), LEN(mark_, fpc));
+    if(HttpVersion != NULL)
+      HttpVersion(Data, PTR_TO(Mark), LEN(Mark, fpc));
   }
 
   action request_path {
-    if(request_path_ != NULL)
-      request_path_(data_, PTR_TO(mark_), LEN(mark_,fpc));
+    if(RequestPath != NULL)
+      RequestPath(Data, PTR_TO(Mark), LEN(Mark,fpc));
   }
 
   action done {
-      if(xml_sent_ || json_sent_) {
-        body_start_ = PTR_TO(mark_) - buffer;
+      if(XmlSent || JsonSent) {
+        BodyStart = PTR_TO(Mark) - buffer;
         // +1 includes the \0
-        content_len_ = fpc - buffer - body_start_ + 1;
+        ContentLen = fpc - buffer - BodyStart + 1;
       } else {
-        body_start_ = fpc - buffer + 1;
+        BodyStart = fpc - buffer + 1;
 
-        if(header_done_ != NULL) {
-          header_done_(data_, fpc + 1, pe - fpc - 1);
+        if(HeaderDone != NULL) {
+          HeaderDone(Data, fpc + 1, pe - fpc - 1);
         }
       }
     fbreak;
   }
 
   action xml {
-      xml_sent_ = 1;
+      XmlSent = 1;
   }
 
   action json {
-      json_sent_ = 1;
+      JsonSent = 1;
   }
 
 
@@ -131,7 +131,7 @@ using namespace lynx;
 
   # URI description as per RFC 3986.
 
-  more_delims   = ( "{" | "}" | "^" ) when { uri_relaxed_ } ;
+  more_delims   = ( "{" | "}" | "^" ) when { UriRelaxed } ;
   sub_delims    = ( "!" | "$" | "&" | "'" | "(" | ")" | "*"
                   | "+" | "," | ";" | "=" | more_delims ) ;
   gen_delims    = ( ":" | "/" | "?" | "#" | "[" | "]" | "@" ) ;
@@ -267,15 +267,15 @@ main := (Request | SocketRequest) @done;
 int HttpParser::init() {
   int cs = 0;
   %% write init;
-  cs_ = cs;
-  body_start_ = 0;
-  content_len_ = 0;
-  mark_ = 0;
-  nread_ = 0;
-  field_len_ = 0;
-  field_start_ = 0;
-  xml_sent_ = 0;
-  json_sent_ = 0;
+  CS = cs;
+  BodyStart = 0;
+  ContentLen = 0;
+  Mark = 0;
+  Nread = 0;
+  FieldLen = 0;
+  FieldStart = 0;
+  XmlSent = 0;
+  JsonSent = 0;
   return(1);
 }
 
@@ -291,13 +291,13 @@ int HttpParser::finish() {
 
 size_t HttpParser::execute(const char *buffer, size_t len, size_t off) {
   if(len == 0) return 0;
-  nread_ = 0;
-  mark_ = 0;
-  field_len_ = 0;
-  field_start_ = 0;
+  Nread = 0;
+  Mark = 0;
+  FieldLen = 0;
+  FieldStart = 0;
  
   const char *p, *pe;
-  int cs = cs_;
+  int cs = CS;
 
   assert(off <= len && "offset past end of buffer");
 
@@ -311,26 +311,26 @@ size_t HttpParser::execute(const char *buffer, size_t len, size_t off) {
   assert(p <= pe && "Buffer overflow after parsing.");
 
   if (!hasError()) {
-      cs_ = cs;
+      CS = cs;
   }
 
-  nread_ += p - (buffer + off);
+  Nread += p - (buffer + off);
 
-  assert(nread_ <= len && "nread longer than length");
-  assert(body_start_ <= len && "body starts after buffer end");
-  assert(mark_ < len && "mark is after buffer end");
-  assert(field_len_ <= len && "field has length longer than whole buffer");
-  assert(field_start_ < len && "field starts after buffer end");
+  assert(Nread <= len && "nread longer than length");
+  assert(BodyStart <= len && "body starts after buffer end");
+  assert(Mark < len && "mark is after buffer end");
+  assert(FieldLen <= len && "field has length longer than whole buffer");
+  assert(FieldStart < len && "field starts after buffer end");
 
-  return(nread_);
+  return(Nread);
 }
 
 int HttpParser::hasError() {
-  return cs_ == http_parser_error;
+  return CS == http_parser_error;
 }
 
 bool HttpParser::isFinished() {
-  return cs_ >= http_parser_first_final;
+  return CS >= http_parser_first_final;
 }
 
 #pragma clang diagnostic pop

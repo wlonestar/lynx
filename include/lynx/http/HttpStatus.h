@@ -70,7 +70,7 @@ enum class HttpStatus {
 #undef XX
 };
 
-const char *statusToString(const HttpStatus &s);
+const char *statusToString(const HttpStatus &S);
 
 } // namespace lynx
 

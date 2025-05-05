@@ -1,8 +1,8 @@
 #ifndef LYNX_HTTP_HTTP_CONTEXT_H
 #define LYNX_HTTP_HTTP_CONTEXT_H
 
-#include "lynx/http/http_parser.h"
-#include "lynx/http/http_request.h"
+#include "lynx/http/HttpParser.h"
+#include "lynx/http/HttpRequest.h"
 
 namespace lynx {
 
@@ -25,7 +25,7 @@ public:
    * @param len Length of the request data.
    * @return True if the request is parsed successfully, false otherwise.
    */
-  bool parseRequest(char *data, size_t len);
+  bool parseRequest(char *Data, size_t Len);
 
   /// Checks if the parsing of the HTTP request is finished.
   bool isFinished();
@@ -34,15 +34,15 @@ public:
   bool hasError();
 
   /// Returns a reference to the HttpRequest object.
-  HttpRequest &request() { return request_; }
+  HttpRequest &request() { return Request; }
 
   /// Returns a reference to the HttpParser object.
-  HttpParser &parser() { return parser_; }
+  HttpParser &parser() { return Parser; }
 
 private:
-  HttpRequest request_;
-  HttpParser parser_;
-  int error_;
+  HttpRequest Request;
+  HttpParser Parser;
+  int Error;
 };
 
 } // namespace lynx

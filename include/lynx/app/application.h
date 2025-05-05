@@ -2,9 +2,9 @@
 #define LYNX_APP_APPLICATION_H
 
 #include "lynx/db/ConnectionPool.h"
-#include "lynx/http/http_request.h"
-#include "lynx/http/http_response.h"
-#include "lynx/http/http_server.h"
+#include "lynx/http/HttpRequest.h"
+#include "lynx/http/HttpResponse.h"
+#include "lynx/http/HttpServer.h"
 #include "lynx/net/EventLoop.h"
 #include "lynx/net/InetAddress.h"
 

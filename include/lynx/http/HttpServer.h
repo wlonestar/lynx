@@ -20,7 +20,7 @@ class HttpResponse;
  */
 class HttpServer {
 public:
-  using HttpCallback = std::function<void(const HttpRequest &, HttpResponse *)>;
+  using HttpCallbackTy = std::function<void(const HttpRequest &, HttpResponse *)>;
 
   /**
    * @brief Constructor for HttpServer
@@ -31,30 +31,30 @@ public:
    * @param option TcpServer options, specifying whether the port can be reused,
    * etc.
    */
-  HttpServer(EventLoop *loop, const InetAddress &listenAddr,
-             const std::string &name,
-             TcpServer::Option option = TcpServer::NO_REUSE_PORT);
+  HttpServer(EventLoop *Loop, const InetAddress &ListenAddr,
+             const std::string &Name,
+             TcpServer::Option Option = TcpServer::NO_REUSE_PORT);
 
-  EventLoop *getLoop() const { return server_.getLoop(); }
+  EventLoop *getLoop() const { return Server.getLoop(); }
 
-  void setHttpCallback(const HttpCallback &cb) { http_callback_ = cb; }
-  void setThreadNum(int numThreads) { server_.setThreadNum(numThreads); }
+  void setHttpCallback(const HttpCallbackTy &Cb) { HttpCallback = Cb; }
+  void setThreadNum(int NumThreads) { Server.setThreadNum(NumThreads); }
 
   void start();
 
 private:
   /// Called when a new TCP connection is established
-  void onConnection(const TcpConnectionPtr &conn);
+  void onConnection(const TcpConnectionPtr &Conn);
 
   /// Called when data is received on a TCP connection
-  void onMessage(const TcpConnectionPtr &conn, Buffer *buf,
-                 Timestamp receiveTime);
+  void onMessage(const TcpConnectionPtr &Conn, Buffer *Buf,
+                 Timestamp ReceiveTime);
 
   /// Called when an HTTP request is received on a TCP connection
-  void onRequest(const TcpConnectionPtr &conn, const HttpRequest &req);
+  void onRequest(const TcpConnectionPtr &Conn, const HttpRequest &Req);
 
-  TcpServer server_;
-  HttpCallback http_callback_;
+  TcpServer Server;
+  HttpCallbackTy HttpCallback;
 };
 
 } // namespace lynx

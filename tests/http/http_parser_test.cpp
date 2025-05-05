@@ -1,6 +1,6 @@
-#include "lynx/http/http_context.h"
-#include "lynx/http/http_parser.h"
-#include "lynx/http/http_request.h"
+#include "lynx/http/HttpContext.h"
+#include "lynx/http/HttpParser.h"
+#include "lynx/http/HttpRequest.h"
 #include "lynx/logger/Logging.h"
 #include "lynx/net/Buffer.h"
 
