@@ -28,7 +28,7 @@ public:
    * @param filename The name of the configuration file. If empty, a default
    * configuration is used.
    */
-  explicit Application(const std::string &filename = "");
+  explicit Application(const std::string &Filename = "");
   ~Application();
 
   /**
@@ -56,8 +56,8 @@ public:
    * @param path The URL path of the route.
    * @param handler The handler function for the route.
    */
-  void addRoute(const std::string &method, const std::string &path,
-                HttpHandler handler);
+  void addRoute(const std::string &Method, const std::string &Path,
+                HttpHandler Handler);
 
   /// Print the route table.
   void printRouteTable();
@@ -68,7 +68,7 @@ private:
    *
    * @param filePath The path of the configuration file.
    */
-  void loadConfig(const std::string &filePath);
+  void loadConfig(const std::string &FilePath);
 
   /**
    * @brief Implement the processing of matching and calling http handler, call
@@ -77,17 +77,17 @@ private:
    * @param req The HTTP request.
    * @param resp The HTTP response.
    */
-  void onRequest(const lynx::HttpRequest &req, lynx::HttpResponse *resp);
+  void onRequest(const lynx::HttpRequest &Req, lynx::HttpResponse *Resp);
 
-  EventLoop *loop_;                      /// Event loop for the application.
-  std::unique_ptr<HttpServer> server_;   /// HTTP server of the application.
-  std::unique_ptr<ConnectionPool> pool_; /// Connection pool of the application.
+  EventLoop *Loop;                      /// Event loop for the application.
+  std::unique_ptr<HttpServer> Server;   /// HTTP server of the application.
+  std::unique_ptr<ConnectionPool> Pool; /// Connection pool of the application.
 
-  using ConfigMap = std::map<std::string, std::map<std::string, std::string>>;
+  using ConfigMapTy = std::map<std::string, std::map<std::string, std::string>>;
   using RouteMap = std::map<std::pair<HttpMethod, std::string>, HttpHandler>;
 
-  ConfigMap config_map_; /// The configuration map loaded from file.
-  RouteMap route_table_; /// The route table for handling HTTP requests.
+  ConfigMapTy ConfigMap; /// The configuration map loaded from file.
+  RouteMap RouteTable; /// The route table for handling HTTP requests.
 };
 
 } // namespace lynx

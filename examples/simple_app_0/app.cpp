@@ -1,4 +1,4 @@
-#include "lynx/app/application.h"
+#include "lynx/app/Application.h"
 
 int main() {
   /// Create app.

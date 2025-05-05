@@ -1,4 +1,4 @@
-#include "lynx/app/application.h"
+#include "lynx/app/Application.h"
 #include "lynx/logger/AsyncLogging.h"
 
 extern unsigned char favicon_jpg[];

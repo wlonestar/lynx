@@ -1,7 +1,7 @@
-#include "lynx/app/application.h"
-#include "lynx/web/base_controller.h"
-#include "lynx/web/base_repository.h"
-#include "lynx/web/common_result.h"
+#include "lynx/app/Application.h"
+#include "lynx/web/BaseController.h"
+#include "lynx/web/BaseRepository.h"
+#include "lynx/web/CommonResult.h"
 
 enum Gender : int {
   Male,
@@ -53,7 +53,7 @@ public:
       : lynx::BaseRepository<Student, uint64_t>(pool) {}
 
   std::vector<Student> selectAll() {
-    auto conn = pool_.acquire();
+    auto conn = Pool.acquire();
     auto students = conn->query<Student, uint64_t>().toVector();
     return students;
   }

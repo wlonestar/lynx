@@ -1,6 +1,6 @@
 #include "student.h"
 
-#include "lynx/app/application.h"
+#include "lynx/app/Application.h"
 
 /// For favicon
 extern unsigned char favicon_jpg[];

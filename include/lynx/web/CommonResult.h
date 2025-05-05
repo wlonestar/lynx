@@ -57,8 +57,8 @@ void from_json(const json &j, Result<T> &result) {
  * @return The created Result object.
  */
 template <typename T>
-Result<T> makeOkResult(const std::string &message, const T &data) {
-  return lynx::Result<T>{200, message, data};
+Result<T> makeOkResult(const std::string &Message, const T &Data) {
+  return lynx::Result<T>{200, Message, Data};
 }
 
 /**
@@ -68,9 +68,9 @@ Result<T> makeOkResult(const std::string &message, const T &data) {
  * @param hint A hint to provide more information about the error.
  * @return The created Result object.
  */
-Result<std::string> makeErrorResult(const std::string &message,
-                                    const std::string &hint) {
-  return lynx::Result<std::string>{400, message, hint};
+inline Result<std::string> makeErrorResult(const std::string &Message,
+                                           const std::string &Hint) {
+  return lynx::Result<std::string>{400, Message, Hint};
 }
 
 } // namespace lynx

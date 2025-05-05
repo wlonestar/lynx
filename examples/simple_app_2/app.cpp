@@ -1,4 +1,4 @@
-#include "lynx/app/application.h"
+#include "lynx/app/Application.h"
 
 enum Gender : int {
   Male,
