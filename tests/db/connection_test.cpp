@@ -1,4 +1,4 @@
-#include "lynx/db/connection.h"
+#include "lynx/db/Connection.h"
 #include "lynx/logger/Logging.h"
 #include "lynx/orm/KeyUtil.h"
 

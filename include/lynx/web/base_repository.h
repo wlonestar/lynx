@@ -1,7 +1,7 @@
 #ifndef LYNX_WEB_BASE_REPOSITORY_H
 #define LYNX_WEB_BASE_REPOSITORY_H
 
-#include "lynx/db/connection_pool.h"
+#include "lynx/db/ConnectionPool.h"
 
 #include <optional>
 

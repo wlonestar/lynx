@@ -1,7 +1,7 @@
 #ifndef LYNX_APP_APPLICATION_H
 #define LYNX_APP_APPLICATION_H
 
-#include "lynx/db/connection_pool.h"
+#include "lynx/db/ConnectionPool.h"
 #include "lynx/http/http_request.h"
 #include "lynx/http/http_response.h"
 #include "lynx/http/http_server.h"

@@ -2,8 +2,8 @@
 #define LYNX_DB_CONNECTION_POOL_H
 
 #include "lynx/base/Thread.h"
-#include "lynx/db/connection.h"
-#include "lynx/net/event_loop.h"
+#include "lynx/db/Connection.h"
+// #include "lynx/net/event_loop.h"
 
 #include <cassert>
 #include <condition_variable>
@@ -36,25 +36,25 @@ struct ConnectionPoolConfig {
    * @param timeout The connection timeout
    * @param maxIdleTime The maximum idle time
    */
-  ConnectionPoolConfig(const std::string &host, uint16_t port,
-                       const std::string &user, const std::string &password,
-                       const std::string &dbname, size_t minSize,
-                       size_t maxSize, size_t timeout, size_t maxIdleTime)
-      : host_(host), port_(port), user_(user), password_(password),
-        dbname_(dbname), min_size_(minSize), max_size_(maxSize),
-        timeout_(timeout), max_idle_time_(maxIdleTime) {
-    assert(minSize <= maxSize);
+  ConnectionPoolConfig(const std::string &Host, uint16_t Port,
+                       const std::string &User, const std::string &Password,
+                       const std::string &Dbname, size_t MinSize,
+                       size_t MaxSize, size_t Timeout, size_t MaxIdleTime)
+      : Host(Host), Port(Port), User(User), Password(Password), Dbname(Dbname),
+        MinSize(MinSize), MaxSize(MaxSize), Timeout(Timeout),
+        MaxIdleTime(MaxIdleTime) {
+    assert(MinSize <= MaxSize);
   }
 
-  std::string host_;
-  uint16_t port_;
-  std::string user_;
-  std::string password_;
-  std::string dbname_;
-  size_t min_size_;
-  size_t max_size_;
-  size_t timeout_;
-  size_t max_idle_time_;
+  std::string Host;
+  uint16_t Port;
+  std::string User;
+  std::string Password;
+  std::string Dbname;
+  size_t MinSize;
+  size_t MaxSize;
+  size_t Timeout;
+  size_t MaxIdleTime;
 };
 
 /**
@@ -73,8 +73,8 @@ public:
    * @param config The configuration for the connection pool
    * @param name The name of the connection pool
    */
-  explicit ConnectionPool(ConnectionPoolConfig &config,
-                          const std::string &name = "ConnectionPool");
+  explicit ConnectionPool(ConnectionPoolConfig &Config,
+                          const std::string &Name = "ConnectionPool");
   ~ConnectionPool();
 
   /**
@@ -134,19 +134,19 @@ private:
    */
   void addConnection();
 
-  ConnectionPoolConfig config_;
-  std::string name_;
+  ConnectionPoolConfig Config;
+  std::string Name;
 
-  size_t curr_size_{};
-  std::queue<Connection *> queue_;
-  std::mutex mutex_;
-  std::condition_variable cond_;
+  size_t CurrSize{};
+  std::queue<Connection *> Queue;
+  std::mutex Mutex;
+  std::condition_variable Cond;
 
-  Thread produce_thread_;
-  Thread recycle_thread_;
-  std::latch latch_;
+  Thread ProduceThread;
+  Thread RecycleThread;
+  std::latch Latch;
 
-  bool running_ = false;
+  bool Running = false;
 };
 
 } // namespace lynx
